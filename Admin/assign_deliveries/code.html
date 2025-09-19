@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Assign Deliveries</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#1975d2",
+            "background-light": "#f6f7f8",
+            "background-dark": "#111921",
+            "surface-light": "#ffffff",
+            "surface-dark": "#1a2530",
+            "on-surface-light": "#0e141b",
+            "on-surface-dark": "#e1e3e6",
+            "on-surface-variant-light": "#4f7396",
+            "on-surface-variant-dark": "#a1b1c2",
+            "outline-light": "#d0dbe6",
+            "outline-dark": "#404b5a",
+          },
+          fontFamily: {
+            "display": ["Manrope", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.75rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+          boxShadow: {
+            'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a1b1c2' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-on-surface-light dark:text-on-surface-dark">
+<div class="max-w-md mx-auto">
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+<div class="flex items-center p-4">
+<button class="p-2 -ml-2 text-on-surface-light dark:text-on-surface-dark">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+</button>
+<h1 class="flex-1 text-lg font-bold text-center">Assign Deliveries</h1>
+<div class="w-8"></div>
+</div>
+</header>
+<main class="p-4 space-y-6">
+<div class="p-4 bg-surface-light dark:bg-surface-dark rounded-lg shadow-subtle">
+<div class="flex items-start gap-4">
+<div class="flex-1">
+<p class="text-sm font-medium text-on-surface-variant-light dark:text-on-surface-variant-dark">Order #12345</p>
+<p class="mt-1 text-base font-bold text-on-surface-light dark:text-on-surface-dark">123 Elm Street</p>
+<p class="mt-1 text-sm text-on-surface-variant-light dark:text-on-surface-variant-dark">2 items • $25.50</p>
+</div>
+</div>
+<div class="mt-4">
+<label class="sr-only" for="staff-1">Delivery Staff</label>
+<select class="w-full h-12 px-4 text-base bg-background-light dark:bg-background-dark border border-outline-light dark:border-outline-dark rounded-lg appearance-none form-select focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-on-surface-light dark:text-on-surface-dark placeholder:text-on-surface-variant-light dark:placeholder:text-on-surface-variant-dark" id="staff-1">
+<option>Select Delivery Staff</option>
+<option>John Doe</option>
+<option>Jane Smith</option>
+</select>
+</div>
+<div class="flex items-center justify-between mt-4">
+<button class="px-6 py-2 text-sm font-bold border rounded-full text-primary border-primary hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            View Details
+          </button>
+<button class="px-6 py-2 text-sm font-bold text-white bg-primary rounded-full shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-primary/50 disabled:cursor-not-allowed" disabled="">
+            Assign
+          </button>
+</div>
+</div>
+<div class="p-4 bg-surface-light dark:bg-surface-dark rounded-lg shadow-subtle">
+<div class="flex items-start gap-4">
+<div class="flex-1">
+<p class="text-sm font-medium text-on-surface-variant-light dark:text-on-surface-variant-dark">Order #67890</p>
+<p class="mt-1 text-base font-bold text-on-surface-light dark:text-on-surface-dark">456 Oak Avenue</p>
+<p class="mt-1 text-sm text-on-surface-variant-light dark:text-on-surface-variant-dark">3 items • $38.75</p>
+</div>
+</div>
+<div class="mt-4">
+<label class="sr-only" for="staff-2">Delivery Staff</label>
+<select class="w-full h-12 px-4 text-base bg-background-light dark:bg-background-dark border border-outline-light dark:border-outline-dark rounded-lg appearance-none form-select focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-on-surface-light dark:text-on-surface-dark placeholder:text-on-surface-variant-light dark:placeholder:text-on-surface-variant-dark" id="staff-2">
+<option>Select Delivery Staff</option>
+<option>John Doe</option>
+<option>Jane Smith</option>
+</select>
+</div>
+<div class="flex items-center justify-between mt-4">
+<button class="px-6 py-2 text-sm font-bold border rounded-full text-primary border-primary hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            View Details
+          </button>
+<button class="px-6 py-2 text-sm font-bold text-white bg-primary rounded-full shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-primary/50 disabled:cursor-not-allowed">
+            Assign
+          </button>
+</div>
+</div>
+<div class="p-4 bg-surface-light dark:bg-surface-dark rounded-lg shadow-subtle">
+<div class="flex items-start gap-4">
+<div class="flex-1">
+<p class="text-sm font-medium text-on-surface-variant-light dark:text-on-surface-variant-dark">Order #24680</p>
+<p class="mt-1 text-base font-bold text-on-surface-light dark:text-on-surface-dark">789 Pine Lane</p>
+<p class="mt-1 text-sm text-on-surface-variant-light dark:text-on-surface-variant-dark">1 item • $12.99</p>
+</div>
+</div>
+<div class="mt-4">
+<label class="sr-only" for="staff-3">Delivery Staff</label>
+<select class="w-full h-12 px-4 text-base bg-background-light dark:bg-background-dark border border-outline-light dark:border-outline-dark rounded-lg appearance-none form-select focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-on-surface-light dark:text-on-surface-dark placeholder:text-on-surface-variant-light dark:placeholder:text-on-surface-variant-dark" id="staff-3">
+<option>Select Delivery Staff</option>
+<option>John Doe</option>
+<option>Jane Smith</option>
+</select>
+</div>
+<div class="flex items-center justify-between mt-4">
+<button class="px-6 py-2 text-sm font-bold border rounded-full text-primary border-primary hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            View Details
+          </button>
+<button class="px-6 py-2 text-sm font-bold text-white bg-primary rounded-full shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-primary/50 disabled:cursor-not-allowed" disabled="">
+            Assign
+          </button>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

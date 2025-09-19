@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Settings</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style type="text/tailwindcss">
+    :root {
+      --primary-color: #1976D2;
+      --background-light: #F8F9FA;
+      --background-dark: #121212;
+      --card-light: #FFFFFF;
+      --card-dark: #1E1E1E;
+      --text-light: #212529;
+      --text-dark: #EAEAEA;
+      --text-muted-light: #6C757D;
+      --text-muted-dark: #9E9E9E;
+    }
+    body {
+        font-family: 'Work Sans', sans-serif;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+    }
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: var(--primary-color);
+    }
+    input:checked + .slider:before {
+        transform: translateX(20px);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+<div class="flex h-screen flex-col" x-data="{ universalTax: false }">
+<header class="sticky top-0 z-10 flex items-center border-b border-gray-200/50 bg-background-light/90 p-4 backdrop-blur-sm dark:border-gray-800/50 dark:bg-background-dark/90">
+<button class="text-gray-600 dark:text-gray-400">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h1 class="flex-1 text-center text-xl font-bold">Admin Settings</h1>
+<div class="w-8"></div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 md:p-6">
+<div class="mx-auto max-w-2xl space-y-8">
+<section class="rounded-xl bg-card-light p-6 shadow-md dark:bg-card-dark">
+<h2 class="text-lg font-semibold">Restaurant Details</h2>
+<div class="mt-6 space-y-6">
+<div>
+<label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark" for="restaurant-name">Restaurant Name</label>
+<input class="mt-2 block w-full rounded-lg border-gray-300 bg-gray-50 p-3 text-sm focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" id="restaurant-name" type="text" value="The Gourmet Kitchen"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark">Restaurant Logo</label>
+<div class="mt-2 flex items-center space-x-4">
+<img alt="Restaurant Logo" class="h-20 w-20 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ3R2t7fTjH2gJ49T1G7e8-Fd6dG_U-Uu5aVUn_N4a-gB4tE2pM_w_z0o2jY7lX7-l-Z5rF2pC3qN1aW9a_bJ4cK5tH6gR-nO7pM_t-y-s-w-a-r-d-e-d-b-y-g-o-o-g-l-e"/>
+<button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-text-light hover:bg-gray-50 dark:border-gray-600 dark:text-text-dark dark:hover:bg-gray-700">
+                Change Logo
+              </button>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="rounded-lg bg-[var(--primary-color)] px-6 py-3 text-sm font-bold text-white shadow-md transition-transform hover:scale-105 hover:bg-opacity-90">
+            Save Changes
+          </button>
+</div>
+</section>
+<section class="rounded-xl bg-card-light p-6 shadow-md dark:bg-card-dark">
+<h2 class="text-lg font-semibold">Tax Settings</h2>
+<div class="mt-6 space-y-6">
+<div class="flex items-center justify-between">
+<label class="text-base font-medium" for="universal-tax-toggle">Activate Universal Tax</label>
+<label class="switch">
+<input id="universal-tax-toggle" type="checkbox" x-model="universalTax"/>
+<span class="slider"></span>
+</label>
+</div>
+<div class="space-y-4" x-show="universalTax" x-transition:enter="transition ease-out duration-300" x-transition:enter-end="opacity-100 translate-y-0" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 -translate-y-2" x-transition:leave-start="opacity-100 translate-y-0">
+<div>
+<label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark" for="universal-tax-percentage">Universal Tax Percentage (%)</label>
+<div class="relative mt-2">
+<input :disabled="!universalTax" class="block w-full rounded-lg border-gray-300 bg-gray-50 p-3 pl-10 text-sm focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" id="universal-tax-percentage" placeholder="e.g., 8.5" type="number"/>
+<span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-text-muted-light dark:text-text-muted-dark">
+<span class="material-symbols-outlined text-base">percent</span>
+</span>
+</div>
+</div>
+<div class="rounded-lg bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+<p>When universal tax is active, individual item tax fields in the <span class="font-semibold">Menu Management</span> screen will be disabled and this rate will be applied to all items.</p>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="rounded-lg bg-[var(--primary-color)] px-6 py-3 text-sm font-bold text-white shadow-md transition-transform hover:scale-105 hover:bg-opacity-90">
+      Save Changes
+    </button>
+</div>
+</section>
+</div>
+</main>
+</div>
+
+</body></html>

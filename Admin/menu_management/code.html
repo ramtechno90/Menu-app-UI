@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manage Menu</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1d75cd",
+            "background-light": "#f6f7f8",
+            "background-dark": "#111921",
+          },
+          fontFamily: {
+            display: ["Work Sans"],
+          },
+          borderRadius: {
+            DEFAULT: "0.5rem",
+            lg: "1rem",
+            xl: "1.5rem",
+            full: "9999px",
+          },
+        },
+      },
+    };
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex h-screen flex-col">
+<header class="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-background-light/80 p-4 backdrop-blur-sm dark:border-gray-800/50 dark:bg-background-dark/80">
+<button class="text-gray-600 dark:text-gray-400">
+<span class="material-symbols-outlined"> arrow_back </span>
+</button>
+<h1 class="flex-1 text-center text-lg font-bold text-gray-900 dark:text-white">Manage Menu</h1>
+<div class="w-8"></div>
+</header>
+<main class="flex-1 overflow-y-auto p-4">
+<div class="mb-4 flex items-center justify-between">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Categories</h2>
+<button class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white shadow-sm transition-transform hover:scale-105">
+<span class="material-symbols-outlined"> add </span>
+<span>Add Category</span>
+</button>
+</div>
+<div class="space-y-6">
+<details class="group" open="">
+<summary class="flex cursor-pointer list-none items-center justify-between rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800/50">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Appetizers</h3>
+<div class="flex items-center gap-2">
+<button class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary">
+<span class="material-symbols-outlined"> edit </span>
+</button>
+<button class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-500">
+<span class="material-symbols-outlined"> delete </span>
+</button>
+<span class="material-symbols-outlined transition-transform group-open:rotate-180"> expand_more </span>
+</div>
+</summary>
+<div class="mt-4 space-y-3 pl-4">
+<div class="rounded-lg bg-white p-3 shadow-sm dark:bg-gray-800/50">
+<div class="flex items-center gap-4">
+<img alt="Garlic Bread" class="h-16 w-16 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb6AeDLEWyAKfyl-j0xW-FgVqI50hfE3yahMdwy2HuRuTHblzaXazeW45DIiRdGCYM_VNOqEwh2M4aoqeh2kphsVVv_Lp7xPn7MmNFIU-NNkEy2PUqU5wmtdaVkOOrHPUeBr6lrgPL-4-h8fhXMBPqDL9JGk2TtN-zvUAVByiMAH9MtsUfPrltxUZGDSgYYEcPVX1esWTmL2XcemgDiDmyK3G1lO7WE1cflfXDLVtVxI_0jah2Ct2XqCa9nNyU3nYF-EcGObmogAVm"/>
+<div class="flex-1">
+<p class="font-semibold text-gray-900 dark:text-white">Garlic Bread</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">$7.99</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary">
+<span class="material-symbols-outlined"> edit </span>
+</button>
+<button class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-500">
+<span class="material-symbols-outlined"> delete </span>
+</button>
+</div>
+</div>
+<div class="mt-2">
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Tax Rate: <span class="font-normal text-gray-500 dark:text-gray-400">8.25%</span></p>
+</div>
+</div>
+</div>
+</details>
+<details class="group">
+<summary class="flex cursor-pointer list-none items-center justify-between rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800/50">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Main Courses</h3>
+<div class="flex items-center gap-2">
+<button class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary">
+<span class="material-symbols-outlined"> edit </span>
+</button>
+<button class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-500">
+<span class="material-symbols-outlined"> delete </span>
+</button>
+<span class="material-symbols-outlined transition-transform group-open:rotate-180"> expand_more </span>
+</div>
+</summary>
+<div class="mt-4 space-y-3 pl-4">
+<div class="rounded-lg bg-white p-3 shadow-sm dark:bg-gray-800/50">
+<div class="flex items-center gap-4">
+<img alt="Grilled Salmon" class="h-16 w-16 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbsrwSKQ_mcGcJBmYe2hjzF-0Bw7TJyQYw4LVZthDfuRoCbR7FLctXDttFMCLOzZsly91xACO8fVB7DsDV0XJaoaEouPPwHE569tTK-7chh-xjQ9kl3aI_9GS70Wbh0rTMexu5olE0n5LBh82ZJeG9Cbigzz7iJH2n8BkbwDWpu7GA4fsBx1nnUGvV4DSd_ISgh0i8Ej0C69TFhLXLqNFQ0IyiCXM2pIoxN1-Rhx90Roo50JZ7_b1vnuS2mLk-5_MV8mS9vJHFReVt"/>
+<div class="flex-1">
+<p class="font-semibold text-gray-900 dark:text-white">Grilled Salmon</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">$12.99</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary">
+<span class="material-symbols-outlined"> edit </span>
+</button>
+<button class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-500">
+<span class="material-symbols-outlined"> delete </span>
+</button>
+</div>
+</div>
+<div class="mt-2">
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Tax Rate: <span class="font-normal text-gray-500 dark:text-gray-400">8.25%</span></p>
+</div>
+</div>
+<div class="rounded-lg bg-white p-3 shadow-sm dark:bg-gray-800/50">
+<div class="flex items-center gap-4">
+<img alt="Filet Mignon" class="h-16 w-16 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAJDKJ8_GzMMVugkRNmozrpd1-seYupm4TlQQsp2mew8EetwMX25nvvVAsQodkY4dvPi2ZuLc16O6W3X4me5nK1Kdoizq099UWPNSIHKmmvkVjh34vtmBgusc_c28pNC9aHVgPQG9NKkOFn2B0wSGhASPjS648nORqRTDDQeg8fWV-B4PSLnYssk3QU5hh92NP1afnq5btZtfKNRH8JTmo0QeENLRLvwg5kj5bIDVP9MoXY8qXq1mZi2rYfOHjhkxjNUOvO0WbXxf1"/>
+<div class="flex-1">
+<p class="font-semibold text-gray-900 dark:text-white">Filet Mignon</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">$15.99</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary">
+<span class="material-symbols-outlined"> edit </span>
+</button>
+<button class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-500">
+<span class="material-symbols-outlined"> delete </span>
+</button>
+</div>
+</div>
+<div class="mt-2">
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Tax Rate: <span class="font-normal text-gray-500 dark:text-gray-400">8.25%</span></p>
+</div>
+</div>
+</div>
+</details>
+<details class="group">
+<summary class="flex cursor-pointer list-none items-center justify-between rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800/50">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Salads</h3>
+<div class="flex items-center gap-2">
+<button class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary">
+<span class="material-symbols-outlined"> edit </span>
+</button>
+<button class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-500">
+<span class="material-symbols-outlined"> delete </span>
+</button>
+<span class="material-symbols-outlined transition-transform group-open:rotate-180"> expand_more </span>
+</div>
+</summary>
+<div class="mt-4 space-y-3 pl-4">
+<div class="rounded-lg bg-white p-3 shadow-sm dark:bg-gray-800/50">
+<div class="flex items-center gap-4">
+<img alt="Caesar Salad" class="h-16 w-16 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG26_9UW_7X4ZYFbkpvOYUYpWXK0Gxitdopr5a5Dmsc8Jzz1FDxmiblY4mC9iOfanTVYkqMs0NzdDykl04wGRin7GDvxtqmokullgTNcreRuzZSLMsmmunESES3LQlpn-GqcAzPOMNC93-aCyM7-UDEhgmm9mSC45Tx3xMLII8laVRav5uZ2CltiKHCTNvuBBm9OYnpt4oqFA3F5BW1e8DnmkGaRjx8QeUaT2pmp4T3Ka0EBW-PDHywVpgoKtb3vIwZjTZKVR5kVPJ"/>
+<div class="flex-1">
+<p class="font-semibold text-gray-900 dark:text-white">Caesar Salad</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">$8.99</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary">
+<span class="material-symbols-outlined"> edit </span>
+</button>
+<button class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-500">
+<span class="material-symbols-outlined"> delete </span>
+</button>
+</div>
+</div>
+<div class="mt-2">
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Tax Rate: <span class="font-normal text-gray-500 dark:text-gray-400">8.25%</span></p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</main>
+<div class="p-4">
+<button class="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-white shadow-lg transition-transform hover:scale-105">
+<span class="material-symbols-outlined"> add </span>
+</button>
+</div>
+</div>
+
+</body></html>

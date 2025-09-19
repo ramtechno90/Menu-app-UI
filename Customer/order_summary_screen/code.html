@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Summary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#fa634c",
+            "background-light": "#f8f6f5",
+            "background-dark": "#23120f",
+          },
+          fontFamily: {
+            "display": ["Work Sans"]
+          },
+          borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+        font-family: 'Work Sans', sans-serif;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="max-w-md mx-auto min-h-screen flex flex-col">
+<header class="flex items-center p-4">
+<button class="text-background-dark dark:text-background-light">
+<span class="material-symbols-outlined">
+            arrow_back_ios_new
+          </span>
+</button>
+<h1 class="flex-1 text-center text-lg font-bold text-background-dark dark:text-background-light pr-6">Order Summary</h1>
+</header>
+<main class="flex-grow p-4 space-y-4">
+<div class="bg-primary/20 dark:bg-primary/30 p-4 rounded-lg shadow-sm">
+<div class="flex justify-between items-center">
+<div>
+<p class="text-sm text-background-dark dark:text-background-light/80">Order #123456789</p>
+<p class="text-lg font-bold text-background-dark dark:text-background-light">Out for Delivery</p>
+</div>
+<span class="material-symbols-outlined text-green-500 text-4xl">local_shipping</span>
+</div>
+</div>
+<h2 class="text-lg font-bold text-background-dark dark:text-background-light">Items in Your Order</h2>
+<div class="space-y-3">
+<div class="bg-white dark:bg-background-dark/50 rounded-lg p-3 shadow-sm">
+<div class="flex items-center">
+<img alt="Spicy Chicken Sandwich" class="w-20 h-20 object-cover rounded-md mr-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNOwK6xhYL2iCZB-3pT8RQOT_6KmNsGLCaBfImN2SUl2AnfjSjjgcUA03gEyq0u5WydwwOgPLXVRr0-QXy0CTrSIsG1wnZ7ZvokHtS38FCR2nZKCPDxU8zYdbfyDnNxv39_J4cov9jeA1DnvEbAYrWuLpVqp0z3uBThJaEdETy1lHTwDkPVUYrfQIvUtfQevu6y2yAkgIGYH2ptgbgjSclJw22E_uxkTARLojlgj_bNgHCez9GlC32rOYMaJ72SENsc-4k8MNmym6o"/>
+<div class="flex-grow">
+<p class="font-bold text-background-dark dark:text-background-light">Spicy Chicken Sandwich</p>
+<p class="text-sm text-background-dark/60 dark:text-background-light/70">Quantity: 1</p>
+<p class="font-semibold text-primary">$9.99</p>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-background-light/80 dark:border-background-dark/20 flex justify-between items-center text-xs">
+<p class="text-background-dark/60 dark:text-background-light/70">Tax (8%)</p>
+<p class="text-background-dark/80 dark:text-background-light">$0.80</p>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark/50 rounded-lg p-3 shadow-sm">
+<div class="flex items-center">
+<img alt="Fries" class="w-20 h-20 object-cover rounded-md mr-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAa2GOcZ8ZWt6sFbKBF0cMqs_WF9lyLkPINHAMQiErWM5fXaIxJQXo-SKs_AUdlVZd2qGAoRdkQKpaNMi2NTSxw_xT-v5knjUsI0ETq7EFZoOkJMp-VYtePF17zner49MyGB0GKNzChsAx9s7Nca2gMcCrbwePNa42Yz22lm4ppVOUsy58zrfgTmeKRB27ePTGnnyEKkcn_jV0vXzkZMaxwby_mrhNXjaNWC9W9pwTgEmsNsuo5yodld5uqeStbW1zH0Olm3xHw56RS"/>
+<div class="flex-grow">
+<p class="font-bold text-background-dark dark:text-background-light">Fries</p>
+<p class="text-sm text-background-dark/60 dark:text-background-light/70">Quantity: 1</p>
+<p class="font-semibold text-primary">$3.99</p>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-background-light/80 dark:border-background-dark/20 flex justify-between items-center text-xs">
+<p class="text-background-dark/60 dark:text-background-light/70">Tax (8%)</p>
+<p class="text-background-dark/80 dark:text-background-light">$0.32</p>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark/50 rounded-lg p-3 shadow-sm">
+<div class="flex items-center">
+<img alt="Coke" class="w-20 h-20 object-cover rounded-md mr-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCi7Z_ZllEbLoCEXVAsbB_oyomT8_e5GbGeUs7aXBNHwIGJn5Ss_7Am1XU6sjcJmmuEanaM8urL4vMSu_ojiIAhuDJMoR-SbKUOv_rEOT_L_icJhyWOlU1PZ0DwDXVVM_lxQdMhKTug50gGR5bmAf5-RHWJf4BbgW7bvEjx1Umnqkia96Jg7wsS532jlVVv4OMaO32Z24PgdEmND8b446FRDjff_0kg2Ku-BbBeLTCIWpjlcUmXH3jGPEs3Vu7qcVyaSyXSYA9_LQj_"/>
+<div class="flex-grow">
+<p class="font-bold text-background-dark dark:text-background-light">Coke</p>
+<p class="text-sm text-background-dark/60 dark:text-background-light/70">Quantity: 1</p>
+<p class="font-semibold text-primary">$1.99</p>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-background-light/80 dark:border-background-dark/20 flex justify-between items-center text-xs">
+<p class="text-background-dark/60 dark:text-background-light/70">Tax (8%)</p>
+<p class="text-background-dark/80 dark:text-background-light">$0.16</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark/50 rounded-lg p-4 space-y-2 shadow-sm">
+<div class="flex justify-between text-background-dark dark:text-background-light">
+<p>Subtotal</p>
+<p>$15.97</p>
+</div>
+<div class="flex justify-between text-background-dark dark:text-background-light">
+<p>Taxes</p>
+<p>$1.28</p>
+</div>
+<div class="flex justify-between text-background-dark dark:text-background-light">
+<p>Delivery Fee</p>
+<p>$2.99</p>
+</div>
+<div class="border-t border-background-dark/10 dark:border-background-light/10 my-2"></div>
+<div class="flex justify-between text-background-dark dark:text-background-light font-bold text-lg">
+<p>Grand Total</p>
+<p>$20.24</p>
+</div>
+</div>
+</main>
+<footer class="p-4 space-y-2 bg-background-light dark:bg-background-dark sticky bottom-0 border-t border-background-dark/10 dark:border-background-light/10">
+<button class="w-full bg-primary text-white font-bold py-3 rounded-lg">
+            Track Order
+        </button>
+<button class="w-full bg-primary/20 dark:bg-primary/30 text-primary font-bold py-3 rounded-lg">
+            Contact Support
+        </button>
+</footer>
+</div>
+
+</body></html>
