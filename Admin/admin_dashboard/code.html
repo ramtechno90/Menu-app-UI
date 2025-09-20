@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1d75cd",
+            "background-light": "#f6f7f8",
+            "background-dark": "#111921",
+          },
+          fontFamily: {
+            display: ["Manrope"],
+          },
+          borderRadius: {
+            DEFAULT: "0.5rem",
+            lg: "1rem",
+            xl: "1.5rem",
+            full: "9999px"
+          },
+        },
+      },
+    };
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    [x-cloak] {
+      display: none;
+    }
+  </style>
+<script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200">
+<div class="flex h-screen flex-col">
+<header class="sticky top-0 z-10 border-b border-slate-200/80 bg-background-light/80 p-4 backdrop-blur-sm dark:border-slate-800/80 dark:bg-background-dark/80">
+<h1 class="text-center text-lg font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
+</header>
+<main class="flex-1 overflow-y-auto" x-data="{ tab: 'pending' }">
+<div class="sticky top-0 z-10 grid gap-2 bg-background-light/95 p-4 backdrop-blur-sm dark:bg-background-dark/95">
+<div class="overflow-x-auto">
+<div class="flex w-full min-w-[200px] rounded-lg bg-slate-200/60 p-1 dark:bg-slate-800/60">
+<button :class="{ 'bg-white dark:bg-slate-900 text-primary dark:text-white': tab === 'pending', 'text-slate-500 dark:text-slate-400': tab !== 'pending' }" @click="tab = 'pending'" class="flex w-1/2 flex-shrink-0 items-center justify-center gap-2 rounded-md py-2 px-3 text-center text-sm font-semibold transition-colors">
+<span>Pending</span>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary dark:bg-white/10 dark:text-white">2</span>
+</button>
+<button :class="{ 'bg-white dark:bg-slate-900 text-primary dark:text-white': tab === 'accepted', 'text-slate-500 dark:text-slate-400': tab !== 'accepted' }" @click="tab = 'accepted'" class="flex w-1/2 flex-shrink-0 items-center justify-center gap-2 rounded-md py-2 px-3 text-center text-sm font-semibold transition-colors">
+<span>Accepted</span>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary dark:bg-white/10 dark:text-white">2</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<div class="flex w-full min-w-[200px] rounded-lg bg-slate-200/60 p-1 dark:bg-slate-800/60">
+<button :class="{ 'bg-white dark:bg-slate-900 text-primary dark:text-white': tab === 'completed', 'text-slate-500 dark:text-slate-400': tab !== 'completed' }" @click="tab = 'completed'" class="flex w-1/2 flex-shrink-0 items-center justify-center gap-2 rounded-md py-2 px-3 text-center text-sm font-semibold transition-colors">
+<span>Completed</span>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary dark:bg-white/10 dark:text-white">2</span>
+</button>
+<button :class="{ 'bg-white dark:bg-slate-900 text-primary dark:text-white': tab === 'rejected', 'text-slate-500 dark:text-slate-400': tab !== 'rejected' }" @click="tab = 'rejected'" class="flex w-1/2 flex-shrink-0 items-center justify-center gap-2 rounded-md py-2 px-3 text-center text-sm font-semibold transition-colors">
+<span>Rejected</span>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-red-500/10 text-xs font-bold text-red-500 dark:bg-red-500/10 dark:text-red-500">1</span>
+</button>
+</div>
+</div>
+</div>
+<div class="p-4">
+<div class="space-y-4" x-cloak="" x-show="tab === 'pending'">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Pending Orders</h2>
+<div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+<div class="flex flex-col gap-4">
+<div>
+<p class="font-bold text-slate-900 dark:text-white">Order #12345</p>
+<p class="text-sm text-slate-500 dark:text-slate-400">3 items • ₹1,250</p>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 rounded bg-primary py-2 px-4 text-sm font-semibold text-white shadow-sm hover:bg-primary/90">Accept</button>
+<button class="flex-1 rounded bg-red-500 py-2 px-4 text-sm font-semibold text-white shadow-sm hover:bg-red-600">Decline</button>
+</div>
+</div>
+</div>
+<div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+<div class="flex flex-col gap-4">
+<div>
+<p class="font-bold text-slate-900 dark:text-white">Order #12346</p>
+<p class="text-sm text-slate-500 dark:text-slate-400">2 items • ₹850</p>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 rounded bg-primary py-2 px-4 text-sm font-semibold text-white shadow-sm hover:bg-primary/90">Accept</button>
+<button class="flex-1 rounded bg-red-500 py-2 px-4 text-sm font-semibold text-white shadow-sm hover:bg-red-600">Decline</button>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4" x-cloak="" x-show="tab === 'accepted'">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Accepted Orders</h2>
+<div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-slate-900 dark:text-white">Order #12340</p>
+<p class="text-sm text-slate-500 dark:text-slate-400">1 item • ₹500</p>
+</div>
+<span class="text-sm font-semibold text-green-600 dark:text-green-500">Preparing</span>
+</div>
+</div>
+<div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-slate-900 dark:text-white">Order #12341</p>
+<p class="text-sm text-slate-500 dark:text-slate-400">5 items • ₹2,100</p>
+</div>
+<span class="text-sm font-semibold text-blue-600 dark:text-blue-500">Out for Delivery</span>
+</div>
+</div>
+</div>
+<div class="space-y-4" x-cloak="" x-show="tab === 'completed'">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Completed Orders</h2>
+<div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-slate-900 dark:text-white">Order #12335</p>
+<p class="text-sm text-slate-500 dark:text-slate-400">2 items • ₹950</p>
+</div>
+<span class="inline-flex items-center gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">check_circle</span>
+                Delivered
+              </span>
+</div>
+</div>
+<div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-slate-900 dark:text-white">Order #12336</p>
+<p class="text-sm text-slate-500 dark:text-slate-400">3 items • ₹1,150</p>
+</div>
+<span class="inline-flex items-center gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">check_circle</span>
+                Delivered
+              </span>
+</div>
+</div>
+</div>
+<div class="space-y-4" x-cloak="" x-show="tab === 'rejected'">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Rejected Orders</h2>
+<div class="rounded-lg bg-white p-4 shadow-sm dark:bg-slate-900">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-slate-900 dark:text-white">Order #12330</p>
+<p class="text-sm text-slate-500 dark:text-slate-400">1 item • ₹350</p>
+</div>
+<span class="inline-flex items-center gap-1 text-sm font-medium text-red-500">
+<span class="material-symbols-outlined text-base">cancel</span>
+                Rejected
+              </span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="sticky bottom-0 border-t border-slate-200/80 bg-background-light/95 backdrop-blur-sm dark:border-slate-800/80 dark:bg-background-dark/95">
+<nav class="flex justify-around p-2">
+<a class="flex flex-col items-center gap-1 rounded p-2 text-primary" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-xs font-medium">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 rounded p-2 text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary" href="#">
+<span class="material-symbols-outlined">restaurant_menu</span>
+<span class="text-xs font-medium">Menu</span>
+</a>
+<a class="flex flex-col items-center gap-1 rounded p-2 text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-xs font-medium">Settings</span>
+</a>
+</nav>
+</footer>
+</div>
+
+</body></html>
