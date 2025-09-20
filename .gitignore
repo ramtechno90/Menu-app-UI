@@ -1,0 +1,23 @@
+# Android Studio
+.gradle
+.idea
+build/
+captures/
+.cxx/
+local.properties
+
+# Kotlin
+*.kt.js
+*.kt.meta.js
+*.kjsm
+
+# Keystore
+*.jks
+*.keystore
+
+# Proguard
+proguard/
+
+# Other
+*.iml
+.DS_Store
