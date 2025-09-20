@@ -2,6 +2,7 @@ package com.example.menuapp.features.ordertracking
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -43,7 +44,7 @@ val trackingStates = listOf(
     TrackingState("Order Confirmed", "Your order has been confirmed.", Icons.Default.Check, TrackingStatus.CONFIRMED),
     TrackingState("Preparing Food", "We are preparing your order.", Icons.Default.Restaurant, TrackingStatus.PREPARING),
     TrackingState("Out for Delivery", "Estimated delivery: 20 mins", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
-    TrackingState("Delivered", "Awaiting delivery completion.", Icons.Default.HomePin, TrackingStatus.DELIVERED)
+    TrackingState("Delivered", "Awaiting delivery completion.", Icons.Default.Done, TrackingStatus.DELIVERED)
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -186,9 +187,9 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                             MaterialTheme.colorScheme.surface
                         }
                     )
-                    .let {
-                        if (!isActive) it.border(2.dp, Color.LightGray, CircleShape) else it
-                    },
+                    .then(
+                        if (!isActive) Modifier.border(2.dp, Color.LightGray, CircleShape) else Modifier
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
