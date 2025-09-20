@@ -60,10 +60,6 @@ fun OrderHistoryScreen(
                 )
             )
         },
-        bottomBar = {
-            // The screenshot shows a bottom nav bar, similar to the home screen
-            BottomNavigationBar()
-        }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier

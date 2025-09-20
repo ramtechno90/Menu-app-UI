@@ -41,7 +41,7 @@ val sampleCartItems = listOf(
     CartItem(3, "Classic Burger", 450.00, 36.00, 1, "https://lh3.googleusercontent.com/aida-public/AB6AXuC3B-gXyLJl0rOyRdvreCivOGJ1nInHXZUOeDdDKoYfThqE6108sQzIIryji43a_4IU_0OlwG2pBBlfkyUXU9ryh118t7POc3vJ8pfIBKLS4LDB8_JfDk9Fkalao71qtwrEdiyRvHuxgjql_aTRH2nEvT61kXcw0t1XrE4dHuYrtpt94K10wrF9OdsLnmHeQJmKymgVDcwobCWI7k-iMlkjTvqL7kSmihlAwTSDtwaVfKyvzmJqZyKQK47H9rZPjkWRQJPi30nPL7yc")
 )
 
-@OptIn(ExperimentalMaterial3ai::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingCartScreen(onBackPressed: () -> Unit) {
     Scaffold(

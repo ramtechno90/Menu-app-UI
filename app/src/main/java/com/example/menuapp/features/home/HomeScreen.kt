@@ -63,9 +63,6 @@ fun HomeScreen() {
                 )
             )
         },
-        bottomBar = {
-            BottomNavigationBar()
-        }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
