@@ -3,11 +3,16 @@ package com.example.menuapp.features.orders
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.menuapp.features.currentorders.CurrentOrdersScreen
 import com.example.menuapp.features.orderhistory.OrderHistoryScreen
 import com.example.menuapp.ui.theme.MenuAppTheme
@@ -19,7 +24,7 @@ fun OrdersScreen(
     onOrderClicked: (String) -> Unit,
     viewModel: OrdersViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Current Orders", "Order History")
 

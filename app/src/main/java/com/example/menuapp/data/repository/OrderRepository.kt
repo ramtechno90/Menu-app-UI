@@ -16,6 +16,8 @@ class OrderRepository @Inject constructor(
 ) {
     fun getAllOrders(): Flow<List<OrderEntity>> = orderDao.getAllOrders()
 
+    fun getOrderById(orderId: String): Flow<OrderEntity> = orderDao.getOrderById(orderId)
+
     suspend fun createOrder() {
         val cartItems = cartDao.getCartItems().first()
         if (cartItems.isEmpty()) {

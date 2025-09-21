@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,8 +26,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.menuapp.data.local.model.OrderEntity
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 enum class TrackingStatus {
@@ -49,7 +53,12 @@ val trackingStates = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderTrackingScreen(onBackPressed: () -> Unit) {
+fun OrderTrackingScreen(
+    onBackPressed: () -> Unit,
+    viewModel: OrderTrackingViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -63,25 +72,35 @@ fun OrderTrackingScreen(onBackPressed: () -> Unit) {
             )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item { Spacer(modifier = Modifier.height(0.dp)) }
-            item { OrderSummaryCard() }
-            item { OtpCard() }
-            item { TrackingTimeline(currentStatus = TrackingStatus.OUT_FOR_DELIVERY) }
-            item { MapImage() }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (uiState.order != null) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                item { Spacer(modifier = Modifier.height(0.dp)) }
+                item { OrderSummaryCard(uiState.order!!) }
+                item { OtpCard() }
+                item { TrackingTimeline(currentStatus = TrackingStatus.OUT_FOR_DELIVERY) } // Status is hardcoded
+                item { MapImage() }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+            }
+        } else {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Order not found.")
+            }
         }
     }
 }
 
 @Composable
-private fun OrderSummaryCard() {
+private fun OrderSummaryCard(order: OrderEntity) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -96,30 +115,25 @@ private fun OrderSummaryCard() {
             ) {
                 Column {
                     Text("Order Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("ID: #1234567890", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                    Text("$25.50", fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(top = 4.dp))
+                    Text("ID: #${order.id.take(8)}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                    Text(String.format("₹%.2f", order.grandTotal), fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(top = 4.dp))
                 }
                 Box(
                     modifier = Modifier
                         .size(80.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color.LightGray.copy(alpha = 0.5f)),
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Receipt, contentDescription = "Order Receipt", tint = Color.Gray)
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(order.items.firstOrNull()?.imageUrl ?: "")
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Order Image",
+                        contentScale = ContentScale.Crop
+                    )
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { /* TODO: View More Action */ },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text("View More", fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -252,14 +266,6 @@ private fun MapImage() {
 @Composable
 fun OrderTrackingScreenPreview() {
     MenuAppTheme(darkTheme = false) {
-        OrderTrackingScreen(onBackPressed = {})
-    }
-}
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun OrderTrackingScreenDarkPreview() {
-    MenuAppTheme(darkTheme = true) {
         OrderTrackingScreen(onBackPressed = {})
     }
 }

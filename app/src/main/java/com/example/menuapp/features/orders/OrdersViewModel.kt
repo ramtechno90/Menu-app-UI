@@ -7,6 +7,7 @@ import com.example.menuapp.data.repository.OrderRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -20,6 +21,7 @@ class OrdersViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<OrdersUiState> = orderRepository.getAllOrders()
+        .map { orders -> OrdersUiState(orders = orders) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

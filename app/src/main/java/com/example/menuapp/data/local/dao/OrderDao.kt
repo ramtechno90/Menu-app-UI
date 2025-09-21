@@ -14,4 +14,7 @@ interface OrderDao {
 
     @Query("SELECT * FROM orders ORDER BY orderDate DESC")
     fun getAllOrders(): Flow<List<OrderEntity>>
+
+    @Query("SELECT * FROM orders WHERE id = :orderId")
+    fun getOrderById(orderId: String): Flow<OrderEntity>
 }

@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,28 +21,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.menuapp.data.local.model.CartItemEntity
+import com.example.menuapp.data.local.model.OrderEntity
 import com.example.menuapp.ui.theme.MenuAppTheme
-
-data class OrderItem(
-    val id: Int,
-    val name: String,
-    val quantity: Int,
-    val price: Double,
-    val tax: Double,
-    val imageUrl: String
-)
-
-val sampleOrderItems = listOf(
-    OrderItem(1, "Spicy Chicken Sandwich", 1, 9.99, 0.80, "https://lh3.googleusercontent.com/aida-public/AB6AXuDNOwK6xhYL2iCZB-3pT8RQOT_6KmNsGLCaBfImN2SUl2AnfjSjjgcUA03gEyq0u5WydwwOgPLXVRr0-QXy0CTrSIsG1wnZ7ZvokHtS38FCR2nZKCPDxU8zYdbfyDnNxv39_J4cov9jeA1DnvEbAYrWuLpVqp0z3uBThJaEdETy1lHTwDkPVUYrfQIvUtfQevu6y2yAkgIGYH2ptgbgjSclJw22E_uxkTARLojlgj_bNgHCez9GlC32rOYMaJ72SENsc-4k8MNmym6o"),
-    OrderItem(2, "Fries", 1, 3.99, 0.32, "https://lh3.googleusercontent.com/aida-public/AB6AXuAa2GOcZ8ZWt6sFbKBF0cMqs_WF9lyLkPINHAMQiErWM5fXaIxJQXo-SKs_AUdlVZd2qGAoRdkQKpaNMi2NTSxw_xT-v5knjUsI0ETq7EFZoOkJMp-VYtePF17zner49MyGB0GKNzChsAx9s7Nca2gMcCrbwePNa42Yz22lm4ppVOUsy58zrfgTmeKRB27ePTGnnyEKkcn_jV0vXzkZMaxwby_mrhNXjaNWC9W9pwTgEmsNsuo5yodld5uqeStbW1zH0Olm3xHw56RS"),
-    OrderItem(3, "Coke", 1, 1.99, 0.16, "https://lh3.googleusercontent.com/aida-public/AB6AXuCi7Z_ZllEbLoCEXVAsbB_oyomT8_e5GbGeUs7aXBNHwIGJn5Ss_7Am1XU6sjcJmmuEanaM8urL4vMSu_ojiIAhuDJMoR-SbKUOv_rEOT_L_icJhyWOlU1PZ0DwDXVVM_lxQdMhKTug50gGR5bmAf5-RHWJf4BbgW7bvEjx1Umnqkia96Jg7wsS532jlVVv4OMaO32Z24PgdEmND8b446FRDjff_0kg2Ku-BbBeLTCIWpjlcUmXH3jGPEs3Vu7qcVyaSyXSYA9_LQj_")
-)
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderSummaryScreen(onBackPressed: () -> Unit, onTrackOrderClicked: () -> Unit) {
+fun OrderSummaryScreen(
+    onBackPressed: () -> Unit,
+    onTrackOrderClicked: () -> Unit,
+    viewModel: OrderSummaryViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -60,35 +58,44 @@ fun OrderSummaryScreen(onBackPressed: () -> Unit, onTrackOrderClicked: () -> Uni
             OrderActionsFooter(onTrackOrderClicked = onTrackOrderClicked)
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item { OrderStatusHeader() }
-            item {
-                Text(
-                    "Items in Your Order",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-            items(sampleOrderItems) { item ->
-                OrderItemCard(item = item)
+        } else if (uiState.order != null) {
+            val order = uiState.order!!
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item { OrderStatusHeader(order) }
+                item {
+                    Text(
+                        "Items in Your Order",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+                items(order.items) { item ->
+                    OrderItemCard(item = item)
+                }
+                item {
+                    SummaryCard(order = order)
+                }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
             }
-            item {
-                val subtotal = sampleOrderItems.sumOf { it.price }
-                val taxes = sampleOrderItems.sumOf { it.tax }
-                SummaryCard(subtotal = subtotal, taxes = taxes)
+        } else {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Order not found.")
             }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }
 }
 
 @Composable
-private fun OrderStatusHeader() {
+private fun OrderStatusHeader(order: OrderEntity) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -98,8 +105,8 @@ private fun OrderStatusHeader() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text("Order #123456789", fontSize = 14.sp)
-            Text("Out for Delivery", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text("Order #${order.id.take(8)}", fontSize = 14.sp)
+            Text(order.status, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         }
         Icon(
             imageVector = Icons.Default.LocalShipping,
@@ -111,7 +118,7 @@ private fun OrderStatusHeader() {
 }
 
 @Composable
-private fun OrderItemCard(item: OrderItem) {
+private fun OrderItemCard(item: CartItemEntity) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -130,23 +137,15 @@ private fun OrderItemCard(item: OrderItem) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(item.name, fontWeight = FontWeight.Bold)
                     Text("Quantity: ${item.quantity}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-                    Text(String.format("$%.2f", item.price), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+                    Text(String.format("₹%.2f", item.price), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
                 }
-            }
-            Divider(modifier = Modifier.padding(top = 12.dp, bottom = 8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Tax (8%)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                Text(String.format("$%.2f", item.tax), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
             }
         }
     }
 }
 
 @Composable
-private fun SummaryCard(subtotal: Double, taxes: Double) {
+private fun SummaryCard(order: OrderEntity) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -154,18 +153,33 @@ private fun SummaryCard(subtotal: Double, taxes: Double) {
         shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Subtotal", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
-                Text(String.format("$%.2f", subtotal), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Taxes", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
-                Text(String.format("$%.2f", taxes), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
-            }
+            SummaryRow("Subtotal", String.format("₹%.2f", order.subtotal))
+            SummaryRow("Taxes", String.format("₹%.2f", order.tax))
+            SummaryRow("Delivery Fee", String.format("₹%.2f", order.deliveryFee))
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            SummaryRow("Grand Total", String.format("₹%.2f", order.grandTotal), isBold = true)
         }
     }
 }
 
+@Composable
+private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+        )
+        Text(
+            text = value,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+        )
+    }
+}
 
 @Composable
 private fun OrderActionsFooter(onTrackOrderClicked: () -> Unit) {
@@ -184,14 +198,10 @@ private fun OrderActionsFooter(onTrackOrderClicked: () -> Unit) {
         ) {
             Text("Track Order", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
-        Button(
+        OutlinedButton(
             onClick = { /* TODO: Implement contact support */ },
             modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                contentColor = MaterialTheme.colorScheme.primary
-            )
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text("Contact Support", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
@@ -202,14 +212,7 @@ private fun OrderActionsFooter(onTrackOrderClicked: () -> Unit) {
 @Composable
 fun OrderSummaryScreenPreview() {
     MenuAppTheme(darkTheme = false) {
-        OrderSummaryScreen(onBackPressed = {}, onTrackOrderClicked = {})
-    }
-}
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun OrderSummaryScreenDarkPreview() {
-    MenuAppTheme(darkTheme = true) {
+        // This preview will be in a loading state as it has no ViewModel
         OrderSummaryScreen(onBackPressed = {}, onTrackOrderClicked = {})
     }
 }

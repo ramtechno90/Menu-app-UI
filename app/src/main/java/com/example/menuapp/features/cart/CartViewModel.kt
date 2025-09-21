@@ -52,6 +52,10 @@ class CartViewModel @Inject constructor(
         }
     }
 
+    fun removeItem(itemId: Int) {
+        updateQuantity(itemId, 0)
+    }
+
     fun placeOrder() {
         viewModelScope.launch {
             orderRepository.createOrder()
