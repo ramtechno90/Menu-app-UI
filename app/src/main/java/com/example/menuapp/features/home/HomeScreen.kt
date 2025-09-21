@@ -46,7 +46,10 @@ val categories = listOf("Starters", "Main Course", "Breads", "Desserts")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit
+) {
     var selectedCategory by remember { mutableStateOf(categories.first()) }
 
     Scaffold(
@@ -56,6 +59,12 @@ fun HomeScreen() {
                 actions = {
                     IconButton(onClick = { /* TODO: Implement search action */ }) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
+                    }
+                    IconButton(onClick = onThemeToggle) {
+                        Icon(
+                            if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            contentDescription = "Toggle Theme"
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -195,7 +204,7 @@ private fun BottomNavigationBar() {
 @Composable
 fun HomeScreenPreview() {
     MenuAppTheme(darkTheme = false) {
-        HomeScreen()
+        HomeScreen(isDarkTheme = false, onThemeToggle = {})
     }
 }
 
@@ -203,6 +212,6 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenDarkPreview() {
     MenuAppTheme(darkTheme = true) {
-        HomeScreen()
+        HomeScreen(isDarkTheme = true, onThemeToggle = {})
     }
 }

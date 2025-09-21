@@ -10,7 +10,10 @@ import com.example.menuapp.features.ordertracking.OrderTrackingScreen
 import com.example.menuapp.features.roleselection.RoleSelectionScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit
+) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = Screen.RoleSelection.route) {
@@ -26,7 +29,11 @@ fun AppNavigation() {
             )
         }
         composable(Screen.Main.route) {
-            MainScreen(mainNavController = navController)
+            MainScreen(
+                mainNavController = navController,
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle
+            )
         }
         composable(Screen.OrderSummary.route) { backStackEntry ->
             val orderId = backStackEntry.arguments?.getString("orderId")

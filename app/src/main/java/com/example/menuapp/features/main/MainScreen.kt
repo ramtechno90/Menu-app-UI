@@ -24,7 +24,11 @@ sealed class BottomNavItem(val title: String, val icon: ImageVector, val route: 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(mainNavController: NavController) {
+fun MainScreen(
+    mainNavController: NavController,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit
+) {
     var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
 
     Scaffold(
@@ -44,7 +48,7 @@ fun MainScreen(mainNavController: NavController) {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
-                BottomNavItem.Home -> HomeScreen()
+                BottomNavItem.Home -> HomeScreen(isDarkTheme = isDarkTheme, onThemeToggle = onThemeToggle)
                 BottomNavItem.Cart -> ShoppingCartScreen(onBackPressed = { /* Within main screen, no back press */ })
                 BottomNavItem.Orders -> OrdersScreen(
                     onBackPressed = { /* No back press */ },
