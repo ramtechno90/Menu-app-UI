@@ -8,7 +8,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -62,7 +64,7 @@ fun HomeScreen(
                     }
                     IconButton(onClick = onThemeToggle) {
                         Icon(
-                            if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                             contentDescription = "Toggle Theme"
                         )
                     }
@@ -168,35 +170,6 @@ private fun MenuItemCard(
                 .size(100.dp)
                 .clip(RoundedCornerShape(12.dp))
         )
-    }
-}
-
-@Composable
-private fun BottomNavigationBar() {
-    var selectedItem by remember { mutableStateOf(0) }
-    val items = listOf("Home", "Cart", "My Orders")
-    val icons = listOf(Icons.Default.Home, Icons.Default.ShoppingCart, Icons.Default.ReceiptLong)
-
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
-    ) {
-        items.forEachIndexed { index, item ->
-            NavigationBarItem(
-                icon = { Icon(icons[index], contentDescription = item) },
-                label = { Text(item) },
-                selected = selectedItem == index,
-                onClick = {
-                    selectedItem = index
-                    // TODO: Implement navigation
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            )
-        }
     }
 }
 
