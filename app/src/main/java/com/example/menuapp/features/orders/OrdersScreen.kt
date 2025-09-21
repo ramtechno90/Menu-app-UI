@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.menuapp.features.currentorders.CurrentOrdersScreen
 import com.example.menuapp.features.orderhistory.OrderHistoryScreen
 import com.example.menuapp.ui.theme.MenuAppTheme
@@ -15,8 +16,10 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 @Composable
 fun OrdersScreen(
     onBackPressed: () -> Unit,
-    onOrderClicked: (String) -> Unit
+    onOrderClicked: (String) -> Unit,
+    viewModel: OrdersViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Current Orders", "Order History")
 
@@ -34,14 +37,19 @@ fun OrdersScreen(
                 )
             }
         }
+
+        // For now, both tabs will show all orders.
+        // A real implementation would filter this list based on order status.
         when (selectedTabIndex) {
             0 -> CurrentOrdersScreen(
                 onBackPressed = onBackPressed,
-                onOrderClicked = { order -> onOrderClicked(order.id) }
+                onOrderClicked = { order -> onOrderClicked(order.id) },
+                orders = uiState.orders
             )
             1 -> OrderHistoryScreen(
                 onBackPressed = onBackPressed,
-                onViewDetailsClicked = { order -> onOrderClicked(order.id) }
+                onViewDetailsClicked = { order -> onOrderClicked(order.id) },
+                orders = uiState.orders
             )
         }
     }
