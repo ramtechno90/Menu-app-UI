@@ -13,15 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-toolchainManagement {
-    jvm {
-        javaRepositories {
-            repository("foojay") {
-                vendor = JvmVendorSpec.AZUL
-            }
-        }
-    }
-}
-
 rootProject.name = "MenuApp"
 include(":app")
