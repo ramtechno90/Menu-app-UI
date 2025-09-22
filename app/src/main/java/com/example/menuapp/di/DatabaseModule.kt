@@ -27,7 +27,9 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "menu_app_db"
-        ).addCallback(callback).build()
+        ).addCallback(callback)
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

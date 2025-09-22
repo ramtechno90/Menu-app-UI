@@ -12,7 +12,7 @@ import com.example.menuapp.data.local.model.OrderEntity
 
 @Database(
     entities = [MenuItemEntity::class, CartItemEntity::class, OrderEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
