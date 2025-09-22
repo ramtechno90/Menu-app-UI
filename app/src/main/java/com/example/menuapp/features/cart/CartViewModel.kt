@@ -18,8 +18,9 @@ data class CartUiState(
     val tax: Double = 0.0,
     val deliveryFee: Double = 0.0,
     val grandTotal: Double = 0.0,
-    val isFetchingLocation: Boolean = false,
-    val location: LocationResult.Success? = null
+    val isFetchingAddress: Boolean = false,
+    val deliveryAddress: String = "",
+    val errorMessage: String? = null
 )
 
 @HiltViewModel
@@ -61,26 +62,54 @@ class CartViewModel @Inject constructor(
         updateQuantity(itemId, 0)
     }
 
-    fun placeOrder(location: LocationResult.Success) {
+    fun placeOrder(address: String) {
         viewModelScope.launch {
-            // In a real app, you'd associate the location with the order
+            // In a real app, you would save the address with the order
             orderRepository.createOrder()
         }
     }
 
-    fun onPlaceOrderClick() {
+    fun fetchAddress() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isFetchingLocation = true) }
+            _uiState.update { it.copy(isFetchingAddress = true, errorMessage = null) }
             when (val result = locationHelper.getCurrentLocation()) {
                 is LocationResult.Success -> {
-                    _uiState.update { it.copy(isFetchingLocation = false, location = result) }
-                    placeOrder(result)
+                    _uiState.update {
+                        it.copy(
+                            isFetchingAddress = false,
+                            deliveryAddress = result.address
+                        )
+                    }
                 }
-                else -> {
-                    // Handle error cases, e.g., show a message to the user
-                    _uiState.update { it.copy(isFetchingLocation = false) }
+                is LocationResult.NoPermission -> {
+                    _uiState.update {
+                        it.copy(
+                            isFetchingAddress = false,
+                            errorMessage = "Location permission not granted."
+                        )
+                    }
+                }
+                is LocationResult.LocationDisabled -> {
+                    _uiState.update {
+                        it.copy(
+                            isFetchingAddress = false,
+                            errorMessage = "Please enable location services."
+                        )
+                    }
+                }
+                is LocationResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isFetchingAddress = false,
+                            errorMessage = result.exception.message ?: "An unknown error occurred."
+                        )
+                    }
                 }
             }
         }
+    }
+
+    fun clearErrorMessage() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 }

@@ -11,9 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,19 +39,24 @@ fun ShoppingCartScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var permissionDenied by remember { mutableStateOf(false) }
-
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                viewModel.onPlaceOrderClick()
+                viewModel.fetchAddress()
             } else {
-                permissionDenied = true
+                Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
             }
         }
     )
+
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.clearErrorMessage()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -73,36 +76,34 @@ fun ShoppingCartScreen(
             CheckoutFooter(
                 uiState = uiState,
                 onPlaceOrderClicked = {
-                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    viewModel.placeOrder(uiState.deliveryAddress)
+                    Toast.makeText(context, "Order Placed!", Toast.LENGTH_SHORT).show()
                 }
             )
         }
     ) { paddingValues ->
-        if (permissionDenied) {
-            LaunchedEffect(Unit) {
-                Toast.makeText(context, "Location permission denied. Please grant permission to place an order.", Toast.LENGTH_LONG).show()
-                permissionDenied = false
-            }
-        }
-
-        if (uiState.location != null) {
-            LaunchedEffect(uiState.location) {
-                Toast.makeText(context, "Order Placed!", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             items(uiState.cartItems) { item ->
                 CartListItem(
                     item = item,
                     onQuantityChange = { newQuantity ->
                         viewModel.updateQuantity(item.id, newQuantity)
+                    }
+                )
+            }
+
+            item {
+                DeliveryAddressSection(
+                    uiState = uiState,
+                    onFetchAddressClicked = {
+                        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                     }
                 )
             }
@@ -197,16 +198,9 @@ private fun CheckoutFooter(uiState: CartUiState, onPlaceOrderClicked: () -> Unit
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-            enabled = uiState.cartItems.isNotEmpty() && !uiState.isFetchingLocation
+            enabled = uiState.cartItems.isNotEmpty() && uiState.deliveryAddress.isNotEmpty()
         ) {
-            if (uiState.isFetchingLocation) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            } else {
-                Text("Proceed to Place Order", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
+            Text("Proceed to Place Order", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -229,6 +223,42 @@ private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
             fontSize = if (isBold) 18.sp else 16.sp,
             color = if (isBold) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
+    }
+}
+
+@Composable
+fun DeliveryAddressSection(
+    uiState: CartUiState,
+    onFetchAddressClicked: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    ) {
+        Text("Delivery Address", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = uiState.deliveryAddress.ifEmpty { "No address set" },
+                modifier = Modifier.weight(1f),
+                color = if (uiState.deliveryAddress.isNotEmpty()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = onFetchAddressClicked,
+                enabled = !uiState.isFetchingAddress
+            ) {
+                if (uiState.isFetchingAddress) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Icon(Icons.Default.MyLocation, contentDescription = "Get current location")
+                }
+            }
+        }
     }
 }
 
