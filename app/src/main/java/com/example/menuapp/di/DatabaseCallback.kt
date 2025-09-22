@@ -14,10 +14,13 @@ class DatabaseCallback @Inject constructor(
     private val menuItemDaoProvider: Provider<MenuItemDao>
 ) : RoomDatabase.Callback() {
 
-    override fun onCreate(db: SupportSQLiteDatabase) {
-        super.onCreate(db)
+    override fun onOpen(db: SupportSQLiteDatabase) {
+        super.onOpen(db)
         CoroutineScope(Dispatchers.IO).launch {
-            populateDatabase()
+            // If the database is empty, populate it with sample data.
+            if (menuItemDaoProvider.get().getMenuItemsCount() == 0) {
+                populateDatabase()
+            }
         }
     }
 
