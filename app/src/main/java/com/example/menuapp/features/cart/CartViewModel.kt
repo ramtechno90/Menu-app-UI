@@ -7,6 +7,7 @@ import com.example.menuapp.data.repository.MenuRepository
 import com.example.menuapp.data.repository.OrderRepository
 import com.example.menuapp.location.LocationHelper
 import com.example.menuapp.location.LocationResult
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,7 +21,8 @@ data class CartUiState(
     val grandTotal: Double = 0.0,
     val isFetchingAddress: Boolean = false,
     val deliveryAddress: String = "",
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val locationResultForConfirmation: LocationResult.Success? = null
 )
 
 @HiltViewModel
@@ -76,7 +78,7 @@ class CartViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isFetchingAddress = false,
-                            deliveryAddress = result.address
+                            locationResultForConfirmation = result
                         )
                     }
                 }
@@ -106,6 +108,14 @@ class CartViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onLocationConfirmed(address: String) {
+        _uiState.update { it.copy(deliveryAddress = address) }
+    }
+
+    fun onNavigationToConfirmLocationDone() {
+        _uiState.update { it.copy(locationResultForConfirmation = null) }
     }
 
     fun clearErrorMessage() {

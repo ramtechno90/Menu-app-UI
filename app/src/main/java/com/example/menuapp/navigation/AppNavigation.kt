@@ -6,6 +6,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.menuapp.features.main.MainScreen
 import com.example.menuapp.features.ordersummary.OrderSummaryScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.example.menuapp.features.confirmlocation.ConfirmLocationScreen
 import com.example.menuapp.features.ordertracking.OrderTrackingScreen
 import com.example.menuapp.features.roleselection.RoleSelectionScreen
 
@@ -52,6 +55,33 @@ fun AppNavigation(
             val orderId = backStackEntry.arguments?.getString("orderId")
             // In a real app, you'd use the orderId to fetch data
             OrderTrackingScreen(onBackPressed = { navController.popBackStack() })
+        }
+        composable(
+            route = Screen.ConfirmLocation.route,
+            arguments = listOf(
+                navArgument("latitude") { type = NavType.FloatType },
+                navArgument("longitude") { type = NavType.FloatType },
+                navArgument("address") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val latitude = backStackEntry.arguments?.getFloat("latitude")?.toDouble()
+            val longitude = backStackEntry.arguments?.getFloat("longitude")?.toDouble()
+            val address = backStackEntry.arguments?.getString("address")
+
+            if (latitude != null && longitude != null && address != null) {
+                ConfirmLocationScreen(
+                    latitude = latitude,
+                    longitude = longitude,
+                    onConfirmClicked = {
+                        // Pass the confirmed address back to the cart screen
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("confirmed_address", address)
+                        navController.popBackStack()
+                    },
+                    onBackPressed = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

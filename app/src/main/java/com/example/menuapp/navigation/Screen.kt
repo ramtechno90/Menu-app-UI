@@ -12,4 +12,7 @@ sealed class Screen(val route: String) {
     object OrderTracking : Screen("order_tracking/{orderId}") {
         fun createRoute(orderId: String) = "order_tracking/$orderId"
     }
+    object ConfirmLocation : Screen("confirm_location/{latitude}/{longitude}/{address}") {
+        fun createRoute(latitude: Double, longitude: Double, address: String) = "confirm_location/$latitude/$longitude/$address"
+    }
 }

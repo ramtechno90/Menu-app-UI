@@ -26,15 +26,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.local.model.CartItemEntity
+import com.example.menuapp.navigation.Screen
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingCartScreen(
     onBackPressed: () -> Unit,
+    navController: NavController,
     viewModel: CartViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,6 +58,23 @@ fun ShoppingCartScreen(
         uiState.errorMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
             viewModel.clearErrorMessage()
+        }
+    }
+
+    LaunchedEffect(uiState.locationResultForConfirmation) {
+        uiState.locationResultForConfirmation?.let {
+            navController.navigate(Screen.ConfirmLocation.createRoute(it.latitude, it.longitude, it.address))
+            viewModel.onNavigationToConfirmLocationDone()
+        }
+    }
+
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    LaunchedEffect(savedStateHandle) {
+        savedStateHandle?.getLiveData<String>("confirmed_address")?.observeForever { address ->
+            address?.let {
+                viewModel.onLocationConfirmed(it)
+                savedStateHandle.remove<String>("confirmed_address")
+            }
         }
     }
 

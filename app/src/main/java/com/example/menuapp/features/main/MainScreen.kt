@@ -49,7 +49,10 @@ fun MainScreen(
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
                 BottomNavItem.Home -> HomeScreen(isDarkTheme = isDarkTheme, onThemeToggle = onThemeToggle)
-                BottomNavItem.Cart -> ShoppingCartScreen(onBackPressed = { /* Within main screen, no back press */ })
+                BottomNavItem.Cart -> ShoppingCartScreen(
+                    onBackPressed = { /* Within main screen, no back press */ },
+                    navController = mainNavController
+                )
                 BottomNavItem.Orders -> OrdersScreen(
                     onBackPressed = { /* No back press */ },
                     onOrderClicked = { orderId ->
