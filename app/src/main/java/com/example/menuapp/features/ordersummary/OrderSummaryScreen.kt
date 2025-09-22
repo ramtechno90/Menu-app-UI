@@ -72,6 +72,7 @@ fun OrderSummaryScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item { OrderStatusHeader(order) }
+                item { DeliveryAddressCard(order) }
                 item {
                     Text(
                         "Items in Your Order",
@@ -90,6 +91,25 @@ fun OrderSummaryScreen(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Order not found.")
             }
+        }
+    }
+}
+
+@Composable
+private fun DeliveryAddressCard(order: OrderEntity) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth(),
+        shadowElevation = 2.dp
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                "Delivery Address",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(order.deliveryAddress)
         }
     }
 }

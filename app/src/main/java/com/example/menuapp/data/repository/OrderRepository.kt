@@ -18,7 +18,7 @@ class OrderRepository @Inject constructor(
 
     fun getOrderById(orderId: String): Flow<OrderEntity> = orderDao.getOrderById(orderId)
 
-    suspend fun createOrder() {
+    suspend fun createOrder(address: String) {
         val cartItems = cartDao.getCartItems().first()
         if (cartItems.isEmpty()) {
             return // Can't create an empty order
@@ -37,7 +37,8 @@ class OrderRepository @Inject constructor(
             deliveryFee = deliveryFee,
             grandTotal = grandTotal,
             orderDate = System.currentTimeMillis(),
-            status = "COMPLETED" // Or "CURRENT" depending on desired logic
+            status = "COMPLETED", // Or "CURRENT" depending on desired logic
+            deliveryAddress = address
         )
 
         orderDao.insertOrder(order)

@@ -64,8 +64,7 @@ class CartViewModel @Inject constructor(
 
     fun placeOrder(address: String) {
         viewModelScope.launch {
-            // In a real app, you would save the address with the order
-            orderRepository.createOrder()
+            orderRepository.createOrder(address)
         }
     }
 

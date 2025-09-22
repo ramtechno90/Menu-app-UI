@@ -16,5 +16,6 @@ data class OrderEntity(
     val deliveryFee: Double,
     val grandTotal: Double,
     val orderDate: Long,
-    val status: String // e.g., "COMPLETED", "CANCELLED"
+    val status: String, // e.g., "COMPLETED", "CANCELLED"
+    val deliveryAddress: String
 )
