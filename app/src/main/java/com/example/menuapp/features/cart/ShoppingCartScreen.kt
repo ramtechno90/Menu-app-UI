@@ -283,10 +283,15 @@ fun DeliveryAddressSection(
 }
 
 
+import androidx.navigation.compose.rememberNavController
+
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun ShoppingCartScreenPreview() {
     MenuAppTheme(darkTheme = false) {
-        ShoppingCartScreen(onBackPressed = {})
+        ShoppingCartScreen(
+            onBackPressed = {},
+            navController = rememberNavController()
+        )
     }
 }
