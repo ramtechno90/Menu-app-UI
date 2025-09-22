@@ -1,6 +1,9 @@
 package com.example.menuapp.features.cart
 
+import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,8 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +41,19 @@ fun ShoppingCartScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var permissionDenied by remember { mutableStateOf(false) }
+
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                viewModel.onPlaceOrderClick()
+            } else {
+                permissionDenied = true
+            }
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -58,13 +73,24 @@ fun ShoppingCartScreen(
             CheckoutFooter(
                 uiState = uiState,
                 onPlaceOrderClicked = {
-                    viewModel.placeOrder()
-                    Toast.makeText(context, "Order Placed!", Toast.LENGTH_SHORT).show()
-                    // In a real app, you'd navigate away after placing the order
+                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             )
         }
     ) { paddingValues ->
+        if (permissionDenied) {
+            LaunchedEffect(Unit) {
+                Toast.makeText(context, "Location permission denied. Please grant permission to place an order.", Toast.LENGTH_LONG).show()
+                permissionDenied = false
+            }
+        }
+
+        if (uiState.location != null) {
+            LaunchedEffect(uiState.location) {
+                Toast.makeText(context, "Order Placed!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -166,12 +192,21 @@ private fun CheckoutFooter(uiState: CartUiState, onPlaceOrderClicked: () -> Unit
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = onPlaceOrderClicked,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-            enabled = uiState.cartItems.isNotEmpty()
+            enabled = uiState.cartItems.isNotEmpty() && !uiState.isFetchingLocation
         ) {
-            Text("Proceed to Place Order", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            if (uiState.isFetchingLocation) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text("Proceed to Place Order", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }

@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.menuapp.data.local.model.CartItemEntity
 import com.example.menuapp.data.repository.MenuRepository
 import com.example.menuapp.data.repository.OrderRepository
+import com.example.menuapp.location.LocationHelper
+import com.example.menuapp.location.LocationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -15,13 +17,16 @@ data class CartUiState(
     val subtotal: Double = 0.0,
     val tax: Double = 0.0,
     val deliveryFee: Double = 0.0,
-    val grandTotal: Double = 0.0
+    val grandTotal: Double = 0.0,
+    val isFetchingLocation: Boolean = false,
+    val location: LocationResult.Success? = null
 )
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val menuRepository: MenuRepository,
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val locationHelper: LocationHelper
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
@@ -56,9 +61,26 @@ class CartViewModel @Inject constructor(
         updateQuantity(itemId, 0)
     }
 
-    fun placeOrder() {
+    fun placeOrder(location: LocationResult.Success) {
         viewModelScope.launch {
+            // In a real app, you'd associate the location with the order
             orderRepository.createOrder()
+        }
+    }
+
+    fun onPlaceOrderClick() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isFetchingLocation = true) }
+            when (val result = locationHelper.getCurrentLocation()) {
+                is LocationResult.Success -> {
+                    _uiState.update { it.copy(isFetchingLocation = false, location = result) }
+                    placeOrder(result)
+                }
+                else -> {
+                    // Handle error cases, e.g., show a message to the user
+                    _uiState.update { it.copy(isFetchingLocation = false) }
+                }
+            }
         }
     }
 }
