@@ -25,19 +25,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.local.model.CartItemEntity
+import java.net.URLEncoder
+import com.example.menuapp.navigation.Screen
 import com.example.menuapp.ui.theme.MenuAppTheme
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun ShoppingCartScreen(
     onBackPressed: () -> Unit,
+    onNavigateToConfirmLocation: (Double, Double, String) -> Unit,
     viewModel: CartViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -58,6 +57,13 @@ fun ShoppingCartScreen(
         uiState.errorMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
             viewModel.clearErrorMessage()
+        }
+    }
+
+    LaunchedEffect(uiState.locationResultForConfirmation) {
+        uiState.locationResultForConfirmation?.let {
+            onNavigateToConfirmLocation(it.latitude, it.longitude, it.address)
+            viewModel.onNavigationToConfirmLocationDone()
         }
     }
 
@@ -274,32 +280,31 @@ fun DeliveryAddressSection(
         Text("Delivery Address", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (uiState.confirmedLocation == null) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = uiState.addressSelection == AddressSelection.CURRENT_LOCATION,
-                    onClick = { onAddressSelectionChange(AddressSelection.CURRENT_LOCATION) }
-                )
-                Text("Use Current Location")
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = uiState.addressSelection == AddressSelection.MANUAL_ENTRY,
-                    onClick = { onAddressSelectionChange(AddressSelection.MANUAL_ENTRY) }
-                )
-                Text("Enter Manually")
-            }
-
-            if (uiState.addressSelection == AddressSelection.MANUAL_ENTRY) {
-                OutlinedTextField(
-                    value = uiState.manualAddressInput,
-                    onValueChange = onManualAddressChange,
-                    label = { Text("Enter your address") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = uiState.addressSelection == AddressSelection.CURRENT_LOCATION,
+                onClick = { onAddressSelectionChange(AddressSelection.CURRENT_LOCATION) }
+            )
+            Text("Use Current Location")
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = uiState.addressSelection == AddressSelection.MANUAL_ENTRY,
+                onClick = { onAddressSelectionChange(AddressSelection.MANUAL_ENTRY) }
+            )
+            Text("Enter Manually")
         }
 
+        if (uiState.addressSelection == AddressSelection.MANUAL_ENTRY) {
+            OutlinedTextField(
+                value = uiState.manualAddressInput,
+                onValueChange = onManualAddressChange,
+                label = { Text("Enter your address") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = uiState.deliveryAddress.ifEmpty { "No address set" },
             modifier = Modifier.fillMaxWidth(),
@@ -315,25 +320,6 @@ fun DeliveryAddressSection(
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
             } else {
                 Text("Confirm Address")
-            }
-        }
-
-        uiState.confirmedLocation?.let { location ->
-            val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(location, 15f)
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            GoogleMap(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                cameraPositionState = cameraPositionState
-            ) {
-                Marker(
-                    state = MarkerState(position = location),
-                    title = "Delivery Location"
-                )
             }
         }
     }

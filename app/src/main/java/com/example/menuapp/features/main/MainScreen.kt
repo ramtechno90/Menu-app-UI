@@ -38,6 +38,15 @@ fun MainScreen(
     val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab = uiState.selectedTab
 
+    val savedStateHandle = mainNavController.currentBackStackEntry?.savedStateHandle
+    LaunchedEffect(savedStateHandle) {
+        savedStateHandle?.getLiveData<String>("confirmed_address")?.observeForever { address ->
+            address?.let {
+                cartViewModel.onLocationConfirmed(it)
+                savedStateHandle.remove<String>("confirmed_address")
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -59,6 +68,12 @@ fun MainScreen(
                 BottomNavItem.Home -> HomeScreen(isDarkTheme = isDarkTheme, onThemeToggle = onThemeToggle)
                 BottomNavItem.Cart -> ShoppingCartScreen(
                     onBackPressed = { /* Within main screen, no back press */ },
+                    onNavigateToConfirmLocation = { latitude, longitude, address ->
+                        val encodedAddress = URLEncoder.encode(address, "UTF-8")
+                        mainNavController.navigate(
+                            Screen.ConfirmLocation.createRoute(latitude, longitude, encodedAddress)
+                        )
+                    },
                     viewModel = cartViewModel
                 )
                 BottomNavItem.Orders -> OrdersScreen(

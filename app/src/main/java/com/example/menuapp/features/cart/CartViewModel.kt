@@ -22,7 +22,7 @@ data class CartUiState(
     val isFetchingAddress: Boolean = false,
     val deliveryAddress: String = "",
     val errorMessage: String? = null,
-    val confirmedLocation: LatLng? = null,
+    val locationResultForConfirmation: LocationResult.Success? = null,
     val manualAddressInput: String = "",
     val addressSelection: AddressSelection = AddressSelection.CURRENT_LOCATION
 )
@@ -85,8 +85,7 @@ class CartViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isFetchingAddress = false,
-                            deliveryAddress = result.address,
-                            confirmedLocation = LatLng(result.latitude, result.longitude)
+                            locationResultForConfirmation = result
                         )
                     }
                 }
@@ -118,6 +117,13 @@ class CartViewModel @Inject constructor(
         }
     }
 
+    fun onLocationConfirmed(address: String) {
+        _uiState.update { it.copy(deliveryAddress = address) }
+    }
+
+    fun onNavigationToConfirmLocationDone() {
+        _uiState.update { it.copy(locationResultForConfirmation = null) }
+    }
 
     fun clearErrorMessage() {
         _uiState.update { it.copy(errorMessage = null) }
@@ -144,14 +150,12 @@ class CartViewModel @Inject constructor(
                 }
                 return@launch
             }
-
             when (val result = locationHelper.geocodeAddress(address)) {
                 is LocationResult.Success -> {
                     _uiState.update {
                         it.copy(
                             isFetchingAddress = false,
-                            deliveryAddress = result.address,
-                            confirmedLocation = LatLng(result.latitude, result.longitude)
+                            locationResultForConfirmation = result
                         )
                     }
                 }
