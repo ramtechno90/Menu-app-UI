@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -52,8 +53,6 @@ android {
 }
 
 dependencies {
-    val room_version = "2.6.1"
-
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.2")
@@ -66,10 +65,9 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.6")
     implementation("io.coil-kt:coil-compose:2.5.0")
 
-    // Room
-    implementation("androidx.room:room-runtime:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
@@ -90,6 +88,9 @@ dependencies {
     // Google Maps
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.maps.android:maps-compose:2.11.4")
+
+    // Coroutines Play Services
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
 
     testImplementation("junit:junit:4.13.2")

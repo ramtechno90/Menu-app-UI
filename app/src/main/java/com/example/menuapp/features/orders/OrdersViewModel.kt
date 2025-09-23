@@ -2,7 +2,7 @@ package com.example.menuapp.features.orders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.menuapp.data.local.model.OrderEntity
+import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.data.repository.OrderRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 data class OrdersUiState(
-    val orders: List<OrderEntity> = emptyList()
+    val orders: List<Order> = emptyList()
 )
 
 @HiltViewModel

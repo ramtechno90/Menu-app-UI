@@ -2,7 +2,7 @@ package com.example.menuapp.features.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.menuapp.data.local.model.CartItemEntity
+import com.example.menuapp.data.firebase.model.CartItem
 import com.example.menuapp.data.repository.MenuRepository
 import com.example.menuapp.data.repository.OrderRepository
 import com.example.menuapp.location.LocationHelper
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class CartUiState(
-    val cartItems: List<CartItemEntity> = emptyList(),
+    val cartItems: List<CartItem> = emptyList(),
     val subtotal: Double = 0.0,
     val tax: Double = 0.0,
     val deliveryFee: Double = 0.0,
@@ -50,7 +50,7 @@ class CartViewModel @Inject constructor(
                 val deliveryFee = if (items.isNotEmpty()) 2.50 else 0.0
                 val grandTotal = subtotal + tax + deliveryFee
 
-                _uiState.value = CartUiState(
+                _uiState.value = _uiState.value.copy(
                     cartItems = items,
                     subtotal = subtotal,
                     tax = tax,
@@ -61,13 +61,13 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    fun updateQuantity(itemId: Int, quantity: Int) {
+    fun updateQuantity(itemId: String, quantity: Int) {
         viewModelScope.launch {
             menuRepository.updateQuantity(itemId, quantity)
         }
     }
 
-    fun removeItem(itemId: Int) {
+    fun removeItem(itemId: String) {
         updateQuantity(itemId, 0)
     }
 

@@ -3,14 +3,14 @@ package com.example.menuapp.features.ordersummary
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.menuapp.data.local.model.OrderEntity
+import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.data.repository.OrderRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 data class OrderSummaryUiState(
-    val order: OrderEntity? = null,
+    val order: Order? = null,
     val isLoading: Boolean = true
 )
 

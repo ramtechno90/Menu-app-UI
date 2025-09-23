@@ -1,25 +1,43 @@
 package com.example.menuapp.data.repository
 
-import com.example.menuapp.data.local.dao.CartDao
-import com.example.menuapp.data.local.dao.OrderDao
-import com.example.menuapp.data.local.model.OrderEntity
+import com.example.menuapp.data.firebase.model.Order
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import java.util.UUID
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class OrderRepository @Inject constructor(
-    private val orderDao: OrderDao,
-    private val cartDao: CartDao
+    private val firestore: FirebaseFirestore,
+    private val menuRepository: MenuRepository
 ) {
-    fun getAllOrders(): Flow<List<OrderEntity>> = orderDao.getAllOrders()
+    fun getAllOrders(): Flow<List<Order>> {
+        return firestore.collection("orders")
+            .snapshots()
+            .map { snapshot ->
+                snapshot.documents.map { document ->
+                    val order = document.toObject(Order::class.java)!!
+                    order.id = document.id
+                    order
+                }
+            }
+    }
 
-    fun getOrderById(orderId: String): Flow<OrderEntity> = orderDao.getOrderById(orderId)
+    fun getOrderById(orderId: String): Flow<Order> {
+        return firestore.collection("orders").document(orderId)
+            .snapshots()
+            .map { snapshot ->
+                val order = snapshot.toObject(Order::class.java)!!
+                order.id = snapshot.id
+                order
+            }
+    }
 
     suspend fun createOrder(address: String) {
-        val cartItems = cartDao.getCartItems().first()
+        val cartItems = menuRepository.getCartItems().first()
         if (cartItems.isEmpty()) {
             return // Can't create an empty order
         }
@@ -29,8 +47,7 @@ class OrderRepository @Inject constructor(
         val deliveryFee = 2.50 // Assuming a flat delivery fee
         val grandTotal = subtotal + tax + deliveryFee
 
-        val order = OrderEntity(
-            id = UUID.randomUUID().toString(),
+        val order = Order(
             items = cartItems,
             subtotal = subtotal,
             tax = tax,
@@ -41,7 +58,7 @@ class OrderRepository @Inject constructor(
             deliveryAddress = address
         )
 
-        orderDao.insertOrder(order)
-        cartDao.clearCart()
+        firestore.collection("orders").add(order).await()
+        menuRepository.clearCart()
     }
 }
