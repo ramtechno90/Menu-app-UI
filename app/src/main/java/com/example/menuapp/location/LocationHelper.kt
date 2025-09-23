@@ -26,6 +26,7 @@ import kotlin.coroutines.resume
 
 interface LocationHelper {
     suspend fun getCurrentLocation(): LocationResult
+    suspend fun geocodeAddress(address: String): LocationResult
 }
 
 sealed class LocationResult {
@@ -57,6 +58,22 @@ class LocationHelperImpl @Inject constructor(
                 LocationResult.Success(location.latitude, location.longitude, address)
             } else {
                 LocationResult.Error(Exception("Failed to get location"))
+            }
+        } catch (e: Exception) {
+            LocationResult.Error(e)
+        }
+    }
+
+    override suspend fun geocodeAddress(address: String): LocationResult {
+        return try {
+            val addresses = withContext(Dispatchers.IO) {
+                geocoder.getFromLocationName(address, 1)
+            }
+            if (addresses?.isNotEmpty() == true) {
+                val location = addresses[0]
+                LocationResult.Success(location.latitude, location.longitude, location.getAddressLine(0))
+            } else {
+                LocationResult.Error(Exception("No location found for the address"))
             }
         } catch (e: Exception) {
             LocationResult.Error(e)

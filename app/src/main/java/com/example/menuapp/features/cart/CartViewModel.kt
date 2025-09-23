@@ -22,8 +22,15 @@ data class CartUiState(
     val isFetchingAddress: Boolean = false,
     val deliveryAddress: String = "",
     val errorMessage: String? = null,
-    val locationResultForConfirmation: LocationResult.Success? = null
+    val confirmedLocation: LatLng? = null,
+    val manualAddressInput: String = "",
+    val addressSelection: AddressSelection = AddressSelection.CURRENT_LOCATION
 )
+
+enum class AddressSelection {
+    CURRENT_LOCATION,
+    MANUAL_ENTRY
+}
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
@@ -78,7 +85,8 @@ class CartViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isFetchingAddress = false,
-                            locationResultForConfirmation = result
+                            deliveryAddress = result.address,
+                            confirmedLocation = LatLng(result.latitude, result.longitude)
                         )
                     }
                 }
@@ -110,15 +118,60 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    fun onLocationConfirmed(address: String) {
-        _uiState.update { it.copy(deliveryAddress = address) }
-    }
-
-    fun onNavigationToConfirmLocationDone() {
-        _uiState.update { it.copy(locationResultForConfirmation = null) }
-    }
 
     fun clearErrorMessage() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    fun onAddressSelectionChange(selection: AddressSelection) {
+        _uiState.update { it.copy(addressSelection = selection) }
+    }
+
+    fun onManualAddressInputChange(address: String) {
+        _uiState.update { it.copy(manualAddressInput = address) }
+    }
+
+    fun geocodeManualAddress() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isFetchingAddress = true, errorMessage = null) }
+            val address = _uiState.value.manualAddressInput
+            if (address.isBlank()) {
+                _uiState.update {
+                    it.copy(
+                        isFetchingAddress = false,
+                        errorMessage = "Address cannot be empty."
+                    )
+                }
+                return@launch
+            }
+
+            when (val result = locationHelper.geocodeAddress(address)) {
+                is LocationResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isFetchingAddress = false,
+                            deliveryAddress = result.address,
+                            confirmedLocation = LatLng(result.latitude, result.longitude)
+                        )
+                    }
+                }
+                is LocationResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isFetchingAddress = false,
+                            errorMessage = result.exception.message ?: "An unknown error occurred."
+                        )
+                    }
+                }
+                else -> {
+                    _uiState.update {
+                        it.copy(
+                            isFetchingAddress = false,
+                            errorMessage = "An unexpected error occurred."
+                        )
+                    }
+                }
+            }
+        }
     }
 }

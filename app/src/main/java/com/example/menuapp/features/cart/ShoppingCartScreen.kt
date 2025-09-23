@@ -25,18 +25,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.local.model.CartItemEntity
-import java.net.URLEncoder
-import com.example.menuapp.navigation.Screen
 import com.example.menuapp.ui.theme.MenuAppTheme
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun ShoppingCartScreen(
     onBackPressed: () -> Unit,
-    onNavigateToConfirmLocation: (Double, Double, String) -> Unit,
     viewModel: CartViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -60,13 +61,6 @@ fun ShoppingCartScreen(
         }
     }
 
-    LaunchedEffect(uiState.locationResultForConfirmation) {
-        uiState.locationResultForConfirmation?.let {
-            onNavigateToConfirmLocation(it.latitude, it.longitude, it.address)
-            viewModel.onNavigationToConfirmLocationDone()
-        }
-    }
-
     ShoppingCartScreenContent(
         uiState = uiState,
         onBackPressed = onBackPressed,
@@ -74,12 +68,17 @@ fun ShoppingCartScreen(
             viewModel.placeOrder(uiState.deliveryAddress)
             Toast.makeText(context, "Order Placed!", Toast.LENGTH_SHORT).show()
         },
-        onFetchAddressClicked = {
-            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        onConfirmAddressClicked = {
+            when (uiState.addressSelection) {
+                AddressSelection.CURRENT_LOCATION -> locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                AddressSelection.MANUAL_ENTRY -> viewModel.geocodeManualAddress()
+            }
         },
         onQuantityChange = { itemId, quantity ->
             viewModel.updateQuantity(itemId, quantity)
-        }
+        },
+        onAddressSelectionChange = viewModel::onAddressSelectionChange,
+        onManualAddressChange = viewModel::onManualAddressInputChange
     )
 }
 
@@ -89,8 +88,10 @@ fun ShoppingCartScreenContent(
     uiState: CartUiState,
     onBackPressed: () -> Unit,
     onPlaceOrderClicked: () -> Unit,
-    onFetchAddressClicked: () -> Unit,
-    onQuantityChange: (Int, Int) -> Unit
+    onConfirmAddressClicked: () -> Unit,
+    onQuantityChange: (Int, Int) -> Unit,
+    onAddressSelectionChange: (AddressSelection) -> Unit,
+    onManualAddressChange: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -133,7 +134,9 @@ fun ShoppingCartScreenContent(
             item {
                 DeliveryAddressSection(
                     uiState = uiState,
-                    onFetchAddressClicked = onFetchAddressClicked
+                    onConfirmAddressClicked = onConfirmAddressClicked,
+                    onAddressSelectionChange = onAddressSelectionChange,
+                    onManualAddressChange = onManualAddressChange
                 )
             }
         }
@@ -255,10 +258,13 @@ private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeliveryAddressSection(
     uiState: CartUiState,
-    onFetchAddressClicked: () -> Unit
+    onConfirmAddressClicked: () -> Unit,
+    onAddressSelectionChange: (AddressSelection) -> Unit,
+    onManualAddressChange: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -267,25 +273,67 @@ fun DeliveryAddressSection(
     ) {
         Text("Delivery Address", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        Row(
+
+        if (uiState.confirmedLocation == null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = uiState.addressSelection == AddressSelection.CURRENT_LOCATION,
+                    onClick = { onAddressSelectionChange(AddressSelection.CURRENT_LOCATION) }
+                )
+                Text("Use Current Location")
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = uiState.addressSelection == AddressSelection.MANUAL_ENTRY,
+                    onClick = { onAddressSelectionChange(AddressSelection.MANUAL_ENTRY) }
+                )
+                Text("Enter Manually")
+            }
+
+            if (uiState.addressSelection == AddressSelection.MANUAL_ENTRY) {
+                OutlinedTextField(
+                    value = uiState.manualAddressInput,
+                    onValueChange = onManualAddressChange,
+                    label = { Text("Enter your address") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        Text(
+            text = uiState.deliveryAddress.ifEmpty { "No address set" },
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            color = if (uiState.deliveryAddress.isNotEmpty()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = onConfirmAddressClicked,
+            enabled = !uiState.isFetchingAddress,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = uiState.deliveryAddress.ifEmpty { "No address set" },
-                modifier = Modifier.weight(1f),
-                color = if (uiState.deliveryAddress.isNotEmpty()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = onFetchAddressClicked,
-                enabled = !uiState.isFetchingAddress
+            if (uiState.isFetchingAddress) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+            } else {
+                Text("Confirm Address")
+            }
+        }
+
+        uiState.confirmedLocation?.let { location ->
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(location, 15f)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            GoogleMap(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                cameraPositionState = cameraPositionState
             ) {
-                if (uiState.isFetchingAddress) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Icon(Icons.Default.MyLocation, contentDescription = "Get current location")
-                }
+                Marker(
+                    state = MarkerState(position = location),
+                    title = "Delivery Location"
+                )
             }
         }
     }
@@ -299,8 +347,10 @@ fun ShoppingCartScreenPreview() {
             uiState = CartUiState(),
             onBackPressed = {},
             onPlaceOrderClicked = {},
-            onFetchAddressClicked = {},
-            onQuantityChange = { _, _ -> }
+            onConfirmAddressClicked = {},
+            onQuantityChange = { _, _ -> },
+            onAddressSelectionChange = {},
+            onManualAddressChange = {}
         )
     }
 }
