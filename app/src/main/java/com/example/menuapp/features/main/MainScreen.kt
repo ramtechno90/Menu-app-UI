@@ -31,9 +31,11 @@ fun MainScreen(
     mainNavController: NavController,
     isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
+    mainViewModel: MainViewModel = hiltViewModel(),
     cartViewModel: CartViewModel = hiltViewModel()
 ) {
-    var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
+    val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
+    val selectedTab = uiState.selectedTab
 
     val savedStateHandle = mainNavController.currentBackStackEntry?.savedStateHandle
     LaunchedEffect(savedStateHandle) {
@@ -54,7 +56,7 @@ fun MainScreen(
                         icon = { Icon(item.icon, contentDescription = item.title) },
                         label = { Text(item.title) },
                         selected = selectedTab == item,
-                        onClick = { selectedTab = item }
+                        onClick = { mainViewModel.onTabSelected(item) }
                     )
                 }
             }
