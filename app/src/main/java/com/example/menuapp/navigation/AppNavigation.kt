@@ -73,14 +73,11 @@ fun AppNavigation(
 
             if (latitude != null && longitude != null && address != null) {
                 ConfirmLocationScreen(
-                    latitude = latitude,
-                    longitude = longitude,
-                    address = address,
-                    onConfirmClicked = {
+                    onConfirmClicked = { newAddress ->
                         // Pass the confirmed address back to the cart screen
                         navController.previousBackStackEntry
                             ?.savedStateHandle
-                            ?.set("confirmed_address", address)
+                            ?.set("confirmed_address", newAddress)
                         navController.popBackStack()
                     },
                     onBackPressed = { navController.popBackStack() }

@@ -27,6 +27,7 @@ import kotlin.coroutines.resume
 interface LocationHelper {
     suspend fun getCurrentLocation(): LocationResult
     suspend fun geocodeAddress(address: String): LocationResult
+    suspend fun getAddressFromCoordinates(latitude: Double, longitude: Double): String
 }
 
 sealed class LocationResult {
@@ -54,7 +55,7 @@ class LocationHelperImpl @Inject constructor(
         return try {
             val location = fetchRawLocation()
             if (location != null) {
-                val address = getAddressFromLocation(location.latitude, location.longitude)
+                val address = getAddressFromCoordinates(location.latitude, location.longitude)
                 LocationResult.Success(location.latitude, location.longitude, address)
             } else {
                 LocationResult.Error(Exception("Failed to get location"))
@@ -105,7 +106,7 @@ class LocationHelperImpl @Inject constructor(
     }
 
     @Suppress("DEPRECATION")
-    private suspend fun getAddressFromLocation(latitude: Double, longitude: Double): String {
+    override suspend fun getAddressFromCoordinates(latitude: Double, longitude: Double): String {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 suspendCancellableCoroutine { continuation ->

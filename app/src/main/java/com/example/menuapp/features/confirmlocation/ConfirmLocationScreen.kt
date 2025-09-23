@@ -22,18 +22,47 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmLocationScreen(
-    latitude: Double,
-    longitude: Double,
-    address: String,
-    onConfirmClicked: () -> Unit,
-    onBackPressed: () -> Unit
+    onConfirmClicked: (String) -> Unit,
+    onBackPressed: () -> Unit,
+    viewModel: ConfirmLocationViewModel = hiltViewModel()
 ) {
-    val location = remember { LatLng(latitude, longitude) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val markerPosition = uiState.markerPosition
+
+    if (markerPosition == null) {
+        // Show a loading indicator or some placeholder
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(location, 15f)
+        position = CameraPosition.fromLatLngZoom(markerPosition, 15f)
+    }
+    val markerState = remember { MarkerState(position = markerPosition) }
+
+    // This effect will run when the marker drag has ended
+    LaunchedEffect(markerState) {
+        snapshotFlow { markerState.dragState }
+            .distinctUntilChanged()
+            .filter { it == com.google.maps.android.compose.DragState.END }
+            .collect {
+                viewModel.updateAddressFromCoordinates(
+                    markerState.position.latitude,
+                    markerState.position.longitude
+                )
+            }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -42,8 +71,9 @@ fun ConfirmLocationScreen(
             cameraPositionState = cameraPositionState
         ) {
             Marker(
-                state = MarkerState(position = location),
-                title = "Your Location"
+                state = markerState,
+                title = "Your Location",
+                draggable = true
             )
         }
         Column(
@@ -57,11 +87,16 @@ fun ConfirmLocationScreen(
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = address, style = MaterialTheme.typography.bodyLarge)
+            if (uiState.isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Text(text = uiState.address, style = MaterialTheme.typography.bodyLarge)
+            }
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = onConfirmClicked,
-                modifier = Modifier.fillMaxWidth()
+                onClick = { onConfirmClicked(uiState.address) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading
             ) {
                 Text("Confirm Location")
             }
