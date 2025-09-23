@@ -348,7 +348,8 @@ fun ShoppingCartScreenPreview() {
             onConfirmAddressClicked = {},
             onQuantityChange = { _, _ -> },
             onAddressSelectionChange = {},
-            onManualAddressChange = {}
+            onManualAddressChange = {},
+            onChangeLocationClicked = {}
         )
     }
 }
