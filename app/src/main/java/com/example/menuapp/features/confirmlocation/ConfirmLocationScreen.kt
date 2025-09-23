@@ -6,10 +6,15 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -22,6 +27,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun ConfirmLocationScreen(
     latitude: Double,
     longitude: Double,
+    address: String,
     onConfirmClicked: () -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -30,43 +36,41 @@ fun ConfirmLocationScreen(
         position = CameraPosition.fromLatLngZoom(location, 15f)
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Confirm Your Location", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        },
-        floatingActionButton = {
-            Button(
-                onClick = onConfirmClicked,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text("Confirm Location")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) { paddingValues ->
+    Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
         ) {
             Marker(
                 state = MarkerState(position = location),
-                title = "Your Location",
-                snippet = "Confirm if this is your location"
+                title = "Your Location"
             )
+        }
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Confirm Your Delivery Address",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = address, style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onConfirmClicked,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Confirm Location")
+            }
+            OutlinedButton(
+                onClick = onBackPressed,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Go Back")
+            }
         }
     }
 }

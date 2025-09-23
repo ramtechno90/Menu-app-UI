@@ -24,9 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -35,12 +33,11 @@ import java.net.URLEncoder
 import com.example.menuapp.navigation.Screen
 import com.example.menuapp.ui.theme.MenuAppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingCartScreen(
     onBackPressed: () -> Unit,
     onNavigateToConfirmLocation: (Double, Double, String) -> Unit,
-    viewModel: CartViewModel = hiltViewModel()
+    viewModel: CartViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -70,6 +67,31 @@ fun ShoppingCartScreen(
         }
     }
 
+    ShoppingCartScreenContent(
+        uiState = uiState,
+        onBackPressed = onBackPressed,
+        onPlaceOrderClicked = {
+            viewModel.placeOrder(uiState.deliveryAddress)
+            Toast.makeText(context, "Order Placed!", Toast.LENGTH_SHORT).show()
+        },
+        onFetchAddressClicked = {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        },
+        onQuantityChange = { itemId, quantity ->
+            viewModel.updateQuantity(itemId, quantity)
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShoppingCartScreenContent(
+    uiState: CartUiState,
+    onBackPressed: () -> Unit,
+    onPlaceOrderClicked: () -> Unit,
+    onFetchAddressClicked: () -> Unit,
+    onQuantityChange: (Int, Int) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -87,10 +109,7 @@ fun ShoppingCartScreen(
         bottomBar = {
             CheckoutFooter(
                 uiState = uiState,
-                onPlaceOrderClicked = {
-                    viewModel.placeOrder(uiState.deliveryAddress)
-                    Toast.makeText(context, "Order Placed!", Toast.LENGTH_SHORT).show()
-                }
+                onPlaceOrderClicked = onPlaceOrderClicked
             )
         }
     ) { paddingValues ->
@@ -106,7 +125,7 @@ fun ShoppingCartScreen(
                 CartListItem(
                     item = item,
                     onQuantityChange = { newQuantity ->
-                        viewModel.updateQuantity(item.id, newQuantity)
+                        onQuantityChange(item.id, newQuantity)
                     }
                 )
             }
@@ -114,9 +133,7 @@ fun ShoppingCartScreen(
             item {
                 DeliveryAddressSection(
                     uiState = uiState,
-                    onFetchAddressClicked = {
-                        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                    }
+                    onFetchAddressClicked = onFetchAddressClicked
                 )
             }
         }
@@ -278,9 +295,12 @@ fun DeliveryAddressSection(
 @Composable
 fun ShoppingCartScreenPreview() {
     MenuAppTheme(darkTheme = false) {
-        ShoppingCartScreen(
+        ShoppingCartScreenContent(
+            uiState = CartUiState(),
             onBackPressed = {},
-            onNavigateToConfirmLocation = { _, _, _ -> }
+            onPlaceOrderClicked = {},
+            onFetchAddressClicked = {},
+            onQuantityChange = { _, _ -> }
         )
     }
 }

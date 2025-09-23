@@ -10,7 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.menuapp.features.cart.CartViewModel
 import com.example.menuapp.features.cart.ShoppingCartScreen
 import com.example.menuapp.features.home.HomeScreen
 import java.net.URLEncoder
@@ -28,9 +30,20 @@ sealed class BottomNavItem(val title: String, val icon: ImageVector, val route: 
 fun MainScreen(
     mainNavController: NavController,
     isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit
+    onThemeToggle: () -> Unit,
+    cartViewModel: CartViewModel = hiltViewModel()
 ) {
     var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
+
+    val savedStateHandle = mainNavController.currentBackStackEntry?.savedStateHandle
+    LaunchedEffect(savedStateHandle) {
+        savedStateHandle?.getLiveData<String>("confirmed_address")?.observeForever { address ->
+            address?.let {
+                cartViewModel.onLocationConfirmed(it)
+                savedStateHandle.remove<String>("confirmed_address")
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -57,7 +70,8 @@ fun MainScreen(
                         mainNavController.navigate(
                             Screen.ConfirmLocation.createRoute(latitude, longitude, encodedAddress)
                         )
-                    }
+                    },
+                    viewModel = cartViewModel
                 )
                 BottomNavItem.Orders -> OrdersScreen(
                     onBackPressed = { /* No back press */ },
