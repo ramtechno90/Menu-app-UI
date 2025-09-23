@@ -178,4 +178,13 @@ class CartViewModel @Inject constructor(
             }
         }
     }
+
+    fun changeLocation() {
+        _uiState.update {
+            it.copy(
+                deliveryAddress = "",
+                locationResultForConfirmation = null
+            )
+        }
+    }
 }

@@ -84,7 +84,8 @@ fun ShoppingCartScreen(
             viewModel.updateQuantity(itemId, quantity)
         },
         onAddressSelectionChange = viewModel::onAddressSelectionChange,
-        onManualAddressChange = viewModel::onManualAddressInputChange
+        onManualAddressChange = viewModel::onManualAddressInputChange,
+        onChangeLocationClicked = viewModel::changeLocation
     )
 }
 
@@ -97,7 +98,8 @@ fun ShoppingCartScreenContent(
     onConfirmAddressClicked: () -> Unit,
     onQuantityChange: (Int, Int) -> Unit,
     onAddressSelectionChange: (AddressSelection) -> Unit,
-    onManualAddressChange: (String) -> Unit
+    onManualAddressChange: (String) -> Unit,
+    onChangeLocationClicked: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -142,7 +144,8 @@ fun ShoppingCartScreenContent(
                     uiState = uiState,
                     onConfirmAddressClicked = onConfirmAddressClicked,
                     onAddressSelectionChange = onAddressSelectionChange,
-                    onManualAddressChange = onManualAddressChange
+                    onManualAddressChange = onManualAddressChange,
+                    onChangeLocationClicked = onChangeLocationClicked
                 )
             }
         }
@@ -270,7 +273,8 @@ fun DeliveryAddressSection(
     uiState: CartUiState,
     onConfirmAddressClicked: () -> Unit,
     onAddressSelectionChange: (AddressSelection) -> Unit,
-    onManualAddressChange: (String) -> Unit
+    onManualAddressChange: (String) -> Unit,
+    onChangeLocationClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -280,46 +284,54 @@ fun DeliveryAddressSection(
         Text("Delivery Address", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(
-                selected = uiState.addressSelection == AddressSelection.CURRENT_LOCATION,
-                onClick = { onAddressSelectionChange(AddressSelection.CURRENT_LOCATION) }
-            )
-            Text("Use Current Location")
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(
-                selected = uiState.addressSelection == AddressSelection.MANUAL_ENTRY,
-                onClick = { onAddressSelectionChange(AddressSelection.MANUAL_ENTRY) }
-            )
-            Text("Enter Manually")
-        }
+        if (uiState.deliveryAddress.isEmpty()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = uiState.addressSelection == AddressSelection.CURRENT_LOCATION,
+                    onClick = { onAddressSelectionChange(AddressSelection.CURRENT_LOCATION) }
+                )
+                Text("Use Current Location")
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = uiState.addressSelection == AddressSelection.MANUAL_ENTRY,
+                    onClick = { onAddressSelectionChange(AddressSelection.MANUAL_ENTRY) }
+                )
+                Text("Enter Manually")
+            }
 
-        if (uiState.addressSelection == AddressSelection.MANUAL_ENTRY) {
-            OutlinedTextField(
-                value = uiState.manualAddressInput,
-                onValueChange = onManualAddressChange,
-                label = { Text("Enter your address") },
+            if (uiState.addressSelection == AddressSelection.MANUAL_ENTRY) {
+                OutlinedTextField(
+                    value = uiState.manualAddressInput,
+                    onValueChange = onManualAddressChange,
+                    label = { Text("Enter your address") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onConfirmAddressClicked,
+                enabled = !uiState.isFetchingAddress,
                 modifier = Modifier.fillMaxWidth()
+            ) {
+                if (uiState.isFetchingAddress) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Text("Confirm Address")
+                }
+            }
+        } else {
+            Text(
+                text = uiState.deliveryAddress,
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface
             )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = uiState.deliveryAddress.ifEmpty { "No address set" },
-            modifier = Modifier.fillMaxWidth(),
-            color = if (uiState.deliveryAddress.isNotEmpty()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(
-            onClick = onConfirmAddressClicked,
-            enabled = !uiState.isFetchingAddress,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (uiState.isFetchingAddress) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
-            } else {
-                Text("Confirm Address")
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onChangeLocationClicked,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Change Location")
             }
         }
     }
