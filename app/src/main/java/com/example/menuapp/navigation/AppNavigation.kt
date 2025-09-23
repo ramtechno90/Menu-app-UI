@@ -10,6 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.menuapp.features.confirmlocation.ConfirmLocationScreen
 import com.example.menuapp.features.ordertracking.OrderTrackingScreen
+import java.net.URLDecoder
 import com.example.menuapp.features.roleselection.RoleSelectionScreen
 
 @Composable
@@ -66,7 +67,9 @@ fun AppNavigation(
         ) { backStackEntry ->
             val latitude = backStackEntry.arguments?.getFloat("latitude")?.toDouble()
             val longitude = backStackEntry.arguments?.getFloat("longitude")?.toDouble()
-            val address = backStackEntry.arguments?.getString("address")
+            val address = backStackEntry.arguments?.getString("address")?.let {
+                URLDecoder.decode(it, "UTF-8")
+            }
 
             if (latitude != null && longitude != null && address != null) {
                 ConfirmLocationScreen(

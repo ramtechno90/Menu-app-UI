@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.local.model.CartItemEntity
+import java.net.URLEncoder
 import com.example.menuapp.navigation.Screen
 import com.example.menuapp.ui.theme.MenuAppTheme
 
@@ -38,7 +39,7 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 @Composable
 fun ShoppingCartScreen(
     onBackPressed: () -> Unit,
-    navController: NavController,
+    onNavigateToConfirmLocation: (Double, Double, String) -> Unit,
     viewModel: CartViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -64,18 +65,8 @@ fun ShoppingCartScreen(
 
     LaunchedEffect(uiState.locationResultForConfirmation) {
         uiState.locationResultForConfirmation?.let {
-            navController.navigate(Screen.ConfirmLocation.createRoute(it.latitude, it.longitude, it.address))
+            onNavigateToConfirmLocation(it.latitude, it.longitude, it.address)
             viewModel.onNavigationToConfirmLocationDone()
-        }
-    }
-
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-    LaunchedEffect(savedStateHandle) {
-        savedStateHandle?.getLiveData<String>("confirmed_address")?.observeForever { address ->
-            address?.let {
-                viewModel.onLocationConfirmed(it)
-                savedStateHandle.remove<String>("confirmed_address")
-            }
         }
     }
 
@@ -289,7 +280,7 @@ fun ShoppingCartScreenPreview() {
     MenuAppTheme(darkTheme = false) {
         ShoppingCartScreen(
             onBackPressed = {},
-            navController = rememberNavController()
+            onNavigateToConfirmLocation = { _, _, _ -> }
         )
     }
 }

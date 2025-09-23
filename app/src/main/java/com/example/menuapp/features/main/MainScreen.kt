@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import com.example.menuapp.features.cart.ShoppingCartScreen
 import com.example.menuapp.features.home.HomeScreen
+import java.net.URLEncoder
 import com.example.menuapp.features.orders.OrdersScreen
 import com.example.menuapp.navigation.Screen
 
@@ -51,7 +52,12 @@ fun MainScreen(
                 BottomNavItem.Home -> HomeScreen(isDarkTheme = isDarkTheme, onThemeToggle = onThemeToggle)
                 BottomNavItem.Cart -> ShoppingCartScreen(
                     onBackPressed = { /* Within main screen, no back press */ },
-                    navController = mainNavController
+                    onNavigateToConfirmLocation = { latitude, longitude, address ->
+                        val encodedAddress = URLEncoder.encode(address, "UTF-8")
+                        mainNavController.navigate(
+                            Screen.ConfirmLocation.createRoute(latitude, longitude, encodedAddress)
+                        )
+                    }
                 )
                 BottomNavItem.Orders -> OrdersScreen(
                     onBackPressed = { /* No back press */ },
