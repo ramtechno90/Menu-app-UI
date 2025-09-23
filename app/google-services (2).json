@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "855839483192",
+    "project_id": "strategic-haven-471117-j1",
+    "storage_bucket": "strategic-haven-471117-j1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855839483192:android:e01778cd6aa8699944cdcd",
+        "android_client_info": {
+          "package_name": "com.example.menuapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZ5wiOxc4xwx_RkXO_x_LFL9SYDYGpXUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
