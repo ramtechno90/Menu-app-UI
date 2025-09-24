@@ -33,7 +33,7 @@ import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.MenuItem
 import com.example.menuapp.ui.theme.MenuAppTheme
 
-val categories = listOf("Starters", "Main Course", "Pizza", "Salad", "Pasta", "Dessert")
+val categories = listOf("Starters", "Main Course", "Breads", "Pizza", "Salad", "Pasta", "Dessert")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
