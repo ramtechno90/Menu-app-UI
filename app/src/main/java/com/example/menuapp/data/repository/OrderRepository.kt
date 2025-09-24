@@ -55,7 +55,7 @@ class OrderRepository @Inject constructor(
             deliveryFee = deliveryFee,
             grandTotal = grandTotal,
             orderDate = System.currentTimeMillis(),
-            status = "COMPLETED", // Or "CURRENT" depending on desired logic
+            status = "Pending",
             deliveryAddress = address
         )
 
