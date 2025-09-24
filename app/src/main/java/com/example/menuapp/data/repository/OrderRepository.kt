@@ -2,6 +2,7 @@ package com.example.menuapp.data.repository
 
 import com.example.menuapp.data.firebase.model.Order
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -17,6 +18,7 @@ class OrderRepository @Inject constructor(
 ) {
     fun getAllOrders(): Flow<List<Order>> {
         return firestore.collection("orders")
+            .orderBy("orderDate", Query.Direction.DESCENDING)
             .snapshots()
             .map { snapshot ->
                 snapshot.documents.map { document ->
