@@ -48,7 +48,11 @@ class OrderRepository @Inject constructor(
         val deliveryFee = 2.50 // Assuming a flat delivery fee
         val grandTotal = subtotal + tax + deliveryFee
 
+        // Create a new document with a unique ID
+        val newOrderRef = firestore.collection("orders").document()
+
         val order = Order(
+            id = newOrderRef.id, // Use the unique ID from the document reference
             items = cartItems,
             subtotal = subtotal,
             tax = tax,
@@ -59,7 +63,8 @@ class OrderRepository @Inject constructor(
             deliveryAddress = address
         )
 
-        firestore.collection("orders").add(order).await()
+        // Set the data for the new document
+        newOrderRef.set(order).await()
         menuRepository.clearCart()
     }
 }
