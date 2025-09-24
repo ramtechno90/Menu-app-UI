@@ -2,6 +2,7 @@ package com.example.menuapp.data.repository
 
 import com.example.menuapp.data.firebase.model.Order
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

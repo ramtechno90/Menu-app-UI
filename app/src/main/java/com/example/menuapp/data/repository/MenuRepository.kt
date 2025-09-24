@@ -3,6 +3,7 @@ package com.example.menuapp.data.repository
 import com.example.menuapp.data.firebase.model.CartItem
 import com.example.menuapp.data.firebase.model.MenuItem
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
