@@ -22,15 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.menuapp.data.local.model.OrderEntity
+import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrentOrdersScreen(
     onBackPressed: () -> Unit,
-    onOrderClicked: (OrderEntity) -> Unit,
-    orders: List<OrderEntity>
+    onOrderClicked: (Order) -> Unit,
+    orders: List<Order>
 ) {
     Scaffold(
         topBar = {
@@ -62,7 +62,7 @@ fun CurrentOrdersScreen(
 }
 
 @Composable
-private fun CurrentOrderCard(order: OrderEntity, onClick: () -> Unit) {
+private fun CurrentOrderCard(order: Order, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -74,7 +74,7 @@ private fun CurrentOrderCard(order: OrderEntity, onClick: () -> Unit) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Since OrderEntity doesn't have a single restaurant image, we'll use a placeholder
+            // Since Order doesn't have a single restaurant image, we'll use a placeholder
             Box(
                 modifier = Modifier
                     .size(80.dp)

@@ -25,11 +25,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.menuapp.data.local.model.CartItemEntity
-import com.example.menuapp.data.local.model.OrderEntity
+import com.example.menuapp.data.firebase.model.CartItem
+import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
-import java.text.SimpleDateFormat
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,7 +94,7 @@ fun OrderSummaryScreen(
 }
 
 @Composable
-private fun DeliveryAddressCard(order: OrderEntity) {
+private fun DeliveryAddressCard(order: Order) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -115,7 +113,7 @@ private fun DeliveryAddressCard(order: OrderEntity) {
 }
 
 @Composable
-private fun OrderStatusHeader(order: OrderEntity) {
+private fun OrderStatusHeader(order: Order) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,7 +136,7 @@ private fun OrderStatusHeader(order: OrderEntity) {
 }
 
 @Composable
-private fun OrderItemCard(item: CartItemEntity) {
+private fun OrderItemCard(item: CartItem) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -165,7 +163,7 @@ private fun OrderItemCard(item: CartItemEntity) {
 }
 
 @Composable
-private fun SummaryCard(order: OrderEntity) {
+private fun SummaryCard(order: Order) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,

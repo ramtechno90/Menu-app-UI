@@ -30,7 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.menuapp.data.local.model.OrderEntity
+import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 enum class TrackingStatus {
@@ -100,7 +100,7 @@ fun OrderTrackingScreen(
 }
 
 @Composable
-private fun OrderSummaryCard(order: OrderEntity) {
+private fun OrderSummaryCard(order: Order) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,

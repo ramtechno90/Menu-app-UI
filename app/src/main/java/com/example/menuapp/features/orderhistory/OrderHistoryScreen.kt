@@ -15,15 +15,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.menuapp.data.local.model.OrderEntity
+import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderHistoryScreen(
     onBackPressed: () -> Unit,
-    onViewDetailsClicked: (OrderEntity) -> Unit,
-    orders: List<OrderEntity>
+    onViewDetailsClicked: (Order) -> Unit,
+    orders: List<Order>
 ) {
     Scaffold(
         topBar = {
@@ -55,7 +55,7 @@ fun OrderHistoryScreen(
 }
 
 @Composable
-private fun OrderHistoryCard(order: OrderEntity, onViewDetails: () -> Unit) {
+private fun OrderHistoryCard(order: Order, onViewDetails: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp,

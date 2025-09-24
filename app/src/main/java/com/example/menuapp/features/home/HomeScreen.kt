@@ -30,15 +30,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.menuapp.data.local.model.MenuItemEntity
+import com.example.menuapp.data.firebase.model.MenuItem
 import com.example.menuapp.ui.theme.MenuAppTheme
 
-// Sample data is no longer the source of truth, but useful for previews
-val sampleMenuItems = listOf(
-    MenuItemEntity(1, "Ghee Roast Dosa", "Crispy dosa roasted with pure ghee", 120.0, "https://...","Starters"),
-    MenuItemEntity(2, "Paneer Tikka Masala", "Creamy tomato-based curry with grilled paneer", 250.0, "https://...", "Main Course")
-)
-val categories = listOf("Starters", "Main Course", "Breads", "Desserts")
+val categories = listOf("Starters", "Main Course", "Pizza", "Salad", "Pasta", "Dessert")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,8 +121,8 @@ private fun CategorySelection(
 
 @Composable
 private fun MenuItemCard(
-    menuItem: MenuItemEntity,
-    onAddToCart: (MenuItemEntity) -> Unit
+    menuItem: MenuItem,
+    onAddToCart: (MenuItem) -> Unit
 ) {
     Row(
         modifier = Modifier

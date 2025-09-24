@@ -5,6 +5,7 @@ build/
 captures/
 .cxx/
 local.properties
+google-services.json
 
 # Kotlin
 *.kt.js

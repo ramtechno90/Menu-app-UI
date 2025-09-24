@@ -25,12 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.menuapp.data.local.model.CartItemEntity
-import java.net.URLEncoder
-import com.example.menuapp.navigation.Screen
+import com.example.menuapp.data.firebase.model.CartItem
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 @Composable
@@ -96,7 +93,7 @@ fun ShoppingCartScreenContent(
     onBackPressed: () -> Unit,
     onPlaceOrderClicked: () -> Unit,
     onConfirmAddressClicked: () -> Unit,
-    onQuantityChange: (Int, Int) -> Unit,
+    onQuantityChange: (String, Int) -> Unit,
     onAddressSelectionChange: (AddressSelection) -> Unit,
     onManualAddressChange: (String) -> Unit,
     onChangeLocationClicked: () -> Unit
@@ -154,7 +151,7 @@ fun ShoppingCartScreenContent(
 
 @Composable
 private fun CartListItem(
-    item: CartItemEntity,
+    item: CartItem,
     onQuantityChange: (Int) -> Unit
 ) {
     Row(
