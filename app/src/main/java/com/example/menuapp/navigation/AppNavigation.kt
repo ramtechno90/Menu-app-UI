@@ -11,22 +11,43 @@ import androidx.navigation.navArgument
 import com.example.menuapp.features.confirmlocation.ConfirmLocationScreen
 import com.example.menuapp.features.ordertracking.OrderTrackingScreen
 import java.net.URLDecoder
+import com.example.menuapp.features.auth.SignInScreen
+import com.example.menuapp.features.auth.SignUpScreen
 import com.example.menuapp.features.roleselection.RoleSelectionScreen
 
 @Composable
 fun AppNavigation(
     isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit
+    onThemeToggle: () -> Unit,
+    startDestination: String
 ) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.RoleSelection.route) {
-        composable(Screen.RoleSelection.route) {
-            RoleSelectionScreen(
-                onCustomerSelected = {
+    NavHost(navController = navController, startDestination = startDestination) {
+        composable(Screen.SignIn.route) {
+            SignInScreen(
+                onSignInSuccess = {
                     navController.navigate(Screen.Main.route) {
                         popUpTo(Screen.RoleSelection.route) { inclusive = true }
                     }
+                },
+                onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) }
+            )
+        }
+        composable(Screen.SignUp.route) {
+            SignUpScreen(
+                onSignUpSuccess = {
+                    navController.navigate(Screen.Main.route) {
+                        popUpTo(Screen.RoleSelection.route) { inclusive = true }
+                    }
+                },
+                onNavigateToSignIn = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.RoleSelection.route) {
+            RoleSelectionScreen(
+                onCustomerSelected = {
+                    navController.navigate(Screen.SignIn.route)
                 },
                 onAdminSelected = { /* TODO */ },
                 onDeliverySelected = { /* TODO */ }
