@@ -2,6 +2,7 @@ package com.example.menuapp.features.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.menuapp.data.auth.AuthRepository
 import com.example.menuapp.data.firebase.model.CartItem
 import com.example.menuapp.data.repository.MenuRepository
 import com.example.menuapp.data.repository.OrderRepository
@@ -36,7 +37,8 @@ enum class AddressSelection {
 class CartViewModel @Inject constructor(
     private val menuRepository: MenuRepository,
     private val orderRepository: OrderRepository,
-    private val locationHelper: LocationHelper
+    private val locationHelper: LocationHelper,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
@@ -73,7 +75,9 @@ class CartViewModel @Inject constructor(
 
     fun placeOrder(address: String) {
         viewModelScope.launch {
-            orderRepository.createOrder(address)
+            val user = authRepository.getCurrentUser()
+            val customerName = user?.username ?: "Guest"
+            orderRepository.createOrder(address, customerName)
         }
     }
 
