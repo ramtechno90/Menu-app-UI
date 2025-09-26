@@ -52,11 +52,7 @@ fun AppNavigation(
             )
         }
         composable(Screen.PhoneSignIn.route) {
-            PhoneSignInScreen(onSendOtpClicked = { phoneNumber ->
-                onSendOtpClicked(phoneNumber)
-                // We will navigate to the verification screen after the OTP is sent.
-                // For now, we'll assume the verification ID is passed back and used to navigate.
-            })
+            PhoneSignInScreen(onSendOtpClicked = onSendOtpClicked)
         }
         composable(Screen.OtpVerification.route) { backStackEntry ->
             val verificationId = backStackEntry.arguments?.getString("verificationId")
