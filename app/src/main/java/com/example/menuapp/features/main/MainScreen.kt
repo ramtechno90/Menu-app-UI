@@ -40,11 +40,11 @@ fun MainScreen(
     val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab = uiState.selectedTab
     val user by authAwareViewModel.user.collectAsStateWithLifecycle()
-    val showWelcomeDialog by authAwareViewModel.showWelcomeDialog.collectAsStateWithLifecycle()
+    val showWelcomeDialogEvent by authAwareViewModel.showWelcomeDialogEvent.collectAsStateWithLifecycle()
 
-    if (showWelcomeDialog && user != null) {
+    if (showWelcomeDialogEvent && user != null) {
         WelcomeDialog(
-            user = user!!,
+            user = user,
             onDismiss = { authAwareViewModel.onWelcomeDialogDismissed() }
         )
     }

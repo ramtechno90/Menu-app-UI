@@ -7,7 +7,6 @@ import com.example.menuapp.data.auth.AuthRepository
 import com.example.menuapp.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,23 +22,28 @@ class AuthAwareViewModel @Inject constructor(
     private val _user = MutableStateFlow<User?>(null)
     val user = _user.asStateFlow()
 
-    val showWelcomeDialog: StateFlow<Boolean> = savedStateHandle.getStateFlow(WELCOME_DIALOG_SHOWN_KEY, true)
+    private val _showWelcomeDialogEvent = MutableStateFlow(false)
+    val showWelcomeDialogEvent = _showWelcomeDialogEvent.asStateFlow()
 
     init {
-        getCurrentUser()
-    }
-
-    private fun getCurrentUser() {
         viewModelScope.launch {
-            _user.value = authRepository.getCurrentUser()
+            val hasBeenWelcomed = savedStateHandle.get<Boolean>(WELCOME_DIALOG_SHOWN_KEY) ?: false
+            val currentUser = authRepository.getCurrentUser()
+            _user.value = currentUser
+
+            if (currentUser != null && !hasBeenWelcomed) {
+                _showWelcomeDialogEvent.value = true
+            }
         }
     }
 
     fun signOut() {
+        savedStateHandle[WELCOME_DIALOG_SHOWN_KEY] = false
         authRepository.signOut()
     }
 
     fun onWelcomeDialogDismissed() {
-        savedStateHandle[WELCOME_DIALOG_SHOWN_KEY] = false
+        _showWelcomeDialogEvent.value = false
+        savedStateHandle[WELCOME_DIALOG_SHOWN_KEY] = true
     }
 }
