@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -33,10 +34,20 @@ fun MainScreen(
     isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
-    cartViewModel: CartViewModel = hiltViewModel()
+    cartViewModel: CartViewModel = hiltViewModel(),
+    authAwareViewModel: AuthAwareViewModel = hiltViewModel()
 ) {
     val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab = uiState.selectedTab
+    val user by authAwareViewModel.user.collectAsStateWithLifecycle()
+    val showWelcomeDialog by authAwareViewModel.showWelcomeDialog.collectAsStateWithLifecycle()
+
+    if (showWelcomeDialog && user != null) {
+        WelcomeDialog(
+            user = user!!,
+            onDismiss = { authAwareViewModel.onWelcomeDialogDismissed() }
+        )
+    }
 
     val savedStateHandle = mainNavController.currentBackStackEntry?.savedStateHandle
     LaunchedEffect(savedStateHandle) {
@@ -49,6 +60,16 @@ fun MainScreen(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Menu App") },
+                actions = {
+                    IconButton(onClick = { authAwareViewModel.signOut() }) {
+                        Icon(Icons.Default.Logout, contentDescription = "Sign Out")
+                    }
+                }
+            )
+        },
         bottomBar = {
             NavigationBar {
                 val items = listOf(BottomNavItem.Home, BottomNavItem.Cart, BottomNavItem.Orders)

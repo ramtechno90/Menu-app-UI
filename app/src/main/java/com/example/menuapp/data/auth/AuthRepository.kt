@@ -12,4 +12,5 @@ interface AuthRepository {
     suspend fun sendOtp(phoneNumber: String, activity: Activity): Flow<Result<String>>
     suspend fun verifyOtp(verificationId: String, otp: String): Result<Unit>
     fun signOut()
+    suspend fun getCurrentUser(): com.example.menuapp.data.model.User?
 }

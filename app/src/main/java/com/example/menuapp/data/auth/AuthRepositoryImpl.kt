@@ -117,4 +117,14 @@ class AuthRepositoryImpl @Inject constructor(
     override fun signOut() {
         firebaseAuth.signOut()
     }
+
+    override suspend fun getCurrentUser(): com.example.menuapp.data.model.User? {
+        val firebaseUser = firebaseAuth.currentUser ?: return null
+        return try {
+            val document = firestore.collection("users").document(firebaseUser.uid).get().await()
+            document.toObject(com.example.menuapp.data.model.User::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
