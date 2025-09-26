@@ -16,6 +16,7 @@ fun SignUpScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     val authState by viewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
@@ -32,6 +33,13 @@ fun SignUpScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
@@ -46,7 +54,7 @@ fun SignUpScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { viewModel.signUp(email, password) },
+            onClick = { viewModel.signUp(email, password, username) },
             modifier = Modifier.fillMaxWidth(),
             enabled = authState !is AuthState.Loading
         ) {

@@ -11,6 +11,9 @@ import androidx.navigation.navArgument
 import com.example.menuapp.features.confirmlocation.ConfirmLocationScreen
 import com.example.menuapp.features.ordertracking.OrderTrackingScreen
 import java.net.URLDecoder
+import androidx.navigation.NavHostController
+import com.example.menuapp.features.auth.OtpVerificationScreen
+import com.example.menuapp.features.auth.PhoneSignInScreen
 import com.example.menuapp.features.auth.SignInScreen
 import com.example.menuapp.features.auth.SignUpScreen
 import com.example.menuapp.features.roleselection.RoleSelectionScreen
@@ -19,10 +22,12 @@ import com.example.menuapp.features.roleselection.RoleSelectionScreen
 fun AppNavigation(
     isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
-    startDestination: String
+    startDestination: String,
+    onGoogleSignInClicked: () -> Unit,
+    onSendOtpClicked: (String) -> Unit,
+    onVerifyOtpClicked: (String, String) -> Unit,
+    navController: NavHostController
 ) {
-    val navController = rememberNavController()
-
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.SignIn.route) {
             SignInScreen(
@@ -31,7 +36,9 @@ fun AppNavigation(
                         popUpTo(Screen.RoleSelection.route) { inclusive = true }
                     }
                 },
-                onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) }
+                onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) },
+                onGoogleSignInClicked = onGoogleSignInClicked,
+                onNavigateToPhoneSignIn = { navController.navigate(Screen.PhoneSignIn.route) }
             )
         }
         composable(Screen.SignUp.route) {
@@ -43,6 +50,21 @@ fun AppNavigation(
                 },
                 onNavigateToSignIn = { navController.popBackStack() }
             )
+        }
+        composable(Screen.PhoneSignIn.route) {
+            PhoneSignInScreen(onSendOtpClicked = { phoneNumber ->
+                onSendOtpClicked(phoneNumber)
+                // We will navigate to the verification screen after the OTP is sent.
+                // For now, we'll assume the verification ID is passed back and used to navigate.
+            })
+        }
+        composable(Screen.OtpVerification.route) { backStackEntry ->
+            val verificationId = backStackEntry.arguments?.getString("verificationId")
+            if (verificationId != null) {
+                OtpVerificationScreen(onVerifyOtpClicked = { otp ->
+                    onVerifyOtpClicked(verificationId, otp)
+                })
+            }
         }
         composable(Screen.RoleSelection.route) {
             RoleSelectionScreen(

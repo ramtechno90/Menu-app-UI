@@ -3,6 +3,7 @@ package com.example.menuapp.di
 import com.example.menuapp.data.auth.AuthRepository
 import com.example.menuapp.data.auth.AuthRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -22,5 +23,9 @@ abstract class AuthModule {
         @Provides
         @Singleton
         fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+        @Provides
+        @Singleton
+        fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
     }
 }
