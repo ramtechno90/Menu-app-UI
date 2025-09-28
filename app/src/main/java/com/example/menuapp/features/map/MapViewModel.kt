@@ -23,7 +23,8 @@ class MapViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val staffId: String = checkNotNull(savedStateHandle["staffId"])
+    // The staffId from nav args is unused due to the temporary hardcoding below.
+    // private val staffId: String = checkNotNull(savedStateHandle["staffId"])
 
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
@@ -35,6 +36,8 @@ class MapViewModel @Inject constructor(
     }
 
     private fun listenForStaffLocationUpdates() {
+        // Using hardcoded staff ID as per user request for a temporary fix.
+        val staffId = "WOXb8fwaipPViMKEddVk"
         locationListener?.remove()
         locationListener = firestore.collection("staff_locations").document(staffId)
             .addSnapshotListener { snapshot, e ->
