@@ -7,8 +7,10 @@ import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.data.repository.OrderRepository
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class OrderTrackingUiState(
@@ -27,10 +29,13 @@ class OrderTrackingViewModel @Inject constructor(
     private val orderId: String = checkNotNull(savedStateHandle["orderId"])
 
     private val _staffLocation = MutableStateFlow<LatLng?>(null)
-    val staffLocation: StateFlow<LatLng?> = _staffLocation.asStateFlow()
+    private val staffLocation: StateFlow<LatLng?> = _staffLocation.asStateFlow()
+    private var locationListener: ListenerRegistration? = null
+
+    private val orderFlow = orderRepository.getOrderById(orderId)
 
     val uiState: StateFlow<OrderTrackingUiState> = combine(
-        orderRepository.getOrderById(orderId),
+        orderFlow,
         staffLocation
     ) { order, location ->
         OrderTrackingUiState(order = order, isLoading = false, staffLocation = location)
@@ -41,13 +46,20 @@ class OrderTrackingViewModel @Inject constructor(
     )
 
     init {
-        listenForStaffLocationUpdates()
+        viewModelScope.launch {
+            orderFlow.collect { order ->
+                order?.assignedTo?.let { staffId ->
+                    if (staffId.isNotBlank()) {
+                        listenForStaffLocationUpdates(staffId)
+                    }
+                }
+            }
+        }
     }
 
-    private fun listenForStaffLocationUpdates() {
-        // staffId is hardcoded as per requirement
-        val staffId = "staff123"
-        firestore.collection("staff_locations").document(staffId)
+    private fun listenForStaffLocationUpdates(staffId: String) {
+        locationListener?.remove() // Remove previous listener
+        locationListener = firestore.collection("staff_locations").document(staffId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     // Handle error
@@ -62,5 +74,10 @@ class OrderTrackingViewModel @Inject constructor(
                     }
                 }
             }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        locationListener?.remove()
     }
 }
