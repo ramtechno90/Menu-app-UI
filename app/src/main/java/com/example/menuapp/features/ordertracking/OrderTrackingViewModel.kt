@@ -46,15 +46,9 @@ class OrderTrackingViewModel @Inject constructor(
     )
 
     init {
-        viewModelScope.launch {
-            orderFlow.collect { order ->
-                order?.assignedTo?.let { staffId ->
-                    if (staffId.isNotBlank()) {
-                        listenForStaffLocationUpdates(staffId)
-                    }
-                }
-            }
-        }
+        // Using hardcoded staff ID as per user request for a temporary fix.
+        // The permanent solution is to store the staff's document ID in the order's `assignedTo` field.
+        listenForStaffLocationUpdates("WOXb8fwaipPViMKEddVk")
     }
 
     private fun listenForStaffLocationUpdates(staffId: String) {
