@@ -10,19 +10,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +29,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 
 enum class TrackingStatus {
     CONFIRMED, PREPARING, OUT_FOR_DELIVERY, DELIVERED
@@ -88,7 +91,11 @@ fun OrderTrackingScreen(
                 item { OrderSummaryCard(uiState.order!!) }
                 item { OtpCard() }
                 item { TrackingTimeline(currentStatus = TrackingStatus.OUT_FOR_DELIVERY) } // Status is hardcoded
-                item { MapImage() }
+                item {
+                    uiState.staffLocation?.let { location ->
+                        LiveLocationMap(location)
+                    }
+                }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         } else {
@@ -247,19 +254,30 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
 
 
 @Composable
-private fun MapImage() {
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data("https://lh3.googleusercontent.com/aida-public/AB6AXuAnUvcdMCYl-yuZ9Y0Kqaw4k5_ZRX2PLTmkVHI_pyP-jd4UpXpOj7RJyUViRy69VndEx-pt04URrsoAYjftAkzchrSUq2QHiKiABjtMQV9p42hm9zfbp1xINcdpswQvvD9SR3MeldvQbgbIOY6I94-nDI4T_tOFJZpNWWNVRFN3IucvmT4vw8Rx4pkh0mgnwOLlM0yzGos8TsQLLCZVGuZgOrqEYR-DNaEuKHWBcu5PntF6_Gqdb27MeyaCyWVDoRb_Z4_CDOQBUMva")
-            .crossfade(true)
-            .build(),
-        contentDescription = "Map showing delivery route",
-        contentScale = ContentScale.Crop,
+private fun LiveLocationMap(location: LatLng) {
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(location, 15f)
+    }
+
+    LaunchedEffect(location) {
+        cameraPositionState.animate(
+            update = com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(location, 15f),
+            durationMs = 1000
+        )
+    }
+
+    GoogleMap(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(16 / 9f)
-            .clip(RoundedCornerShape(12.dp))
-    )
+            .clip(RoundedCornerShape(12.dp)),
+        cameraPositionState = cameraPositionState
+    ) {
+        Marker(
+            state = rememberMarkerState(position = location),
+            title = "Delivery Staff"
+        )
+    }
 }
 
 @Preview(showBackground = true, name = "Light Mode")
