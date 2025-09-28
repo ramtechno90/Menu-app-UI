@@ -29,12 +29,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 
 enum class TrackingStatus {
     CONFIRMED, PREPARING, OUT_FOR_DELIVERY, DELIVERED
@@ -58,6 +52,7 @@ val trackingStates = listOf(
 @Composable
 fun OrderTrackingScreen(
     onBackPressed: () -> Unit,
+    onNavigateToMap: (String) -> Unit,
     viewModel: OrderTrackingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -92,8 +87,20 @@ fun OrderTrackingScreen(
                 item { OtpCard() }
                 item { TrackingTimeline(currentStatus = TrackingStatus.OUT_FOR_DELIVERY) } // Status is hardcoded
                 item {
-                    uiState.staffLocation?.let { location ->
-                        LiveLocationMap(location)
+                    val staffId = uiState.order?.assignedTo
+                    if (!staffId.isNullOrBlank()) {
+                        Button(
+                            onClick = { onNavigateToMap(staffId) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Map,
+                                contentDescription = "Map Icon",
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text("View Live Map")
+                        }
                     }
                 }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -253,37 +260,10 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
 }
 
 
-@Composable
-private fun LiveLocationMap(location: LatLng) {
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(location, 15f)
-    }
-
-    LaunchedEffect(location) {
-        cameraPositionState.animate(
-            update = com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(location, 15f),
-            durationMs = 1000
-        )
-    }
-
-    GoogleMap(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(16 / 9f)
-            .clip(RoundedCornerShape(12.dp)),
-        cameraPositionState = cameraPositionState
-    ) {
-        Marker(
-            state = rememberMarkerState(position = location),
-            title = "Delivery Staff"
-        )
-    }
-}
-
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun OrderTrackingScreenPreview() {
     MenuAppTheme(darkTheme = false) {
-        OrderTrackingScreen(onBackPressed = {})
+        OrderTrackingScreen(onBackPressed = {}, onNavigateToMap = {})
     }
 }

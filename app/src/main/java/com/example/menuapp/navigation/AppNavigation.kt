@@ -16,6 +16,7 @@ import com.example.menuapp.features.auth.OtpVerificationScreen
 import com.example.menuapp.features.auth.PhoneSignInScreen
 import com.example.menuapp.features.auth.SignInScreen
 import com.example.menuapp.features.auth.SignUpScreen
+import com.example.menuapp.features.map.MapScreen
 import com.example.menuapp.features.roleselection.RoleSelectionScreen
 
 @Composable
@@ -91,10 +92,13 @@ fun AppNavigation(
                 }
             )
         }
-        composable(Screen.OrderTracking.route) { backStackEntry ->
-            val orderId = backStackEntry.arguments?.getString("orderId")
-            // In a real app, you'd use the orderId to fetch data
-            OrderTrackingScreen(onBackPressed = { navController.popBackStack() })
+        composable(Screen.OrderTracking.route) {
+            OrderTrackingScreen(
+                onBackPressed = { navController.popBackStack() },
+                onNavigateToMap = { staffId ->
+                    navController.navigate(Screen.Map.createRoute(staffId))
+                }
+            )
         }
         composable(
             route = Screen.ConfirmLocation.route,
@@ -122,6 +126,12 @@ fun AppNavigation(
                     onBackPressed = { navController.popBackStack() }
                 )
             }
+        }
+        composable(
+            route = Screen.Map.route,
+            arguments = listOf(navArgument("staffId") { type = NavType.StringType })
+        ) {
+            MapScreen(onBackPressed = { navController.popBackStack() })
         }
     }
 }
