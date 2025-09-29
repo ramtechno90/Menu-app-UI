@@ -11,7 +11,9 @@ import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import com.example.menuapp.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -20,8 +22,27 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import android.content.Context
+import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
+
+private fun bitmapDescriptorFromVector(
+    context: Context,
+    vectorResId: Int
+): BitmapDescriptor? {
+    val vectorDrawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
+    vectorDrawable.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
+    val bitmap = android.graphics.Bitmap.createBitmap(
+        vectorDrawable.intrinsicWidth,
+        vectorDrawable.intrinsicHeight,
+        android.graphics.Bitmap.Config.ARGB_8888
+    )
+    val canvas = android.graphics.Canvas(bitmap)
+    vectorDrawable.draw(canvas)
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,6 +142,9 @@ private fun LiveMapView(
     route: List<LatLng>,
     cameraPositionState: CameraPositionState
 ) {
+    val context = LocalContext.current
+    val deliveryIcon = bitmapDescriptorFromVector(context, R.drawable.ic_delivery_person)
+
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState
@@ -128,7 +152,7 @@ private fun LiveMapView(
         Marker(
             state = rememberMarkerState(position = staffLocation),
             title = "Delivery Staff",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)
+            icon = deliveryIcon
         )
 
         if (destinationLocation != null) {
