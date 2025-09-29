@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
+import com.google.maps.GeoApiContext
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -162,5 +163,15 @@ object LocationModule {
     @Singleton
     fun provideLocationHelper(impl: LocationHelperImpl): LocationHelper {
         return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideGeoApiContext(@ApplicationContext context: Context): GeoApiContext {
+        val ai = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+        val apiKey = ai.metaData.getString("com.google.android.geo.API_KEY")
+        return GeoApiContext.Builder()
+            .apiKey(apiKey)
+            .build()
     }
 }
