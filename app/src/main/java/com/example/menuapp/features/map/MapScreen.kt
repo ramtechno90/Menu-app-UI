@@ -9,12 +9,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,10 +47,14 @@ fun MapScreen(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            if (uiState.isLoading) {
+            if (uiState.isLoading && uiState.staffLocation == null) {
                 CircularProgressIndicator()
             } else if (uiState.staffLocation != null) {
-                LiveMapView(uiState.staffLocation!!)
+                LiveMapView(
+                    staffLocation = uiState.staffLocation!!,
+                    destinationLocation = uiState.destinationLocation,
+                    route = uiState.route
+                )
             } else {
                 Text("Location data not available.")
             }
@@ -56,16 +63,30 @@ fun MapScreen(
 }
 
 @Composable
-private fun LiveMapView(location: LatLng) {
+private fun LiveMapView(
+    staffLocation: LatLng,
+    destinationLocation: LatLng?,
+    route: List<LatLng>
+) {
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(location, 16f)
+        position = CameraPosition.fromLatLngZoom(staffLocation, 16f)
     }
 
-    LaunchedEffect(location) {
-        // Animate camera to new position while preserving current zoom
-        cameraPositionState.animate(
-            update = CameraUpdateFactory.newLatLng(location)
-        )
+    LaunchedEffect(staffLocation, destinationLocation) {
+        if (destinationLocation != null) {
+            val bounds = LatLngBounds.builder()
+                .include(staffLocation)
+                .include(destinationLocation)
+                .build()
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngBounds(bounds, 150),
+                durationMs = 1000
+            )
+        } else {
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLng(staffLocation)
+            )
+        }
     }
 
     GoogleMap(
@@ -73,8 +94,23 @@ private fun LiveMapView(location: LatLng) {
         cameraPositionState = cameraPositionState
     ) {
         Marker(
-            state = rememberMarkerState(position = location),
+            state = rememberMarkerState(position = staffLocation),
             title = "Delivery Staff"
         )
+
+        if (destinationLocation != null) {
+            Marker(
+                state = rememberMarkerState(position = destinationLocation),
+                title = "Delivery Address",
+            )
+        }
+
+        if (route.isNotEmpty()) {
+            Polyline(
+                points = route,
+                color = Color(0xFF4A80F0),
+                width = 12f
+            )
+        }
     }
 }
