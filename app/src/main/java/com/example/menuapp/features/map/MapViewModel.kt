@@ -55,7 +55,7 @@ class MapViewModel @Inject constructor(
             .limit(1)
             .get()
             .addOnSuccessListener { documents ->
-                if (documents.isNotEmpty()) {
+                if (!documents.isEmpty) {
                     val order = documents.documents[0].toObject(Order::class.java)
                     _uiState.value = _uiState.value.copy(order = order)
                     order?.deliveryAddress?.let { geocodeAddress(it) }
