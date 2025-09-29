@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +20,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +29,29 @@ fun MapScreen(
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val cameraPositionState = rememberCameraPositionState()
+    val scope = rememberCoroutineScope()
+
+    // Set initial camera position once locations are available
+    var initialCameraSet by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.staffLocation, uiState.destinationLocation) {
+        if (!initialCameraSet && uiState.staffLocation != null) {
+            if (uiState.destinationLocation != null) {
+                val bounds = LatLngBounds.builder()
+                    .include(uiState.staffLocation!!)
+                    .include(uiState.destinationLocation!!)
+                    .build()
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLngBounds(bounds, 150)
+                )
+            } else {
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLngZoom(uiState.staffLocation!!, 16f)
+                )
+            }
+            initialCameraSet = true
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -39,6 +64,31 @@ fun MapScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {
+                scope.launch {
+                    uiState.staffLocation?.let { staffLoc ->
+                        if (uiState.destinationLocation != null) {
+                            val bounds = LatLngBounds.builder()
+                                .include(staffLoc)
+                                .include(uiState.destinationLocation!!)
+                                .build()
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newLatLngBounds(bounds, 150),
+                                durationMs = 1000
+                            )
+                        } else {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newLatLngZoom(staffLoc, 16f),
+                                durationMs = 1000
+                            )
+                        }
+                    }
+                }
+            }) {
+                Icon(Icons.Default.MyLocation, contentDescription = "Recenter Map")
+            }
         }
     ) { paddingValues ->
         Box(
@@ -53,7 +103,8 @@ fun MapScreen(
                 LiveMapView(
                     staffLocation = uiState.staffLocation!!,
                     destinationLocation = uiState.destinationLocation,
-                    route = uiState.route
+                    route = uiState.route,
+                    cameraPositionState = cameraPositionState
                 )
             } else {
                 Text("Location data not available.")
@@ -66,29 +117,9 @@ fun MapScreen(
 private fun LiveMapView(
     staffLocation: LatLng,
     destinationLocation: LatLng?,
-    route: List<LatLng>
+    route: List<LatLng>,
+    cameraPositionState: CameraPositionState
 ) {
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(staffLocation, 16f)
-    }
-
-    LaunchedEffect(staffLocation, destinationLocation) {
-        if (destinationLocation != null) {
-            val bounds = LatLngBounds.builder()
-                .include(staffLocation)
-                .include(destinationLocation)
-                .build()
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngBounds(bounds, 150),
-                durationMs = 1000
-            )
-        } else {
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLng(staffLocation)
-            )
-        }
-    }
-
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState
