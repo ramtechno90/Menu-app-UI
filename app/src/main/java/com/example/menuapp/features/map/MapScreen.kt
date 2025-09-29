@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -50,6 +51,7 @@ fun MapScreen(
     onBackPressed: () -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
+    MapsInitializer.initialize(LocalContext.current)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val cameraPositionState = rememberCameraPositionState()
     val scope = rememberCoroutineScope()
