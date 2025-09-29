@@ -44,27 +44,26 @@ class MapViewModel @Inject constructor(
     private var locationListener: ListenerRegistration? = null
 
     init {
-        fetchOrderAndListenForLocation()
+        listenForStaffLocationUpdates()
+        fetchOrderDetails()
     }
 
-    private fun fetchOrderAndListenForLocation() {
+    private fun fetchOrderDetails() {
         firestore.collection("orders")
             .whereEqualTo("assignedTo", staffId)
             .whereIn("status", listOf("PICKED_UP", "OUT_FOR_DELIVERY"))
             .limit(1)
             .get()
             .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    _uiState.value = _uiState.value.copy(isLoading = false)
-                    return@addOnSuccessListener
+                if (documents.isNotEmpty()) {
+                    val order = documents.documents[0].toObject(Order::class.java)
+                    _uiState.value = _uiState.value.copy(order = order)
+                    order?.deliveryAddress?.let { geocodeAddress(it) }
                 }
-                val order = documents.documents[0].toObject(Order::class.java)
-                _uiState.value = _uiState.value.copy(order = order)
-                order?.deliveryAddress?.let { geocodeAddress(it) }
-                listenForStaffLocationUpdates()
             }
             .addOnFailureListener {
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                // Not critical if this fails, the map will still show staff location.
+                it.printStackTrace()
             }
     }
 
