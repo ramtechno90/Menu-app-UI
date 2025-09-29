@@ -57,6 +57,7 @@
       min-height: max(884px, 100dvh);
     }
   </style>
+<script async="" defer="" src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
   </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-content-light dark:text-content-dark">
 <div class="max-w-md mx-auto min-h-screen flex flex-col">
@@ -126,10 +127,38 @@
 <p class="text-sm text-subtle-light dark:text-subtle-dark">Awaiting delivery completion.</p>
 </div>
 </div>
-<div class="rounded-xl overflow-hidden aspect-video">
-<img alt="Map showing delivery route from restaurant to R.S. Puram, Coimbatore" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnUvcdMCYl-yuZ9Y0Kqaw4k5_ZRX2PLTmkVHI_pyP-jd4UpXpOj7RJyUViRy69VndEx-pt04URrsoAYjftAkzchrSUq2QHiKiABjtMQV9p42hm9zfbp1xINcdpswQvvD9SR3MeldvQbgbIOY6I94-nDI4T_tOFJZpNWWNVRFN3IucvmT4vw8Rx4pkh0mgnwOLlM0yzGos8TsQLLCZVGuZgOrqEYR-DNaEuKHWBcu5PntF6_Gqdb27MeyaCyWVDoRb_Z4_CDOQBUMva"/>
+<div class="rounded-xl overflow-hidden aspect-video" id="map">
 </div>
 </main>
 </div>
+<script>
+    function initMap() {
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+            suppressMarkers: true,
+            polylineOptions: {
+                strokeColor: '#4A80F0',
+                strokeWeight: 5
+            }
+        });
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 12,
+            center: { lat: 11.0168, lng: 76.9558 },
+            disableDefaultUI: true
+        });
+        directionsRenderer.setMap(map);
 
+        const request = {
+            origin: { lat: 11.0168, lng: 76.9558 },
+            destination: { lat: 11.0195, lng: 76.9629 },
+            travelMode: 'DRIVING'
+        };
+
+        directionsService.route(request, function(result, status) {
+            if (status == 'OK') {
+                directionsRenderer.setDirections(result);
+            }
+        });
+    }
+</script>
 </body></html>
