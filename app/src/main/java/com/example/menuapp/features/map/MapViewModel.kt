@@ -36,7 +36,7 @@ class MapViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val staffId: String = checkNotNull(savedStateHandle["staffId"])
+    private val staffId: String = "WOXb8fwaipPViMKEddVk" // For testing: checkNotNull(savedStateHandle["staffId"])
 
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
