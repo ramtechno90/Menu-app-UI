@@ -31,7 +31,7 @@ import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 enum class TrackingStatus {
-    CONFIRMED, PREPARING, COMPLETED, OUT_FOR_DELIVERY, DELIVERED
+    PLACED, CONFIRMED, PREPARING, COMPLETED, OUT_FOR_DELIVERY, DELIVERED
 }
 
 data class TrackingState(
@@ -42,6 +42,7 @@ data class TrackingState(
 )
 
 val trackingStates = listOf(
+    TrackingState("Order Placed", "Your order has been placed.", Icons.Default.Check, TrackingStatus.PLACED),
     TrackingState("Order Confirmed", "Your order has been confirmed.", Icons.Default.Check, TrackingStatus.CONFIRMED),
     TrackingState("Preparing Food", "We are preparing your order.", Icons.Default.Restaurant, TrackingStatus.PREPARING),
     TrackingState("Order Completed", "Your order is completed.", Icons.Default.Done, TrackingStatus.COMPLETED),
@@ -263,12 +264,12 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
 
 
 private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
-    "PENDING" -> TrackingStatus.CONFIRMED
+    "PENDING" -> TrackingStatus.PLACED
     "ACCEPTED" -> TrackingStatus.PREPARING
-    "COMPLETED" -> TrackingStatus.COMPLETED
+    "COMPLETED", "READY_FOR_DELIVERY" -> TrackingStatus.COMPLETED
     "OUT_FOR_DELIVERY" -> TrackingStatus.OUT_FOR_DELIVERY
     "DELIVERED" -> TrackingStatus.DELIVERED
-    else -> TrackingStatus.CONFIRMED
+    else -> TrackingStatus.PLACED
 }
 
 @Preview(showBackground = true, name = "Light Mode")
