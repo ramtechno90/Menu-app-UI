@@ -85,7 +85,7 @@ fun OrderTrackingScreen(
                 item { Spacer(modifier = Modifier.height(0.dp)) }
                 item { OrderSummaryCard(uiState.order!!) }
                 item { OtpCard() }
-                item { TrackingTimeline(currentStatus = TrackingStatus.OUT_FOR_DELIVERY) } // Status is hardcoded
+                item { TrackingTimeline(order = uiState.order!!) }
                 item {
                     val orderId = uiState.order?.id
                     if (!orderId.isNullOrBlank()) {
@@ -180,7 +180,8 @@ private fun OtpCard() {
 }
 
 @Composable
-private fun TrackingTimeline(currentStatus: TrackingStatus) {
+private fun TrackingTimeline(order: Order) {
+    val currentStatus = order.status.toTrackingStatus()
     Column {
         trackingStates.forEachIndexed { index, state ->
             val isActive = state.status.ordinal <= currentStatus.ordinal
@@ -259,6 +260,13 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
     }
 }
 
+
+private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
+    "PENDING", "ACCEPTED" -> TrackingStatus.CONFIRMED
+    "PICKED_UP" -> TrackingStatus.OUT_FOR_DELIVERY
+    "OUT_FOR_DELIVERY", "COMPLETED" -> TrackingStatus.DELIVERED
+    else -> TrackingStatus.CONFIRMED
+}
 
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
