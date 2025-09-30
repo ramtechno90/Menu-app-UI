@@ -145,7 +145,7 @@ private fun LiveMapView(
     cameraPositionState: CameraPositionState
 ) {
     val context = LocalContext.current
-    val deliveryIcon = bitmapDescriptorFromVector(context, R.drawable.ic_delivery_person)
+    val deliveryIcon = bitmapDescriptorFromVector(context, R.drawable.moped_package_48)
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
