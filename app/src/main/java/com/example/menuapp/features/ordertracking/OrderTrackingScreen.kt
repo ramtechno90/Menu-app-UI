@@ -87,10 +87,10 @@ fun OrderTrackingScreen(
                 item { OtpCard() }
                 item { TrackingTimeline(currentStatus = TrackingStatus.OUT_FOR_DELIVERY) } // Status is hardcoded
                 item {
-                    val staffId = uiState.order?.assignedTo
-                    if (!staffId.isNullOrBlank()) {
+                    val orderId = uiState.order?.id
+                    if (!orderId.isNullOrBlank()) {
                         Button(
-                            onClick = { onNavigateToMap(staffId) },
+                            onClick = { onNavigateToMap(orderId) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)
                         ) {

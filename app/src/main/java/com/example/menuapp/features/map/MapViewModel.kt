@@ -36,7 +36,7 @@ class MapViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val staffId: String = "WOXb8fwaipPViMKEddVk" // For testing: checkNotNull(savedStateHandle["staffId"])
+    private val orderId: String = checkNotNull(savedStateHandle["orderId"])
 
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
@@ -44,27 +44,26 @@ class MapViewModel @Inject constructor(
     private var locationListener: ListenerRegistration? = null
 
     init {
-        listenForStaffLocationUpdates()
-        fetchOrderDetails()
+        fetchOrderAndListenForLocation()
     }
 
-    private fun fetchOrderDetails() {
-        firestore.collection("orders")
-            .whereEqualTo("assignedTo", staffId)
-            .whereIn("status", listOf("PICKED_UP", "OUT_FOR_DELIVERY"))
-            .limit(1)
+    private fun fetchOrderAndListenForLocation() {
+        // Fetch the order details once
+        firestore.collection("orders").document(orderId)
             .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val order = documents.documents[0].toObject(Order::class.java)
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val order = document.toObject(Order::class.java)
                     _uiState.value = _uiState.value.copy(order = order)
                     order?.deliveryAddress?.let { geocodeAddress(it) }
                 }
             }
             .addOnFailureListener {
-                // Not critical if this fails, the map will still show staff location.
                 it.printStackTrace()
             }
+
+        // Listen for location updates continuously
+        listenForStaffLocationUpdates()
     }
 
     private fun geocodeAddress(address: String) {
@@ -89,7 +88,7 @@ class MapViewModel @Inject constructor(
 
     private fun listenForStaffLocationUpdates() {
         locationListener?.remove()
-        locationListener = firestore.collection("staff_locations").document(staffId)
+        locationListener = firestore.collection("staff_locations").document(orderId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     _uiState.value = _uiState.value.copy(isLoading = false)

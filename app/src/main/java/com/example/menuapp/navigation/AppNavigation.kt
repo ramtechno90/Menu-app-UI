@@ -95,8 +95,8 @@ fun AppNavigation(
         composable(Screen.OrderTracking.route) {
             OrderTrackingScreen(
                 onBackPressed = { navController.popBackStack() },
-                onNavigateToMap = { staffId ->
-                    navController.navigate(Screen.Map.createRoute(staffId))
+                onNavigateToMap = { orderId ->
+                    navController.navigate(Screen.Map.createRoute(orderId))
                 }
             )
         }
@@ -129,7 +129,7 @@ fun AppNavigation(
         }
         composable(
             route = Screen.Map.route,
-            arguments = listOf(navArgument("staffId") { type = NavType.StringType })
+            arguments = listOf(navArgument("orderId") { type = NavType.StringType })
         ) {
             MapScreen(onBackPressed = { navController.popBackStack() })
         }
