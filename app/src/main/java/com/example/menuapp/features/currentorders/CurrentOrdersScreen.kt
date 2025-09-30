@@ -61,6 +61,16 @@ fun CurrentOrdersScreen(
     }
 }
 
+private fun mapOrderStatus(status: String): String {
+    return when (status) {
+        "PENDING" -> "ORDER PLACED"
+        "ACCEPTED" -> "ORDER CONFIRMED"
+        "COMPLETED", "OUT_FOR_DELIVERY" -> "ORDER COMPLETED"
+        "PICKED_UP" -> "OUT FOR DELIVERY"
+        else -> status
+    }
+}
+
 @Composable
 private fun CurrentOrderCard(order: Order, onClick: () -> Unit) {
     Surface(
@@ -104,7 +114,7 @@ private fun CurrentOrderCard(order: Order, onClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = order.status,
+                        text = mapOrderStatus(order.status),
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
