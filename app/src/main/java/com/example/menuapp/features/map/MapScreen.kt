@@ -149,7 +149,8 @@ private fun LiveMapView(
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
+        uiSettings = MapUiSettings(zoomControlsEnabled = false)
     ) {
         Marker(
             state = rememberMarkerState(position = staffLocation),
