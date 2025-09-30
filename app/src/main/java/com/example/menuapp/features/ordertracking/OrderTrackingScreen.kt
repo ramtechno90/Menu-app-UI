@@ -31,7 +31,7 @@ import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 enum class TrackingStatus {
-    CONFIRMED, PREPARING, OUT_FOR_DELIVERY, DELIVERED, COMPLETED
+    CONFIRMED, PREPARING, COMPLETED, OUT_FOR_DELIVERY, DELIVERED
 }
 
 data class TrackingState(
@@ -44,9 +44,9 @@ data class TrackingState(
 val trackingStates = listOf(
     TrackingState("Order Confirmed", "Your order has been confirmed.", Icons.Default.Check, TrackingStatus.CONFIRMED),
     TrackingState("Preparing Food", "We are preparing your order.", Icons.Default.Restaurant, TrackingStatus.PREPARING),
+    TrackingState("Order Completed", "Your order is completed.", Icons.Default.Done, TrackingStatus.COMPLETED),
     TrackingState("Out for Delivery", "Estimated delivery: 20 mins", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
-    TrackingState("Delivered", "Your order has been delivered.", Icons.Default.CheckCircle, TrackingStatus.DELIVERED),
-    TrackingState("Order Completed", "Your order is completed.", Icons.Default.Done, TrackingStatus.COMPLETED)
+    TrackingState("Delivered", "Your order has been delivered.", Icons.Default.CheckCircle, TrackingStatus.DELIVERED)
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -265,9 +265,9 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
 private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
     "PENDING", "ACCEPTED" -> TrackingStatus.CONFIRMED
     "PREPARING" -> TrackingStatus.PREPARING
+    "COMPLETED" -> TrackingStatus.COMPLETED
     "PICKED_UP", "OUT_FOR_DELIVERY" -> TrackingStatus.OUT_FOR_DELIVERY
     "DELIVERED" -> TrackingStatus.DELIVERED
-    "COMPLETED" -> TrackingStatus.COMPLETED
     else -> TrackingStatus.CONFIRMED
 }
 
