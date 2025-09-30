@@ -202,6 +202,9 @@ private fun TrackingTimeline(order: Order) {
 
 @Composable
 private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boolean, isLast: Boolean) {
+    val green = Color(0xFF4CAF50)
+    val orange = Color(0xFFFFA500)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
@@ -213,7 +216,11 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                     .clip(CircleShape)
                     .background(
                         if (isActive) {
-                            if (isCurrent) MaterialTheme.colorScheme.primary else Color(0xFF4CAF50)
+                            if (isCurrent) {
+                                if (state.status == TrackingStatus.PLACED) green else orange
+                            } else {
+                                green
+                            }
                         } else {
                             MaterialTheme.colorScheme.surface
                         }
@@ -231,7 +238,7 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                 )
             }
             if (!isLast) {
-                val lineColor = if (isActive) Color(0xFF4CAF50) else Color.LightGray.copy(alpha = 0.5f)
+                val lineColor = if (isActive) green else Color.LightGray.copy(alpha = 0.5f)
                 Canvas(Modifier.width(2.dp).weight(1f)) {
                     drawLine(
                         color = lineColor,
@@ -248,7 +255,11 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                 text = state.title,
                 fontWeight = FontWeight.Bold,
                 color = if (isActive) {
-                    if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    if (isCurrent) {
+                        if (state.status == TrackingStatus.PLACED) green else orange
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
                 } else {
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 }
