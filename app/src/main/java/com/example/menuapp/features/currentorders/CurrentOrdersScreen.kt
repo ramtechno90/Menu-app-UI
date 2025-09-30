@@ -65,7 +65,7 @@ private fun mapOrderStatus(status: String): String {
     return when (status) {
         "PENDING" -> "ORDER PLACED"
         "ACCEPTED" -> "ORDER CONFIRMED"
-        "COMPLETED", "OUT_FOR_DELIVERY" -> "ORDER COMPLETED"
+        "COMPLETED", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY" -> "ORDER COMPLETED"
         "PICKED_UP" -> "OUT FOR DELIVERY"
         else -> status
     }
