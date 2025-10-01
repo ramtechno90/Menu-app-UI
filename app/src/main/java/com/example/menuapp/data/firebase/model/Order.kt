@@ -11,5 +11,11 @@ data class Order(
     val orderDate: Long = 0L,
     val status: String = "",
     val deliveryAddress: String = "",
-    val assignedTo: String? = null
+    val assignedTo: String? = null,
+
+    // OTP fields
+    val otp: String? = null,
+    val otpEntered: String? = null,
+    val otpVerified: Boolean = false,
+    val otpExpiry: com.google.firebase.Timestamp? = null
 )

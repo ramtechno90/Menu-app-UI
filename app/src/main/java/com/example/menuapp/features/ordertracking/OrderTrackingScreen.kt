@@ -86,7 +86,9 @@ fun OrderTrackingScreen(
             ) {
                 item { Spacer(modifier = Modifier.height(0.dp)) }
                 item { OrderSummaryCard(uiState.order!!) }
-                item { OtpCard() }
+                if (uiState.order != null) {
+                    item { OtpCard(order = uiState.order!!) }
+                }
                 item { TrackingTimeline(order = uiState.order!!) }
                 item {
                     val orderId = uiState.order?.id
@@ -156,26 +158,108 @@ private fun OrderSummaryCard(order: Order) {
 }
 
 @Composable
-private fun OtpCard() {
+private fun OtpCard(order: Order) {
+    val green = Color(0xFF4CAF50)
+
+    val surfaceColor = when {
+        order.otpVerified -> green.copy(alpha = 0.1f)
+        order.otpEntered != null && !order.otpVerified -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+    }
+
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+        color = surfaceColor,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text("Your One-Time Password (OTP)", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+            val titleColor = when {
+                order.otpVerified -> green
+                order.otpEntered != null && !order.otpVerified -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.primary
+            }
+
             Text(
-                "5 8 3 1",
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 40.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
+                text = "Delivery OTP",
+                color = titleColor,
+                fontWeight = FontWeight.Bold
             )
-            TextButton(onClick = { /* TODO: Resend OTP Action */ }) {
-                Text("Resend OTP", color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f))
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            when {
+                order.otpVerified -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = "Verified",
+                            tint = green,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "OTP Verified",
+                            color = green,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp
+                        )
+                    }
+                    Text(
+                        text = "Your order is successfully delivered.",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                order.otpEntered != null && !order.otpVerified -> {
+                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Cancel,
+                            contentDescription = "Invalid",
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Invalid OTP",
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp
+                        )
+                    }
+                    Text(
+                        text = "Staff entered the wrong OTP. Please try again.",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                else -> {
+                    Text(
+                        text = order.otp?.chunked(1)?.joinToString(" ") ?: "----",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 40.sp,
+                        letterSpacing = 8.sp,
+                        modifier = Modifier
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 24.dp, vertical = 8.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Show this to the delivery person at the door.",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
             }
         }
     }
