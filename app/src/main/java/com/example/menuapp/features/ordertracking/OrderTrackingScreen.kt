@@ -43,12 +43,12 @@ data class TrackingState(
 )
 
 val trackingStates = listOf(
-    TrackingState("Order Placed", "Your order has been placed.", Icons.Default.Check, TrackingStatus.PLACED),
-    TrackingState("Order Confirmed", "Your order has been confirmed.", Icons.Default.Check, TrackingStatus.CONFIRMED),
-    TrackingState("Preparing Food", "We are preparing your order.", Icons.Default.Restaurant, TrackingStatus.PREPARING),
-    TrackingState("Order Completed", "Your order is completed.", Icons.Default.Done, TrackingStatus.COMPLETED),
-    TrackingState("Out for Delivery", "Estimated delivery: 20 mins", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
-    TrackingState("Delivered", "Your order has been delivered.", Icons.Default.CheckCircle, TrackingStatus.DELIVERED)
+    TrackingState(OrderStatusMapper.mapOrderStatus("PENDING"), "Your order has been placed.", Icons.Default.Check, TrackingStatus.PLACED),
+    TrackingState(OrderStatusMapper.mapOrderStatus("ACCEPTED"), "Your order has been confirmed.", Icons.Default.Check, TrackingStatus.CONFIRMED),
+    TrackingState(OrderStatusMapper.mapOrderStatus("PREPARING"), "We are preparing your order.", Icons.Default.Restaurant, TrackingStatus.PREPARING),
+    TrackingState(OrderStatusMapper.mapOrderStatus("COMPLETED"), "Your order is completed.", Icons.Default.Done, TrackingStatus.COMPLETED),
+    TrackingState(OrderStatusMapper.mapOrderStatus("OUT_FOR_DELIVERY"), "Estimated delivery: 20 mins", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
+    TrackingState(OrderStatusMapper.mapOrderStatus("DELIVERED"), "Your order has been delivered.", Icons.Default.CheckCircle, TrackingStatus.DELIVERED)
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -269,16 +269,20 @@ private fun OtpCard(order: Order) {
 @Composable
 private fun TrackingTimeline(order: Order) {
     val currentStatus = order.status.toTrackingStatus()
+    val currentStatusIndex = trackingStates.indexOfFirst { it.status == currentStatus }
+
     Column {
         trackingStates.forEachIndexed { index, state ->
             val isActive = state.status.ordinal <= currentStatus.ordinal
             val isCurrent = state.status == currentStatus
+            val isNext = if (currentStatusIndex != -1) index == currentStatusIndex + 1 else false
             val isLast = index == trackingStates.lastIndex
 
             TimelineNode(
                 state = state,
                 isActive = isActive,
                 isCurrent = isCurrent,
+                isNext = isNext,
                 isLast = isLast
             )
         }
@@ -286,9 +290,9 @@ private fun TrackingTimeline(order: Order) {
 }
 
 @Composable
-private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boolean, isLast: Boolean) {
+private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boolean, isNext: Boolean, isLast: Boolean) {
     val green = Color(0xFF4CAF50)
-    val orange = Color(0xFFFFA500)
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -300,25 +304,22 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isActive) {
-                            if (isCurrent) {
-                                if (state.status == TrackingStatus.PLACED) green else orange
-                            } else {
-                                green
-                            }
-                        } else {
-                            MaterialTheme.colorScheme.surface
+                        when {
+                            isCurrent -> green
+                            isNext -> primaryColor
+                            isActive -> green
+                            else -> MaterialTheme.colorScheme.surface
                         }
                     )
                     .then(
-                        if (!isActive) Modifier.border(2.dp, Color.LightGray, CircleShape) else Modifier
+                        if (!isActive && !isNext) Modifier.border(2.dp, Color.LightGray, CircleShape) else Modifier
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = state.icon,
                     contentDescription = state.title,
-                    tint = if (isActive) Color.White else Color.Gray,
+                    tint = if (isActive || isNext) Color.White else Color.Gray,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -339,14 +340,11 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
             Text(
                 text = state.title,
                 fontWeight = FontWeight.Bold,
-                color = if (isActive) {
-                    if (isCurrent) {
-                        if (state.status == TrackingStatus.PLACED) green else orange
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
-                } else {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                color = when {
+                    isCurrent -> green
+                    isNext -> primaryColor
+                    isActive -> MaterialTheme.colorScheme.onSurface
+                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 }
             )
             Text(
@@ -364,7 +362,7 @@ private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
     "ACCEPTED" -> TrackingStatus.CONFIRMED
     "PREPARING" -> TrackingStatus.PREPARING
     "COMPLETED", "READY_FOR_DELIVERY" -> TrackingStatus.COMPLETED
-    "OUT_FOR_DELIVERY", "PICKED_UP" -> TrackingStatus.OUT_FOR_DELIVERY
+    "OUT_FOR_DELIVERY" -> TrackingStatus.OUT_FOR_DELIVERY
     "DELIVERED" -> TrackingStatus.DELIVERED
     else -> TrackingStatus.PLACED
 }

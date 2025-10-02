@@ -7,7 +7,7 @@ object OrderStatusMapper {
             "ACCEPTED" -> "Order Confirmed"
             "PREPARING" -> "Preparing Food"
             "COMPLETED", "READY_FOR_DELIVERY" -> "Order Completed"
-            "OUT_FOR_DELIVERY", "PICKED_UP" -> "Out for Delivery"
+            "OUT_FOR_DELIVERY" -> "Out for Delivery"
             "DELIVERED" -> "Delivered"
             else -> status
         }
