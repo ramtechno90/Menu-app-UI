@@ -269,20 +269,17 @@ private fun OtpCard(order: Order) {
 @Composable
 private fun TrackingTimeline(order: Order) {
     val currentStatus = order.status.toTrackingStatus()
-    val currentStatusIndex = trackingStates.indexOfFirst { it.status == currentStatus }
 
     Column {
         trackingStates.forEachIndexed { index, state ->
             val isActive = state.status.ordinal <= currentStatus.ordinal
             val isCurrent = state.status == currentStatus
-            val isNext = if (currentStatusIndex != -1) index == currentStatusIndex + 1 else false
             val isLast = index == trackingStates.lastIndex
 
             TimelineNode(
                 state = state,
                 isActive = isActive,
                 isCurrent = isCurrent,
-                isNext = isNext,
                 isLast = isLast
             )
         }
@@ -290,9 +287,8 @@ private fun TrackingTimeline(order: Order) {
 }
 
 @Composable
-private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boolean, isNext: Boolean, isLast: Boolean) {
+private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boolean, isLast: Boolean) {
     val green = Color(0xFF4CAF50)
-    val primaryColor = MaterialTheme.colorScheme.primary
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -304,22 +300,25 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        when {
-                            isCurrent -> green
-                            isNext -> primaryColor
-                            isActive -> green
-                            else -> MaterialTheme.colorScheme.surface
-                        }
+                        if (isCurrent) green else MaterialTheme.colorScheme.surface
                     )
                     .then(
-                        if (!isActive && !isNext) Modifier.border(2.dp, Color.LightGray, CircleShape) else Modifier
+                        when {
+                            isCurrent -> Modifier
+                            isActive -> Modifier.border(2.dp, green, CircleShape)
+                            else -> Modifier.border(2.dp, Color.LightGray, CircleShape)
+                        }
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = state.icon,
                     contentDescription = state.title,
-                    tint = if (isActive || isNext) Color.White else Color.Gray,
+                    tint = when {
+                        isCurrent -> Color.White
+                        isActive -> green
+                        else -> Color.Gray
+                    },
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -342,7 +341,6 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                 fontWeight = FontWeight.Bold,
                 color = when {
                     isCurrent -> green
-                    isNext -> primaryColor
                     isActive -> MaterialTheme.colorScheme.onSurface
                     else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 }
