@@ -360,7 +360,7 @@ private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
     "ACCEPTED" -> TrackingStatus.CONFIRMED
     "PREPARING" -> TrackingStatus.PREPARING
     "COMPLETED", "READY_FOR_DELIVERY" -> TrackingStatus.COMPLETED
-    "OUT_FOR_DELIVERY" -> TrackingStatus.OUT_FOR_DELIVERY
+    "OUT_FOR_DELIVERY", "PICKED_UP" -> TrackingStatus.OUT_FOR_DELIVERY
     "DELIVERED" -> TrackingStatus.DELIVERED
     else -> TrackingStatus.PLACED
 }
