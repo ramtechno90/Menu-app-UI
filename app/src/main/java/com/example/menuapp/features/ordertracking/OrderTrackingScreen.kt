@@ -360,7 +360,8 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
 
 private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
     "PENDING" -> TrackingStatus.PLACED
-    "ACCEPTED" -> TrackingStatus.PREPARING
+    "ACCEPTED" -> TrackingStatus.CONFIRMED
+    "PREPARING" -> TrackingStatus.PREPARING
     "COMPLETED", "READY_FOR_DELIVERY" -> TrackingStatus.COMPLETED
     "OUT_FOR_DELIVERY" -> TrackingStatus.OUT_FOR_DELIVERY
     "DELIVERED" -> TrackingStatus.DELIVERED
