@@ -150,17 +150,19 @@ private fun MenuItemCard(
                 Text("Add", fontWeight = FontWeight.Bold)
             }
         }
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(menuItem.imageUrl)
-                .crossfade(true)
-                .build(),
-            contentDescription = menuItem.name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(100.dp)
-                .clip(RoundedCornerShape(12.dp))
-        )
+        if (menuItem.imageUrl.isNotBlank()) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(menuItem.imageUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = menuItem.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
+        }
     }
 }
 
