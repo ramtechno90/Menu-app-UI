@@ -28,6 +28,7 @@ import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.CartItem
 import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
+import com.example.menuapp.utils.OrderStatusMapper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,7 +125,7 @@ private fun OrderStatusHeader(order: Order) {
     ) {
         Column {
             Text("Order #${order.id.take(8)}", fontSize = 14.sp)
-            Text(order.status, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text(OrderStatusMapper.mapOrderStatus(order.status), fontWeight = FontWeight.Bold, fontSize = 20.sp)
         }
         Icon(
             imageVector = Icons.Default.LocalShipping,

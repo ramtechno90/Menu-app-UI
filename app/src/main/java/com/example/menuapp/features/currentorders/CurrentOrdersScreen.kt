@@ -24,6 +24,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
+import com.example.menuapp.utils.OrderStatusMapper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,16 +59,6 @@ fun CurrentOrdersScreen(
                 CurrentOrderCard(order = order, onClick = { onOrderClicked(order) })
             }
         }
-    }
-}
-
-private fun mapOrderStatus(status: String): String {
-    return when (status) {
-        "PENDING" -> "ORDER PLACED"
-        "ACCEPTED" -> "ORDER CONFIRMED"
-        "COMPLETED", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY" -> "ORDER COMPLETED"
-        "PICKED_UP" -> "OUT FOR DELIVERY"
-        else -> status
     }
 }
 
@@ -114,7 +105,7 @@ private fun CurrentOrderCard(order: Order, onClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = mapOrderStatus(order.status),
+                        text = OrderStatusMapper.mapOrderStatus(order.status),
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,

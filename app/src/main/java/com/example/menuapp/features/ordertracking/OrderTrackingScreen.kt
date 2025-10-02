@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
+import com.example.menuapp.utils.OrderStatusMapper
 
 enum class TrackingStatus {
     PLACED, CONFIRMED, PREPARING, COMPLETED, OUT_FOR_DELIVERY, DELIVERED
@@ -363,7 +364,7 @@ private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
     "ACCEPTED" -> TrackingStatus.CONFIRMED
     "PREPARING" -> TrackingStatus.PREPARING
     "COMPLETED", "READY_FOR_DELIVERY" -> TrackingStatus.COMPLETED
-    "OUT_FOR_DELIVERY" -> TrackingStatus.OUT_FOR_DELIVERY
+    "OUT_FOR_DELIVERY", "PICKED_UP" -> TrackingStatus.OUT_FOR_DELIVERY
     "DELIVERED" -> TrackingStatus.DELIVERED
     else -> TrackingStatus.PLACED
 }
