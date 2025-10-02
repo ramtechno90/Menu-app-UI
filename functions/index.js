@@ -18,14 +18,16 @@ exports.addOtpOnOrderCreate = functions.firestore
     );
 
     await snap.ref.update({
-      otp: otp,               // store OTP (visible only to customer)
-      otpEntered: null,       // staff will enter this later
-      otpVerified: false,     // default
-      otpExpiry: expiry       // optional expiry timestamp
+      otp: otp,
+      otpEntered: null,
+      otpVerified: false,
+      otpInvalid: false, // Initialize as not invalid
+      otpExpiry: expiry,
     });
 
     console.log(`OTP ${otp} created for order ${context.params.orderId}`);
   });
+
 
 // Trigger to verify OTP when staff enters it
 exports.verifyOtp = functions.firestore
@@ -43,16 +45,30 @@ exports.verifyOtp = functions.firestore
     const enteredOtp = after.otpEntered;
     const expiry = after.otpExpiry.toDate();
 
-    let verified = false;
+    const isExpired = Date.now() > expiry.getTime();
+    const isCorrect = enteredOtp === correctOtp;
 
-    if (Date.now() <= expiry.getTime() && enteredOtp === correctOtp) {
-      verified = true;
+    if (!isExpired && isCorrect) {
+      // Correct OTP
+      await change.after.ref.update({
+        otpVerified: true,
+        otpInvalid: false,
+        status: "DELIVERED",
+      });
+      console.log(
+        `Order ${context.params.orderId}: entered=${enteredOtp}, verified=true`
+      );
+    } else {
+      // Incorrect or expired OTP
+      await change.after.ref.update({
+        otpVerified: false,
+        otpInvalid: true,
+        otpEntered: null, // Reset for re-entry
+      });
+      console.log(
+        `Order ${context.params.orderId}: entered=${enteredOtp}, verified=false (expired: ${isExpired})`
+      );
     }
-
-    await change.after.ref.update({ otpVerified: verified });
-    console.log(
-      `Order ${context.params.orderId}: entered=${enteredOtp}, verified=${verified}`
-    );
 
     return null;
   });

@@ -164,7 +164,7 @@ private fun OtpCard(order: Order) {
 
     val surfaceColor = when {
         order.otpVerified -> green.copy(alpha = 0.1f)
-        order.otpEntered != null && !order.otpVerified -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+        order.otpInvalid -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
         else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
     }
 
@@ -180,7 +180,7 @@ private fun OtpCard(order: Order) {
         ) {
             val titleColor = when {
                 order.otpVerified -> green
-                order.otpEntered != null && !order.otpVerified -> MaterialTheme.colorScheme.error
+                order.otpInvalid -> MaterialTheme.colorScheme.error
                 else -> MaterialTheme.colorScheme.primary
             }
 
@@ -192,69 +192,66 @@ private fun OtpCard(order: Order) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            when {
-                order.otpVerified -> {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Verified",
-                            tint = green,
-                            modifier = Modifier.size(32.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "OTP Verified",
-                            color = green,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 22.sp
-                        )
-                    }
+            if (order.otpVerified) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Verified",
+                        tint = green,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Your order is successfully delivered.",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(top = 4.dp)
+                        text = "OTP Verified",
+                        color = green,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp
                     )
                 }
-                order.otpEntered != null && !order.otpVerified -> {
-                     Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Your order is successfully delivered.",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            } else {
+                // Always show OTP if not yet verified
+                Text(
+                    text = order.otp?.chunked(1)?.joinToString(" ") ?: "----",
+                    color = if (order.otpInvalid) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 40.sp,
+                    letterSpacing = 8.sp,
+                    modifier = Modifier
+                        .border(
+                            1.dp,
+                            (if (order.otpInvalid) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary).copy(
+                                alpha = 0.3f
+                            ),
+                            RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Show invalid message or helper text
+                if (order.otpInvalid) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Cancel,
                             contentDescription = "Invalid",
                             tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Invalid OTP",
+                            text = "Invalid OTP. Please try again.",
                             color = MaterialTheme.colorScheme.error,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 22.sp
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
                         )
                     }
-                    Text(
-                        text = "Staff entered the wrong OTP. Please try again.",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-                else -> {
-                    Text(
-                        text = order.otp?.chunked(1)?.joinToString(" ") ?: "----",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 40.sp,
-                        letterSpacing = 8.sp,
-                        modifier = Modifier
-                            .border(
-                                1.dp,
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                                RoundedCornerShape(8.dp)
-                            )
-                            .padding(horizontal = 24.dp, vertical = 8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                } else {
                     Text(
                         text = "Show this to the delivery person at the door.",
                         fontSize = 13.sp,
