@@ -80,6 +80,12 @@ class CartViewModel @Inject constructor(
         }
     }
 
+    fun updateNotes(itemId: String, notes: String) {
+        viewModelScope.launch {
+            menuRepository.updateNotes(itemId, notes)
+        }
+    }
+
     fun removeItem(itemId: String) {
         updateQuantity(itemId, 0)
     }

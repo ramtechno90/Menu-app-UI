@@ -80,6 +80,9 @@ fun ShoppingCartScreen(
         onQuantityChange = { itemId, quantity ->
             viewModel.updateQuantity(itemId, quantity)
         },
+        onNotesChange = { itemId, notes ->
+            viewModel.updateNotes(itemId, notes)
+        },
         onAddressSelectionChange = viewModel::onAddressSelectionChange,
         onManualAddressChange = viewModel::onManualAddressInputChange,
         onChangeLocationClicked = viewModel::changeLocation
@@ -94,6 +97,7 @@ fun ShoppingCartScreenContent(
     onPlaceOrderClicked: () -> Unit,
     onConfirmAddressClicked: () -> Unit,
     onQuantityChange: (String, Int) -> Unit,
+    onNotesChange: (String, String) -> Unit,
     onAddressSelectionChange: (AddressSelection) -> Unit,
     onManualAddressChange: (String) -> Unit,
     onChangeLocationClicked: () -> Unit
@@ -133,6 +137,9 @@ fun ShoppingCartScreenContent(
                     onQuantityChange = { newQuantity ->
                         onQuantityChange(item.id, newQuantity)
                     },
+                    onNotesChange = { newNotes ->
+                        onNotesChange(item.id, newNotes)
+                    },
                     showImage = uiState.showImages
                 )
             }
@@ -154,33 +161,49 @@ fun ShoppingCartScreenContent(
 private fun CartListItem(
     item: CartItem,
     onQuantityChange: (Int) -> Unit,
+    onNotesChange: (String) -> Unit,
     showImage: Boolean
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (showImage && item.imageUrl.isNotBlank()) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(item.imageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = item.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            )
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (showImage && item.imageUrl.isNotBlank()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(item.imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = item.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(item.name, fontWeight = FontWeight.Bold)
+                Text(
+                    String.format("₹%.2f", item.price),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
             Spacer(modifier = Modifier.width(16.dp))
+            QuantityStepper(
+                quantity = item.quantity,
+                onQuantityChange = onQuantityChange
+            )
         }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(item.name, fontWeight = FontWeight.Bold)
-            Text(String.format("₹%.2f", item.price), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        QuantityStepper(
-            quantity = item.quantity,
-            onQuantityChange = onQuantityChange
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = item.notes,
+            onValueChange = onNotesChange,
+            label = { Text("Add a note (e.g. no onions)") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            shape = RoundedCornerShape(12.dp)
         )
     }
 }
@@ -349,6 +372,7 @@ fun ShoppingCartScreenPreview() {
             onPlaceOrderClicked = {},
             onConfirmAddressClicked = {},
             onQuantityChange = { _, _ -> },
+            onNotesChange = { _, _ -> },
             onAddressSelectionChange = {},
             onManualAddressChange = {},
             onChangeLocationClicked = {}
