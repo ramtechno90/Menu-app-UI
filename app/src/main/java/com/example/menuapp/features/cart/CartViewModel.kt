@@ -11,6 +11,8 @@ import com.example.menuapp.location.LocationHelper
 import com.example.menuapp.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -47,6 +49,8 @@ class CartViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CartUiState())
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
 
+    private var notesUpdateJob: Job? = null
+
     init {
         viewModelScope.launch {
             menuRepository.getCartItems().collect { items ->
@@ -81,7 +85,24 @@ class CartViewModel @Inject constructor(
     }
 
     fun updateNotes(itemId: String, notes: String) {
-        viewModelScope.launch {
+        // Cancel the previous job if it's still running
+        notesUpdateJob?.cancel()
+
+        // Update the UI state immediately
+        _uiState.update { currentState ->
+            val updatedItems = currentState.cartItems.map {
+                if (it.id == itemId) {
+                    it.copy(notes = notes)
+                } else {
+                    it
+                }
+            }
+            currentState.copy(cartItems = updatedItems)
+        }
+
+        // Launch a new job to update Firestore after a delay
+        notesUpdateJob = viewModelScope.launch {
+            delay(500L) // Debounce time
             menuRepository.updateNotes(itemId, notes)
         }
     }
