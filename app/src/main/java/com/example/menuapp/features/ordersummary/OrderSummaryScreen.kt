@@ -79,7 +79,7 @@ fun OrderSummaryScreen(
                     )
                 }
                 items(order.items) { item ->
-                    OrderItemCard(item = item)
+                    OrderItemCard(item = item, showImage = uiState.showImages)
                 }
                 item {
                     SummaryCard(order = order)
@@ -137,15 +137,18 @@ private fun OrderStatusHeader(order: Order) {
 }
 
 @Composable
-private fun OrderItemCard(item: CartItem) {
+private fun OrderItemCard(item: CartItem, showImage: Boolean) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth(),
         shadowElevation = 2.dp
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (showImage && item.imageUrl.isNotBlank()) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current).data(item.imageUrl).crossfade(true).build(),
                     contentDescription = item.name,
@@ -153,11 +156,11 @@ private fun OrderItemCard(item: CartItem) {
                     modifier = Modifier.size(80.dp).clip(RoundedCornerShape(8.dp))
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(item.name, fontWeight = FontWeight.Bold)
-                    Text("Quantity: ${item.quantity}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-                    Text(String.format("₹%.2f", item.price), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
-                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(item.name, fontWeight = FontWeight.Bold)
+                Text("Quantity: ${item.quantity}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                Text(String.format("₹%.2f", item.price), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
             }
         }
     }

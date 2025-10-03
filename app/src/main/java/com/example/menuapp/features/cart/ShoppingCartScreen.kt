@@ -157,8 +157,7 @@ private fun CartListItem(
     showImage: Boolean
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (showImage && item.imageUrl.isNotBlank()) {
             AsyncImage(
@@ -172,11 +171,13 @@ private fun CartListItem(
                     .size(80.dp)
                     .clip(RoundedCornerShape(12.dp))
             )
+            Spacer(modifier = Modifier.width(16.dp))
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(item.name, fontWeight = FontWeight.Bold)
             Text(String.format("₹%.2f", item.price), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
         }
+        Spacer(modifier = Modifier.width(16.dp))
         QuantityStepper(
             quantity = item.quantity,
             onQuantityChange = onQuantityChange

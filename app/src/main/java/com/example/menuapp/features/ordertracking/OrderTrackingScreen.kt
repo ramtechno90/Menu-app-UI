@@ -86,7 +86,7 @@ fun OrderTrackingScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 item { Spacer(modifier = Modifier.height(0.dp)) }
-                item { OrderSummaryCard(uiState.order!!) }
+                item { OrderSummaryCard(order = uiState.order!!, showImage = uiState.showImages) }
                 if (uiState.order != null) {
                     item { OtpCard(order = uiState.order!!) }
                 }
@@ -119,7 +119,7 @@ fun OrderTrackingScreen(
 }
 
 @Composable
-private fun OrderSummaryCard(order: Order) {
+private fun OrderSummaryCard(order: Order, showImage: Boolean) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -129,29 +129,31 @@ private fun OrderSummaryCard(order: Order) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text("Order Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Text("ID: #${order.id.take(8)}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                     Text(String.format("₹%.2f", order.grandTotal), fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(top = 4.dp))
                 }
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(order.items.firstOrNull()?.imageUrl ?: "")
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "Order Image",
-                        contentScale = ContentScale.Crop
-                    )
+                if (showImage && order.items.firstOrNull()?.imageUrl?.isNotBlank() == true) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(order.items.firstOrNull()?.imageUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = "Order Image",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
             }
         }
