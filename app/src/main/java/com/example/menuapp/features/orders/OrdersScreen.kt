@@ -49,7 +49,8 @@ fun OrdersScreen(
             0 -> CurrentOrdersScreen(
                 onBackPressed = onBackPressed,
                 onOrderClicked = { order -> onOrderClicked(order.id) },
-                orders = uiState.orders
+                orders = uiState.orders,
+                showImages = uiState.showImages
             )
             1 -> OrderHistoryScreen(
                 onBackPressed = onBackPressed,

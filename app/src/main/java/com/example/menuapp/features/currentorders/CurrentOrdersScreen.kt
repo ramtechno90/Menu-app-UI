@@ -31,7 +31,8 @@ import com.example.menuapp.utils.OrderStatusMapper
 fun CurrentOrdersScreen(
     onBackPressed: () -> Unit,
     onOrderClicked: (Order) -> Unit,
-    orders: List<Order>
+    orders: List<Order>,
+    showImages: Boolean
 ) {
     Scaffold(
         topBar = {
@@ -56,14 +57,14 @@ fun CurrentOrdersScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(orders) { order ->
-                CurrentOrderCard(order = order, onClick = { onOrderClicked(order) })
+                CurrentOrderCard(order = order, onClick = { onOrderClicked(order) }, showImage = showImages)
             }
         }
     }
 }
 
 @Composable
-private fun CurrentOrderCard(order: Order, onClick: () -> Unit) {
+private fun CurrentOrderCard(order: Order, onClick: () -> Unit, showImage: Boolean) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -75,26 +76,27 @@ private fun CurrentOrderCard(order: Order, onClick: () -> Unit) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Since Order doesn't have a single restaurant image, we'll use a placeholder
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
-            ) {
-                // We can show the first item's image as a preview
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(order.items.firstOrNull()?.imageUrl ?: "")
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Order Image",
-                    contentScale = ContentScale.Crop
-                )
+            if (showImage) {
+                // Since Order doesn't have a single restaurant image, we'll use a placeholder
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // We can show the first item's image as a preview
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(order.items.firstOrNull()?.imageUrl ?: "")
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Order Image",
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
             }
-
-            Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text("Order #${order.id.take(8)}", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Text(
