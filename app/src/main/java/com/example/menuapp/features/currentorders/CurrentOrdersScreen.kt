@@ -140,6 +140,6 @@ private fun CurrentOrderCard(order: Order, onClick: () -> Unit, showImage: Boole
 @Composable
 fun CurrentOrdersScreenPreview() {
     MenuAppTheme(darkTheme = false) {
-        CurrentOrdersScreen(onBackPressed = {}, onOrderClicked = {}, orders = emptyList())
+        CurrentOrdersScreen(onBackPressed = {}, onOrderClicked = {}, orders = emptyList(), showImages = true)
     }
 }
