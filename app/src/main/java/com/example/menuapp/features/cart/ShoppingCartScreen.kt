@@ -132,7 +132,8 @@ fun ShoppingCartScreenContent(
                     item = item,
                     onQuantityChange = { newQuantity ->
                         onQuantityChange(item.id, newQuantity)
-                    }
+                    },
+                    showImage = uiState.showImages
                 )
             }
 
@@ -152,23 +153,26 @@ fun ShoppingCartScreenContent(
 @Composable
 private fun CartListItem(
     item: CartItem,
-    onQuantityChange: (Int) -> Unit
+    onQuantityChange: (Int) -> Unit,
+    showImage: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(item.imageUrl)
-                .crossfade(true)
-                .build(),
-            contentDescription = item.name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(80.dp)
-                .clip(RoundedCornerShape(12.dp))
-        )
+        if (showImage && item.imageUrl.isNotBlank()) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(item.imageUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = item.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(item.name, fontWeight = FontWeight.Bold)
             Text(String.format("₹%.2f", item.price), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))

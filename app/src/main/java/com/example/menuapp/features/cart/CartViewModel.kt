@@ -6,6 +6,7 @@ import com.example.menuapp.data.auth.AuthRepository
 import com.example.menuapp.data.firebase.model.CartItem
 import com.example.menuapp.data.repository.MenuRepository
 import com.example.menuapp.data.repository.OrderRepository
+import com.example.menuapp.data.service.FirebaseSettingsService
 import com.example.menuapp.location.LocationHelper
 import com.example.menuapp.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
@@ -25,7 +26,8 @@ data class CartUiState(
     val errorMessage: String? = null,
     val locationResultForConfirmation: LocationResult.Success? = null,
     val manualAddressInput: String = "",
-    val addressSelection: AddressSelection = AddressSelection.CURRENT_LOCATION
+    val addressSelection: AddressSelection = AddressSelection.CURRENT_LOCATION,
+    val showImages: Boolean = true
 )
 
 enum class AddressSelection {
@@ -38,7 +40,8 @@ class CartViewModel @Inject constructor(
     private val menuRepository: MenuRepository,
     private val orderRepository: OrderRepository,
     private val locationHelper: LocationHelper,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val firebaseSettingsService: FirebaseSettingsService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
@@ -52,13 +55,21 @@ class CartViewModel @Inject constructor(
                 val deliveryFee = if (items.isNotEmpty()) 2.50 else 0.0
                 val grandTotal = subtotal + tax + deliveryFee
 
-                _uiState.value = _uiState.value.copy(
-                    cartItems = items,
-                    subtotal = subtotal,
-                    tax = tax,
-                    deliveryFee = deliveryFee,
-                    grandTotal = grandTotal
-                )
+                _uiState.update {
+                    it.copy(
+                        cartItems = items,
+                        subtotal = subtotal,
+                        tax = tax,
+                        deliveryFee = deliveryFee,
+                        grandTotal = grandTotal
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            firebaseSettingsService.getShowImagesSetting().collect { showImages ->
+                _uiState.update { it.copy(showImages = showImages) }
             }
         }
     }
