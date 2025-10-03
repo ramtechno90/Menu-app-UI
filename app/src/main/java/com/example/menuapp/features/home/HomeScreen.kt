@@ -83,7 +83,11 @@ fun HomeScreen(
             }
 
             items(uiState.menuItems.filter { it.category == selectedCategory }) { menuItem ->
-                MenuItemCard(menuItem = menuItem, onAddToCart = { viewModel.addToCart(menuItem) })
+                MenuItemCard(
+                    menuItem = menuItem,
+                    onAddToCart = { viewModel.addToCart(menuItem) },
+                    showImage = uiState.showImages
+                )
             }
 
             item {
@@ -122,7 +126,8 @@ private fun CategorySelection(
 @Composable
 private fun MenuItemCard(
     menuItem: MenuItem,
-    onAddToCart: (MenuItem) -> Unit
+    onAddToCart: (MenuItem) -> Unit,
+    showImage: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -150,7 +155,7 @@ private fun MenuItemCard(
                 Text("Add", fontWeight = FontWeight.Bold)
             }
         }
-        if (menuItem.imageUrl.isNotBlank()) {
+        if (showImage && menuItem.imageUrl.isNotBlank()) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(menuItem.imageUrl)
