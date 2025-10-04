@@ -75,7 +75,7 @@ private fun OrderHistoryCard(order: Order, onViewDetails: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
-                Text(String.format("$%.2f", order.grandTotal), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(String.format("₹%.2f", order.grandTotal), fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
             Divider(modifier = Modifier.padding(vertical = 12.dp))
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
