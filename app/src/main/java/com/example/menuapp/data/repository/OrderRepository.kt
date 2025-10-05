@@ -34,7 +34,7 @@ class OrderRepository @Inject constructor(
 
     fun getOngoingOrders(): Flow<List<Order>> = callbackFlow {
         val query = firestore.collection("orders")
-            .whereIn("status", listOf("PENDING", "ACCEPTED", "PREPARING", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "PICKED_UP"))
+            .whereIn("status", listOf("PENDING", "ACCEPTED", "PREPARING", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "PICKED_UP", "COMPLETED"))
             .orderBy("orderDate", Query.Direction.DESCENDING)
 
         val listener = query.addSnapshotListener { snapshot, error ->
