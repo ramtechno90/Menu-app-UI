@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 data class OrdersUiState(
-    val orders: List<Order> = emptyList(),
+    val ongoingOrders: List<Order> = emptyList(),
+    val deliveredOrders: List<Order> = emptyList(),
     val showImages: Boolean = true
 )
 
@@ -23,13 +24,19 @@ class OrdersViewModel @Inject constructor(
     private val _showImages = firebaseSettingsService.getShowImagesSetting()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
-    val uiState: StateFlow<OrdersUiState> = orderRepository.getOngoingOrders()
-        .combine(_showImages) { orders, showImages ->
-            OrdersUiState(orders = orders, showImages = showImages)
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = OrdersUiState()
+    val uiState: StateFlow<OrdersUiState> = combine(
+        orderRepository.getOngoingOrders(),
+        orderRepository.getDeliveredOrders(),
+        _showImages
+    ) { ongoing, delivered, showImages ->
+        OrdersUiState(
+            ongoingOrders = ongoing,
+            deliveredOrders = delivered,
+            showImages = showImages
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = OrdersUiState()
+    )
 }

@@ -58,6 +58,32 @@ class OrderRepository @Inject constructor(
         }
     }
 
+    fun getDeliveredOrders(): Flow<List<Order>> = callbackFlow {
+        val query = firestore.collection("orders")
+            .whereEqualTo("status", "DELIVERED")
+            .orderBy("orderDate", Query.Direction.DESCENDING)
+
+        val listener = query.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error) // Close the flow on error
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null) {
+                val orders = snapshot.documents.mapNotNull { document ->
+                    document.toObject(Order::class.java)?.apply {
+                        id = document.id
+                    }
+                }
+                trySend(orders) // Send the latest data to the flow
+            }
+        }
+
+        awaitClose {
+            listener.remove() // Clean up the listener when the flow is cancelled
+        }
+    }
+
     fun getOrderById(orderId: String): Flow<Order> {
         return firestore.collection("orders").document(orderId)
             .snapshots()
