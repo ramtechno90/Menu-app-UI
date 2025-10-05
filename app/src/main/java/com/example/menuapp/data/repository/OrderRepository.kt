@@ -11,13 +11,15 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import com.example.menuapp.data.service.FirebaseSettingsService
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class OrderRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val menuRepository: MenuRepository
+    private val menuRepository: MenuRepository,
+    private val settingsService: FirebaseSettingsService
 ) {
     fun getAllOrders(): Flow<List<Order>> {
         return firestore.collection("orders")
@@ -100,9 +102,19 @@ class OrderRepository @Inject constructor(
             return // Can't create an empty order
         }
 
+        // Fetch dynamic settings
+        val taxSettings = settingsService.getTaxSettings().first()
+        val deliveryFeeSettings = settingsService.getDeliveryFeeSettings().first()
+
         val subtotal = cartItems.sumOf { it.price * it.quantity }
-        val tax = subtotal * 0.08 // Assuming 8% tax
-        val deliveryFee = 2.50 // Assuming a flat delivery fee
+
+        // Calculate tax based on settings
+        val taxRate = if (taxSettings.universalTax) taxSettings.taxRate / 100.0 else 0.08
+        val tax = subtotal * taxRate
+
+        // Get delivery fee from settings
+        val deliveryFee = if (cartItems.isNotEmpty()) deliveryFeeSettings.fee else 0.0
+
         val grandTotal = subtotal + tax + deliveryFee
 
         // Create a new document with a unique ID
