@@ -3,8 +3,11 @@ package com.example.menuapp.data.repository
 import com.example.menuapp.data.firebase.model.Order
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.snapshots
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
@@ -29,18 +32,30 @@ class OrderRepository @Inject constructor(
             }
     }
 
-    fun getOngoingOrders(): Flow<List<Order>> {
-        return firestore.collection("orders")
+    fun getOngoingOrders(): Flow<List<Order>> = callbackFlow {
+        val query = firestore.collection("orders")
             .whereIn("status", listOf("PENDING", "ACCEPTED", "PREPARING", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "PICKED_UP"))
             .orderBy("orderDate", Query.Direction.DESCENDING)
-            .snapshots()
-            .map { snapshot ->
-                snapshot.documents.map { document ->
-                    val order = document.toObject(Order::class.java)!!
-                    order.id = document.id
-                    order
-                }
+
+        val listener = query.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error) // Close the flow on error
+                return@addSnapshotListener
             }
+
+            if (snapshot != null) {
+                val orders = snapshot.documents.mapNotNull { document ->
+                    document.toObject(Order::class.java)?.apply {
+                        id = document.id
+                    }
+                }
+                trySend(orders) // Send the latest data to the flow
+            }
+        }
+
+        awaitClose {
+            listener.remove() // Clean up the listener when the flow is cancelled
+        }
     }
 
     fun getOrderById(orderId: String): Flow<Order> {
