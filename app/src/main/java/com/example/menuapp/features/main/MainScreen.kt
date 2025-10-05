@@ -3,7 +3,9 @@ package com.example.menuapp.features.main
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -68,6 +70,12 @@ fun MainScreen(
                     IconButton(onClick = { authAwareViewModel.signOut() }) {
                         Icon(Icons.Default.Logout, contentDescription = "Sign Out")
                     }
+                    IconButton(onClick = onThemeToggle) {
+                        Icon(
+                            imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            contentDescription = "Toggle Theme"
+                        )
+                    }
                 }
             )
         },
@@ -87,7 +95,7 @@ fun MainScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
-                BottomNavItem.Home -> HomeScreen(isDarkTheme = isDarkTheme, onThemeToggle = onThemeToggle)
+                BottomNavItem.Home -> HomeScreen(contentPadding = innerPadding)
                 BottomNavItem.Cart -> ShoppingCartScreen(
                     onBackPressed = { /* Within main screen, no back press */ },
                     onNavigateToConfirmLocation = { latitude, longitude, address ->

@@ -35,44 +35,21 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 
 val categories = listOf("Starters", "Main Course", "Breads", "Pizza", "Salad", "Pasta", "Dessert")
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
+    contentPadding: PaddingValues = PaddingValues(),
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedCategory by remember { mutableStateOf(categories.first()) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Annapoorna, Coimbatore", fontWeight = FontWeight.Bold) },
-                actions = {
-                    IconButton(onClick = { /* TODO: Implement search action */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                    }
-                    IconButton(onClick = onThemeToggle) {
-                        Icon(
-                            imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = "Toggle Theme"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
-                )
-            )
-        },
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 CategorySelection(
@@ -94,7 +71,6 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
-    }
 }
 
 @Composable
@@ -177,6 +153,6 @@ fun HomeScreenPreview() {
     MenuAppTheme(darkTheme = false) {
         // This preview won't have a real ViewModel, so it will show an empty list.
         // For a more complete preview, a fake ViewModel/repository could be provided.
-        HomeScreen(isDarkTheme = false, onThemeToggle = {})
+        HomeScreen(contentPadding = PaddingValues(0.dp))
     }
 }
