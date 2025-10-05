@@ -23,7 +23,7 @@ class OrdersViewModel @Inject constructor(
     private val _showImages = firebaseSettingsService.getShowImagesSetting()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
-    val uiState: StateFlow<OrdersUiState> = orderRepository.getAllOrders()
+    val uiState: StateFlow<OrdersUiState> = orderRepository.getOngoingOrders()
         .combine(_showImages) { orders, showImages ->
             OrdersUiState(orders = orders, showImages = showImages)
         }

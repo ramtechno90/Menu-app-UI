@@ -29,6 +29,20 @@ class OrderRepository @Inject constructor(
             }
     }
 
+    fun getOngoingOrders(): Flow<List<Order>> {
+        return firestore.collection("orders")
+            .whereIn("status", listOf("PENDING", "ACCEPTED", "PREPARING", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "PICKED_UP"))
+            .orderBy("orderDate", Query.Direction.DESCENDING)
+            .snapshots()
+            .map { snapshot ->
+                snapshot.documents.map { document ->
+                    val order = document.toObject(Order::class.java)!!
+                    order.id = document.id
+                    order
+                }
+            }
+    }
+
     fun getOrderById(orderId: String): Flow<Order> {
         return firestore.collection("orders").document(orderId)
             .snapshots()
