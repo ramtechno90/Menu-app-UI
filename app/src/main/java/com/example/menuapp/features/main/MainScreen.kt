@@ -65,7 +65,7 @@ fun MainScreen(
             TopAppBar(
                 title = {
                     val title = when (selectedTab) {
-                        BottomNavItem.Home -> "Menu App"
+                        BottomNavItem.Home -> mainUiState.restaurantName
                         BottomNavItem.Cart -> "Your Cart"
                         BottomNavItem.Orders -> if (ordersUiState.selectedTabIndex == 0) "My Current Orders" else "Delivered Orders"
                     }
