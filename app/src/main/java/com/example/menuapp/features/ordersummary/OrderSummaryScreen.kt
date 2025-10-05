@@ -29,6 +29,7 @@ import com.example.menuapp.data.firebase.model.CartItem
 import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
+import java.text.DecimalFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,8 +184,12 @@ private fun SummaryCard(order: Order) {
         shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            val taxRate = if (order.subtotal > 0) (order.tax / order.subtotal) * 100 else 0.0
+            val taxRateFormat = DecimalFormat("#.##'%'")
+            val taxLabel = if (taxRate > 0) "Taxes (${taxRateFormat.format(taxRate)})" else "Taxes"
+
             SummaryRow("Subtotal", String.format("₹%.2f", order.subtotal))
-            SummaryRow("Taxes", String.format("₹%.2f", order.tax))
+            SummaryRow(taxLabel, String.format("₹%.2f", order.tax))
             SummaryRow("Delivery Fee", String.format("₹%.2f", order.deliveryFee))
             Divider(modifier = Modifier.padding(vertical = 8.dp))
             SummaryRow("Grand Total", String.format("₹%.2f", order.grandTotal), isBold = true)

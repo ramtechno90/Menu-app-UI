@@ -21,6 +21,7 @@ data class CartUiState(
     val cartItems: List<CartItem> = emptyList(),
     val subtotal: Double = 0.0,
     val tax: Double = 0.0,
+    val taxRate: Double = 0.0,
     val deliveryFee: Double = 0.0,
     val grandTotal: Double = 0.0,
     val isFetchingAddress: Boolean = false,
@@ -60,8 +61,8 @@ class CartViewModel @Inject constructor(
                 firebaseSettingsService.getDeliveryFeeSettings()
             ) { items, taxSettings, showImages, deliveryFeeSettings ->
                 val subtotal = items.sumOf { it.price * it.quantity }
-                val taxRate = if (taxSettings.universalTax) taxSettings.taxRate / 100.0 else 0.08
-                val tax = subtotal * taxRate
+                val currentTaxRate = if (taxSettings.universalTax) taxSettings.taxRate else 8.0
+                val tax = subtotal * (currentTaxRate / 100.0)
                 val deliveryFee = if (items.isNotEmpty()) deliveryFeeSettings.fee else 0.0
                 val grandTotal = subtotal + tax + deliveryFee
 
@@ -70,6 +71,7 @@ class CartViewModel @Inject constructor(
                         cartItems = items,
                         subtotal = subtotal,
                         tax = tax,
+                        taxRate = currentTaxRate,
                         deliveryFee = deliveryFee,
                         grandTotal = grandTotal,
                         showImages = showImages

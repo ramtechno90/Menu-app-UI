@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.CartItem
 import com.example.menuapp.ui.theme.MenuAppTheme
+import java.text.DecimalFormat
 
 @Composable
 fun ShoppingCartScreen(
@@ -236,8 +237,11 @@ private fun CheckoutFooter(uiState: CartUiState, onPlaceOrderClicked: () -> Unit
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            val taxRateFormat = DecimalFormat("#.##'%'")
+            val taxLabel = if (uiState.taxRate > 0) "Taxes (${taxRateFormat.format(uiState.taxRate)})" else "Taxes"
+
             SummaryRow("Subtotal", String.format("₹%.2f", uiState.subtotal))
-            SummaryRow("Taxes", String.format("₹%.2f", uiState.tax))
+            SummaryRow(taxLabel, String.format("₹%.2f", uiState.tax))
             SummaryRow("Delivery Fee", String.format("₹%.2f", uiState.deliveryFee))
             Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
             SummaryRow("Grand Total", String.format("₹%.2f", uiState.grandTotal), isBold = true)
