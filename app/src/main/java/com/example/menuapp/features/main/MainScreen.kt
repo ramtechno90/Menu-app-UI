@@ -99,7 +99,6 @@ fun MainScreen(
                     viewModel = cartViewModel
                 )
                 BottomNavItem.Orders -> OrdersScreen(
-                    onBackPressed = { /* No back press */ },
                     onOrderClicked = { orderId ->
                         mainNavController.navigate(Screen.OrderSummary.createRoute(orderId))
                     }
