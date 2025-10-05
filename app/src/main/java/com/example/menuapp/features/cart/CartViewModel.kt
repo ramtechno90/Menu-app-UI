@@ -56,12 +56,13 @@ class CartViewModel @Inject constructor(
             combine(
                 menuRepository.getCartItems(),
                 firebaseSettingsService.getTaxSettings(),
-                firebaseSettingsService.getShowImagesSetting()
-            ) { items, taxSettings, showImages ->
+                firebaseSettingsService.getShowImagesSetting(),
+                firebaseSettingsService.getDeliveryFeeSettings()
+            ) { items, taxSettings, showImages, deliveryFeeSettings ->
                 val subtotal = items.sumOf { it.price * it.quantity }
                 val taxRate = if (taxSettings.universalTax) taxSettings.taxRate / 100.0 else 0.08
                 val tax = subtotal * taxRate
-                val deliveryFee = if (items.isNotEmpty()) 2.50 else 0.0
+                val deliveryFee = if (items.isNotEmpty()) deliveryFeeSettings.fee else 0.0
                 val grandTotal = subtotal + tax + deliveryFee
 
                 _uiState.update {

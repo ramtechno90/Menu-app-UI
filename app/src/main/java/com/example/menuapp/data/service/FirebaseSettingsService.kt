@@ -1,5 +1,6 @@
 package com.example.menuapp.data.service
 
+import com.example.menuapp.data.model.DeliveryFeeSettings
 import com.example.menuapp.data.model.RestaurantDetails
 import com.example.menuapp.data.model.TaxSettings
 import com.google.firebase.firestore.ktx.firestore
@@ -59,6 +60,20 @@ class FirebaseSettingsService @Inject constructor() {
                 return@addSnapshotListener
             }
             val settings = snapshot?.toObject<TaxSettings>() ?: TaxSettings()
+            trySend(settings)
+        }
+        awaitClose { listener.remove() }
+    }
+
+    fun getDeliveryFeeSettings(): Flow<DeliveryFeeSettings> = callbackFlow {
+        val docRef = settingsCollection.document("delivery_fee")
+
+        val listener = docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                close(e)
+                return@addSnapshotListener
+            }
+            val settings = snapshot?.toObject<DeliveryFeeSettings>() ?: DeliveryFeeSettings()
             trySend(settings)
         }
         awaitClose { listener.remove() }
