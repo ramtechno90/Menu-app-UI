@@ -12,7 +12,8 @@ import javax.inject.Inject
 data class OrdersUiState(
     val ongoingOrders: List<Order> = emptyList(),
     val deliveredOrders: List<Order> = emptyList(),
-    val showImages: Boolean = true
+    val showImages: Boolean = true,
+    val selectedTabIndex: Int = 0
 )
 
 @HiltViewModel
@@ -24,19 +25,27 @@ class OrdersViewModel @Inject constructor(
     private val _showImages = firebaseSettingsService.getShowImagesSetting()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
+    private val _selectedTabIndex = MutableStateFlow(0)
+
     val uiState: StateFlow<OrdersUiState> = combine(
         orderRepository.getOngoingOrders(),
         orderRepository.getDeliveredOrders(),
-        _showImages
-    ) { ongoing, delivered, showImages ->
+        _showImages,
+        _selectedTabIndex
+    ) { ongoing, delivered, showImages, tabIndex ->
         OrdersUiState(
             ongoingOrders = ongoing,
             deliveredOrders = delivered,
-            showImages = showImages
+            showImages = showImages,
+            selectedTabIndex = tabIndex
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = OrdersUiState()
     )
+
+    fun onTabSelected(index: Int) {
+        _selectedTabIndex.value = index
+    }
 }

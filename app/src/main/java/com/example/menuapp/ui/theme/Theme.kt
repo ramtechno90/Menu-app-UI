@@ -39,9 +39,7 @@ fun MenuAppTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // Set status bar color to be transparent to allow content to draw behind it
-            window.statusBarColor = android.graphics.Color.TRANSPARENT
-            // This will make the status bar icons (like time, battery) dark on light theme and light on dark theme
+            window.statusBarColor = colorScheme.surface.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }

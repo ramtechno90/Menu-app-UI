@@ -1,6 +1,8 @@
 package com.example.menuapp.features.orders
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,12 +20,11 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 
 @Composable
 fun OrdersScreen(
-    contentPadding: PaddingValues,
     onOrderClicked: (String) -> Unit,
-    viewModel: OrdersViewModel = hiltViewModel()
+    viewModel: OrdersViewModel = hiltViewModel(),
+    contentPadding: PaddingValues = PaddingValues()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Current Orders", "Delivered Orders")
 
     Column(
@@ -31,23 +32,23 @@ fun OrdersScreen(
             .fillMaxWidth()
             .padding(contentPadding)
     ) {
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.primary
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(title, fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal) }
-                    )
-                }
+        TabRow(
+            selectedTabIndex = uiState.selectedTabIndex,
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.primary
+        ) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = uiState.selectedTabIndex == index,
+                    onClick = { viewModel.onTabSelected(index) },
+                    text = { Text(title, fontWeight = if (uiState.selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal) }
+                )
             }
+        }
 
-            when (selectedTabIndex) {
-                0 -> CurrentOrdersScreen(
-                    onOrderClicked = { order -> onOrderClicked(order.id) },
+        when (uiState.selectedTabIndex) {
+            0 -> CurrentOrdersScreen(
+                onOrderClicked = { order -> onOrderClicked(order.id) },
                     orders = uiState.ongoingOrders,
                     showImages = uiState.showImages
                 )
@@ -57,12 +58,13 @@ fun OrdersScreen(
                 )
             }
         }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun OrdersScreenPreview() {
     MenuAppTheme {
-        OrdersScreen(contentPadding = PaddingValues(), onOrderClicked = {})
+        OrdersScreen(onOrderClicked = {})
     }
 }
