@@ -18,32 +18,21 @@ import com.example.menuapp.features.currentorders.CurrentOrdersScreen
 import com.example.menuapp.features.deliveredorders.DeliveredOrdersScreen
 import com.example.menuapp.ui.theme.MenuAppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrdersScreen(
+    contentPadding: PaddingValues,
     onOrderClicked: (String) -> Unit,
     viewModel: OrdersViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Current Orders", "Delivered Orders")
-    val titles = listOf("My Current Orders", "Delivered Orders")
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(titles[selectedTabIndex], fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f)
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(paddingValues)
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(contentPadding)
+    ) {
             TabRow(
                 selectedTabIndex = selectedTabIndex,
                 containerColor = MaterialTheme.colorScheme.background,
@@ -70,13 +59,12 @@ fun OrdersScreen(
                 )
             }
         }
-    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun OrdersScreenPreview() {
     MenuAppTheme {
-        OrdersScreen(onOrderClicked = {})
+        OrdersScreen(contentPadding = PaddingValues(), onOrderClicked = {})
     }
 }

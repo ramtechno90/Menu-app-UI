@@ -1,7 +1,6 @@
 package com.example.menuapp.features.main
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Home
@@ -65,16 +64,27 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Menu App") },
-                actions = {
-                    IconButton(onClick = { authAwareViewModel.signOut() }) {
-                        Icon(Icons.Default.Logout, contentDescription = "Sign Out")
+                title = {
+                    val title = when (selectedTab) {
+                        BottomNavItem.Home -> "Menu App"
+                        BottomNavItem.Cart -> "Your Cart"
+                        BottomNavItem.Orders -> "My Orders"
                     }
-                    IconButton(onClick = onThemeToggle) {
-                        Icon(
-                            imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = "Toggle Theme"
-                        )
+                    Text(text = title)
+                },
+                actions = {
+                    if (selectedTab == BottomNavItem.Home) {
+                        IconButton(onClick = onThemeToggle) {
+                            Icon(
+                                imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                                contentDescription = "Toggle Theme"
+                            )
+                        }
+                        TextButton(onClick = { authAwareViewModel.signOut() }) {
+                            Icon(Icons.Default.Logout, contentDescription = "Sign Out")
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Logout")
+                        }
                     }
                 }
             )
@@ -93,25 +103,30 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            when (selectedTab) {
-                BottomNavItem.Home -> HomeScreen(contentPadding = innerPadding)
-                BottomNavItem.Cart -> ShoppingCartScreen(
-                    onBackPressed = { /* Within main screen, no back press */ },
-                    onNavigateToConfirmLocation = { latitude, longitude, address ->
-                        val encodedAddress = URLEncoder.encode(address, "UTF-8")
-                        mainNavController.navigate(
-                            Screen.ConfirmLocation.createRoute(latitude, longitude, encodedAddress)
-                        )
-                    },
-                    viewModel = cartViewModel
-                )
-                BottomNavItem.Orders -> OrdersScreen(
-                    onOrderClicked = { orderId ->
-                        mainNavController.navigate(Screen.OrderSummary.createRoute(orderId))
-                    }
-                )
-            }
+        // The content of each tab is rendered here. The `innerPadding` is passed
+        // to the respective screen to handle the space needed for the TopAppBar and BottomNavBar.
+        when (selectedTab) {
+            BottomNavItem.Home -> HomeScreen(
+                contentPadding = innerPadding
+            )
+
+            BottomNavItem.Cart -> ShoppingCartScreen(
+                contentPadding = innerPadding,
+                onNavigateToConfirmLocation = { latitude, longitude, address ->
+                    val encodedAddress = URLEncoder.encode(address, "UTF-8")
+                    mainNavController.navigate(
+                        Screen.ConfirmLocation.createRoute(latitude, longitude, encodedAddress)
+                    )
+                },
+                viewModel = cartViewModel
+            )
+
+            BottomNavItem.Orders -> OrdersScreen(
+                contentPadding = innerPadding,
+                onOrderClicked = { orderId ->
+                    mainNavController.navigate(Screen.OrderSummary.createRoute(orderId))
+                }
+            )
         }
     }
 }

@@ -37,7 +37,7 @@ val categories = listOf("Starters", "Main Course", "Breads", "Pizza", "Salad", "
 
 @Composable
 fun HomeScreen(
-    contentPadding: PaddingValues = PaddingValues(),
+    contentPadding: PaddingValues,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -51,7 +51,6 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
             item {
-                Spacer(modifier = Modifier.height(8.dp))
                 CategorySelection(
                     categories = categories,
                     selectedCategory = selectedCategory,

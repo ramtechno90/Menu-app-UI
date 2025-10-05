@@ -32,7 +32,7 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 
 @Composable
 fun ShoppingCartScreen(
-    onBackPressed: () -> Unit,
+    contentPadding: PaddingValues,
     onNavigateToConfirmLocation: (Double, Double, String) -> Unit,
     viewModel: CartViewModel
 ) {
@@ -65,8 +65,8 @@ fun ShoppingCartScreen(
     }
 
     ShoppingCartScreenContent(
+        contentPadding = contentPadding,
         uiState = uiState,
-        onBackPressed = onBackPressed,
         onPlaceOrderClicked = {
             viewModel.placeOrder(uiState.deliveryAddress)
             Toast.makeText(context, "Order Placed!", Toast.LENGTH_SHORT).show()
@@ -89,11 +89,10 @@ fun ShoppingCartScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingCartScreenContent(
+    contentPadding: PaddingValues,
     uiState: CartUiState,
-    onBackPressed: () -> Unit,
     onPlaceOrderClicked: () -> Unit,
     onConfirmAddressClicked: () -> Unit,
     onQuantityChange: (String, Int) -> Unit,
@@ -102,31 +101,14 @@ fun ShoppingCartScreenContent(
     onManualAddressChange: (String) -> Unit,
     onChangeLocationClicked: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Your Cart", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        },
-        bottomBar = {
-            CheckoutFooter(
-                uiState = uiState,
-                onPlaceOrderClicked = onPlaceOrderClicked
-            )
-        }
-    ) { paddingValues ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+    ) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+                .weight(1f)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(bottom = 16.dp)
@@ -154,6 +136,10 @@ fun ShoppingCartScreenContent(
                 )
             }
         }
+        CheckoutFooter(
+            uiState = uiState,
+            onPlaceOrderClicked = onPlaceOrderClicked
+        )
     }
 }
 
@@ -367,8 +353,8 @@ fun DeliveryAddressSection(
 fun ShoppingCartScreenPreview() {
     MenuAppTheme(darkTheme = false) {
         ShoppingCartScreenContent(
+            contentPadding = PaddingValues(),
             uiState = CartUiState(),
-            onBackPressed = {},
             onPlaceOrderClicked = {},
             onConfirmAddressClicked = {},
             onQuantityChange = { _, _ -> },
