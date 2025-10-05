@@ -26,39 +26,20 @@ import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrentOrdersScreen(
-    onBackPressed: () -> Unit,
     onOrderClicked: (Order) -> Unit,
     orders: List<Order>,
     showImages: Boolean
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("My Current Orders", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f)
-                )
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(orders) { order ->
-                CurrentOrderCard(order = order, onClick = { onOrderClicked(order) }, showImage = showImages)
-            }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(orders) { order ->
+            CurrentOrderCard(order = order, onClick = { onOrderClicked(order) }, showImage = showImages)
         }
     }
 }
@@ -140,6 +121,6 @@ private fun CurrentOrderCard(order: Order, onClick: () -> Unit, showImage: Boole
 @Composable
 fun CurrentOrdersScreenPreview() {
     MenuAppTheme(darkTheme = false) {
-        CurrentOrdersScreen(onBackPressed = {}, onOrderClicked = {}, orders = emptyList(), showImages = true)
+        CurrentOrdersScreen(onOrderClicked = {}, orders = emptyList(), showImages = true)
     }
 }

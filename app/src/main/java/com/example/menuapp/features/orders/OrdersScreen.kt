@@ -20,41 +20,54 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrdersScreen(
-    onBackPressed: () -> Unit,
     onOrderClicked: (String) -> Unit,
     viewModel: OrdersViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Current Orders", "Delivered Orders")
+    val titles = listOf("My Current Orders", "Delivered Orders")
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.primary
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(titles[selectedTabIndex], fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f)
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(paddingValues)
         ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index },
-                    text = { Text(title, fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal) }
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.primary
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(title, fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal) }
+                    )
+                }
+            }
+
+            when (selectedTabIndex) {
+                0 -> CurrentOrdersScreen(
+                    onOrderClicked = { order -> onOrderClicked(order.id) },
+                    orders = uiState.ongoingOrders,
+                    showImages = uiState.showImages
+                )
+                1 -> DeliveredOrdersScreen(
+                    onOrderClicked = { order -> onOrderClicked(order.id) },
+                    orders = uiState.deliveredOrders
                 )
             }
-        }
-
-        when (selectedTabIndex) {
-            0 -> CurrentOrdersScreen(
-                onBackPressed = onBackPressed,
-                onOrderClicked = { order -> onOrderClicked(order.id) },
-                orders = uiState.ongoingOrders,
-                showImages = uiState.showImages
-            )
-            1 -> DeliveredOrdersScreen(
-                onBackPressed = onBackPressed,
-                onOrderClicked = { order -> onOrderClicked(order.id) },
-                orders = uiState.deliveredOrders
-            )
         }
     }
 }
@@ -63,6 +76,6 @@ fun OrdersScreen(
 @Composable
 fun OrdersScreenPreview() {
     MenuAppTheme {
-        OrdersScreen(onBackPressed = {}, onOrderClicked = {})
+        OrdersScreen(onOrderClicked = {})
     }
 }

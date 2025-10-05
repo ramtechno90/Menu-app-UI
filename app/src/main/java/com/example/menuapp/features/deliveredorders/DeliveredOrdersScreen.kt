@@ -21,11 +21,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.Order
+import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.formatTimestamp
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun DeliveredOrdersScreen(
-    onBackPressed: () -> Unit,
     onOrderClicked: (Order) -> Unit,
     orders: List<Order>
 ) {
@@ -41,6 +42,14 @@ fun DeliveredOrdersScreen(
                 onClick = { onOrderClicked(order) }
             )
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Light Mode")
+@Composable
+fun DeliveredOrdersScreenPreview() {
+    MenuAppTheme(darkTheme = false) {
+        DeliveredOrdersScreen(onOrderClicked = {}, orders = emptyList())
     }
 }
 
