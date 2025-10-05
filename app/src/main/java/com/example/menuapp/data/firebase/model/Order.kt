@@ -9,6 +9,7 @@ data class Order(
     val deliveryFee: Double = 0.0,
     val grandTotal: Double = 0.0,
     val orderDate: Long = 0L,
+    val deliveryDate: Long? = null,
     val status: String = "",
     val deliveryAddress: String = "",
     val assignedTo: String? = null,
