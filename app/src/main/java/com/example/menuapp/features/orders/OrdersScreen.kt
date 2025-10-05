@@ -1,8 +1,6 @@
 package com.example.menuapp.features.orders
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,14 +47,13 @@ fun OrdersScreen(
         when (uiState.selectedTabIndex) {
             0 -> CurrentOrdersScreen(
                 onOrderClicked = { order -> onOrderClicked(order.id) },
-                    orders = uiState.ongoingOrders,
-                    showImages = uiState.showImages
-                )
-                1 -> DeliveredOrdersScreen(
-                    onOrderClicked = { order -> onOrderClicked(order.id) },
-                    orders = uiState.deliveredOrders
-                )
-            }
+                orders = uiState.ongoingOrders,
+                showImages = uiState.showImages
+            )
+            1 -> DeliveredOrdersScreen(
+                onOrderClicked = { order -> onOrderClicked(order.id) },
+                orders = uiState.deliveredOrders
+            )
         }
     }
 }
@@ -65,6 +62,6 @@ fun OrdersScreen(
 @Composable
 fun OrdersScreenPreview() {
     MenuAppTheme {
-        OrdersScreen(onOrderClicked = {})
+        OrdersScreen(onOrderClicked = {}, contentPadding = PaddingValues())
     }
 }
