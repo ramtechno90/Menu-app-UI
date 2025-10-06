@@ -33,15 +33,17 @@ import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.MenuItem
 import com.example.menuapp.ui.theme.MenuAppTheme
 
-val categories = listOf("Starters", "Main Course", "Breads", "Pizza", "Salad", "Pasta", "Dessert")
-
 @Composable
 fun HomeScreen(
     contentPadding: PaddingValues,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedCategory by remember { mutableStateOf(categories.first()) }
+    var selectedCategory by remember { mutableStateOf("") }
+
+    if (uiState.categories.isNotEmpty() && selectedCategory.isBlank()) {
+        selectedCategory = uiState.categories.first()
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -50,9 +52,10 @@ fun HomeScreen(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        if (uiState.categories.isNotEmpty()) {
             item {
                 CategorySelection(
-                    categories = categories,
+                    categories = uiState.categories,
                     selectedCategory = selectedCategory,
                     onCategorySelected = { selectedCategory = it }
                 )

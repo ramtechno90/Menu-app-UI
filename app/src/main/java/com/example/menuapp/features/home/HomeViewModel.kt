@@ -12,6 +12,7 @@ import javax.inject.Inject
 
 data class HomeUiState(
     val menuItems: List<MenuItem> = emptyList(),
+    val categories: List<String> = emptyList(),
     val showImages: Boolean = true
 )
 
@@ -26,7 +27,8 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = menuRepository.getMenuItems()
         .combine(_showImages) { menuItems, showImages ->
-            HomeUiState(menuItems = menuItems, showImages = showImages)
+            val categories = menuItems.map { it.category }.distinct()
+            HomeUiState(menuItems = menuItems, categories = categories, showImages = showImages)
         }
         .stateIn(
             scope = viewModelScope,
