@@ -40,24 +40,6 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun signUp(email: String, password: String, username: String): Result<Unit> {
-        return try {
-            val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val firebaseUser = authResult.user
-            if (firebaseUser != null) {
-                val user = mapOf(
-                    "uid" to firebaseUser.uid,
-                    "username" to username,
-                    "email" to email
-                )
-                firestore.collection("users").document(firebaseUser.uid).set(user).await()
-            }
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     override suspend fun signInWithGoogle(account: GoogleSignInAccount): Result<Unit> {
         return try {
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
@@ -109,6 +91,25 @@ class AuthRepositoryImpl @Inject constructor(
             val credential = PhoneAuthProvider.getCredential(verificationId, otp)
             firebaseAuth.signInWithCredential(credential).await()
             Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun createUserProfile(username: String): Result<Unit> {
+        return try {
+            val firebaseUser = firebaseAuth.currentUser
+            if (firebaseUser != null) {
+                val user = mapOf(
+                    "uid" to firebaseUser.uid,
+                    "username" to username,
+                    "phoneNumber" to firebaseUser.phoneNumber
+                )
+                firestore.collection("users").document(firebaseUser.uid).set(user).await()
+                Result.success(Unit)
+            } else {
+                Result.failure(IllegalStateException("User not logged in"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -20,21 +20,12 @@ class AuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState = _authState.asStateFlow()
 
+    private var tempUsername: String? = null
+
     fun signIn(email: String, password: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             val result = authRepository.signIn(email, password)
-            _authState.value = when {
-                result.isSuccess -> AuthState.Success
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "An unexpected error occurred")
-            }
-        }
-    }
-
-    fun signUp(email: String, password: String, username: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.signUp(email, password, username)
             _authState.value = when {
                 result.isSuccess -> AuthState.Success
                 else -> AuthState.Error(result.exceptionOrNull()?.message ?: "An unexpected error occurred")
@@ -53,6 +44,11 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun signUpWithPhone(username: String, phoneNumber: String, activity: Activity) {
+        tempUsername = username
+        sendOtp(phoneNumber, activity)
+    }
+
     fun sendOtp(phoneNumber: String, activity: Activity) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
@@ -69,9 +65,24 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             val result = authRepository.verifyOtp(verificationId, otp)
-            _authState.value = when {
-                result.isSuccess -> AuthState.Success
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "An unexpected error occurred")
+            if (result.isSuccess) {
+                tempUsername?.let { username ->
+                    val profileResult = authRepository.createUserProfile(username)
+                    if (profileResult.isSuccess) {
+                        _authState.value = AuthState.Success
+                    } else {
+                        _authState.value = AuthState.Error(
+                            profileResult.exceptionOrNull()?.message ?: "Failed to create profile"
+                        )
+                    }
+                    tempUsername = null
+                } ?: run {
+                    _authState.value = AuthState.Success
+                }
+            } else {
+                _authState.value = AuthState.Error(
+                    result.exceptionOrNull()?.message ?: "An unexpected error occurred"
+                )
             }
         }
     }
