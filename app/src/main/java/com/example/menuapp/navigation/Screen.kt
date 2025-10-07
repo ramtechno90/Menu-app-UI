@@ -4,7 +4,6 @@ sealed class Screen(val route: String) {
     object Welcome : Screen("welcome")
     object SignIn : Screen("sign_in")
     object SignUp : Screen("sign_up")
-    object PhoneSignIn : Screen("phone_sign_in")
     object OtpVerification : Screen("otp_verification/{verificationId}") {
         fun createRoute(verificationId: String) = "otp_verification/$verificationId"
     }

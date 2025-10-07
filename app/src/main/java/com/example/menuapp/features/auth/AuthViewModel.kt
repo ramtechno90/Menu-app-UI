@@ -22,28 +22,6 @@ class AuthViewModel @Inject constructor(
 
     private var tempUsername: String? = null
 
-    fun signIn(email: String, password: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.signIn(email, password)
-            _authState.value = when {
-                result.isSuccess -> AuthState.Success
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "An unexpected error occurred")
-            }
-        }
-    }
-
-    fun signInWithGoogle(account: GoogleSignInAccount) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.signInWithGoogle(account)
-            _authState.value = when {
-                result.isSuccess -> AuthState.Success
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "An unexpected error occurred")
-            }
-        }
-    }
-
     fun signUpWithPhone(username: String, phoneNumber: String, activity: Activity) {
         tempUsername = username
         sendOtp(phoneNumber, activity)

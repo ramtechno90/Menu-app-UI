@@ -13,7 +13,6 @@ import com.example.menuapp.features.ordertracking.OrderTrackingScreen
 import java.net.URLDecoder
 import androidx.navigation.NavHostController
 import com.example.menuapp.features.auth.OtpVerificationScreen
-import com.example.menuapp.features.auth.PhoneSignInScreen
 import com.example.menuapp.features.auth.SignInScreen
 import com.example.menuapp.features.auth.SignUpScreen
 import com.example.menuapp.features.map.MapScreen
@@ -24,7 +23,6 @@ fun AppNavigation(
     isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
     startDestination: String,
-    onGoogleSignInClicked: () -> Unit,
     onSendOtpClicked: (String) -> Unit,
     onVerifyOtpClicked: (String, String) -> Unit,
     navController: NavHostController
@@ -38,8 +36,7 @@ fun AppNavigation(
                     }
                 },
                 onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) },
-                onGoogleSignInClicked = onGoogleSignInClicked,
-                onNavigateToPhoneSignIn = { navController.navigate(Screen.PhoneSignIn.route) }
+                onSendOtpClicked = onSendOtpClicked
             )
         }
         composable(Screen.SignUp.route) {
@@ -51,9 +48,6 @@ fun AppNavigation(
                 },
                 onNavigateToSignIn = { navController.popBackStack() }
             )
-        }
-        composable(Screen.PhoneSignIn.route) {
-            PhoneSignInScreen(onSendOtpClicked = onSendOtpClicked)
         }
         composable(Screen.OtpVerification.route) { backStackEntry ->
             val verificationId = backStackEntry.arguments?.getString("verificationId")

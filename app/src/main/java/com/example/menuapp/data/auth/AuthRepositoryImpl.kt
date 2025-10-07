@@ -31,34 +31,6 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun signIn(email: String, password: String): Result<Unit> {
-        return try {
-            firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun signInWithGoogle(account: GoogleSignInAccount): Result<Unit> {
-        return try {
-            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            val authResult = firebaseAuth.signInWithCredential(credential).await()
-            val firebaseUser = authResult.user
-            if (firebaseUser != null) {
-                val user = mapOf(
-                    "uid" to firebaseUser.uid,
-                    "username" to firebaseUser.displayName,
-                    "email" to firebaseUser.email
-                )
-                firestore.collection("users").document(firebaseUser.uid).set(user).await()
-            }
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     override suspend fun sendOtp(phoneNumber: String, activity: Activity): Flow<Result<String>> = callbackFlow {
         val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
