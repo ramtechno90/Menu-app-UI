@@ -17,7 +17,7 @@ import com.example.menuapp.features.auth.PhoneSignInScreen
 import com.example.menuapp.features.auth.SignInScreen
 import com.example.menuapp.features.auth.SignUpScreen
 import com.example.menuapp.features.map.MapScreen
-import com.example.menuapp.features.roleselection.RoleSelectionScreen
+import com.example.menuapp.features.welcome.WelcomeScreen
 
 @Composable
 fun AppNavigation(
@@ -34,7 +34,7 @@ fun AppNavigation(
             SignInScreen(
                 onSignInSuccess = {
                     navController.navigate(Screen.Main.route) {
-                        popUpTo(Screen.RoleSelection.route) { inclusive = true }
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 },
                 onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) },
@@ -46,7 +46,7 @@ fun AppNavigation(
             SignUpScreen(
                 onSignUpSuccess = {
                     navController.navigate(Screen.Main.route) {
-                        popUpTo(Screen.RoleSelection.route) { inclusive = true }
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 },
                 onNavigateToSignIn = { navController.popBackStack() }
@@ -63,13 +63,10 @@ fun AppNavigation(
                 })
             }
         }
-        composable(Screen.RoleSelection.route) {
-            RoleSelectionScreen(
-                onCustomerSelected = {
-                    navController.navigate(Screen.SignIn.route)
-                },
-                onAdminSelected = { /* TODO */ },
-                onDeliverySelected = { /* TODO */ }
+        composable(Screen.Welcome.route) {
+            WelcomeScreen(
+                onNavigateToSignIn = { navController.navigate(Screen.SignIn.route) },
+                onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) }
             )
         }
         composable(Screen.Main.route) {

@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                 AppNavigation(
                     isDarkTheme = isDarkTheme,
                     onThemeToggle = { isDarkTheme = !isDarkTheme },
-                    startDestination = if (isAuthenticated) Screen.Main.route else Screen.RoleSelection.route,
+                    startDestination = if (isAuthenticated) Screen.Main.route else Screen.Welcome.route,
                     onGoogleSignInClicked = { googleSignInLauncher.launch(googleSignInClient.signInIntent) },
                     onSendOtpClicked = { phoneNumber -> viewModel.sendOtp(phoneNumber, this) },
                     onVerifyOtpClicked = { verificationId, otp -> viewModel.verifyOtp(verificationId, otp) },
