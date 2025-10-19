@@ -2,14 +2,14 @@ package com.example.menuapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Primary = Color(0xFFFFC107) // Yellow
-val BackgroundLight = Color(0xFFD32F2F) // Red
+val Red = Color(0xFFD32F2F)
+val Yellow = Color(0xFFFFC107)
+val BackgroundLight = Color(0xFFF8F6F5)
 
-// Define other colors from the design if needed
 val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 val TextBlack = Color(0xFF000000)
 val TextWhite = Color(0xFFFFFFFF)
-val IconColor = Primary
+val IconColor = Red
 val CardBackgroundColor = White
-val ChevronColor = Color(0x80000000) // black with 50% opacity
+val ChevronColor = Color(0x80000000)
