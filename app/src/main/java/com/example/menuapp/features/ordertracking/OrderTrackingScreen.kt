@@ -367,7 +367,7 @@ private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun OrderTrackingScreenPreview() {
-    MenuAppTheme {
+    MenuAppTheme(darkTheme = false) {
         OrderTrackingScreen(onBackPressed = {}, onNavigateToMap = {})
     }
 }

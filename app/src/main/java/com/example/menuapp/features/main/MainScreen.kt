@@ -29,6 +29,8 @@ sealed class BottomNavItem(val title: String, val icon: ImageVector, val route: 
 @Composable
 fun MainScreen(
     mainNavController: NavController,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
     cartViewModel: CartViewModel = hiltViewModel(),
     ordersViewModel: OrdersViewModel = hiltViewModel(),
@@ -75,6 +77,12 @@ fun MainScreen(
                             Icon(Icons.Default.Logout, contentDescription = "Sign Out")
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Logout")
+                        }
+                        IconButton(onClick = onThemeToggle) {
+                            Icon(
+                                imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                                contentDescription = "Toggle Theme"
+                            )
                         }
                     }
                 }

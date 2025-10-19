@@ -13,11 +13,13 @@ private val LightColorScheme = lightColorScheme(
     primary = Primary,
     secondary = Secondary,
     background = BackgroundLight,
-    surface = CardBackgroundColor, // Use cream for cards and surfaces
+    surface = BackgroundLight,
     onPrimary = TextOnPrimary,
     onSecondary = TextOnSecondary,
-    onBackground = TextStandard,
-    onSurface = TextStandard
+    onBackground = TextOnBackground,
+    onSurface = TextOnBackground,
+    surfaceVariant = CardBackgroundColor,
+    onSurfaceVariant = TextOnBackground
 )
 
 @Composable
@@ -29,7 +31,7 @@ fun MenuAppTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb() // Set status bar to main background color
+            window.statusBarColor = colorScheme.surface.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         }
     }
