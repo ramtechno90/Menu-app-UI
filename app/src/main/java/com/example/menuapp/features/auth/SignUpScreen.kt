@@ -1,7 +1,6 @@
 package com.example.menuapp.features.auth
 
 import android.app.Activity
-import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
