@@ -20,8 +20,6 @@ import com.example.menuapp.features.welcome.WelcomeScreen
 
 @Composable
 fun AppNavigation(
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     startDestination: String,
     onSendOtpClicked: (String) -> Unit,
     onVerifyOtpClicked: (String, String) -> Unit,
@@ -65,9 +63,7 @@ fun AppNavigation(
         }
         composable(Screen.Main.route) {
             MainScreen(
-                mainNavController = navController,
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
+                mainNavController = navController
             )
         }
         composable(Screen.OrderSummary.route) { backStackEntry ->
