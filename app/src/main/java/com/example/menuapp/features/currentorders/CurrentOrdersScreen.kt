@@ -120,7 +120,7 @@ private fun CurrentOrderCard(order: Order, onClick: () -> Unit, showImage: Boole
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun CurrentOrdersScreenPreview() {
-    MenuAppTheme(darkTheme = false) {
+    MenuAppTheme {
         CurrentOrdersScreen(onOrderClicked = {}, orders = emptyList(), showImages = true)
     }
 }

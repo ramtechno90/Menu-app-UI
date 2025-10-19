@@ -355,7 +355,7 @@ fun DeliveryAddressSection(
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun ShoppingCartScreenPreview() {
-    MenuAppTheme(darkTheme = false) {
+    MenuAppTheme {
         ShoppingCartScreenContent(
             contentPadding = PaddingValues(),
             uiState = CartUiState(),
