@@ -246,7 +246,7 @@ private fun OrderActionsFooter(onTrackOrderClicked: () -> Unit) {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun OrderSummaryScreenPreview() {
-    MenuAppTheme(darkTheme = false) {
+    MenuAppTheme {
         // This preview will be in a loading state as it has no ViewModel
         OrderSummaryScreen(onBackPressed = {}, onTrackOrderClicked = {})
     }

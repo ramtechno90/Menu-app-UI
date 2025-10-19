@@ -48,7 +48,7 @@ fun DeliveredOrdersScreen(
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun DeliveredOrdersScreenPreview() {
-    MenuAppTheme(darkTheme = false) {
+    MenuAppTheme {
         DeliveredOrdersScreen(onOrderClicked = {}, orders = emptyList())
     }
 }

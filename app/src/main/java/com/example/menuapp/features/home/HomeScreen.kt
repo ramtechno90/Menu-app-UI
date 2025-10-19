@@ -153,7 +153,7 @@ private fun MenuItemCard(
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun HomeScreenPreview() {
-    MenuAppTheme(darkTheme = false) {
+    MenuAppTheme {
         // This preview won't have a real ViewModel, so it will show an empty list.
         // For a more complete preview, a fake ViewModel/repository could be provided.
         HomeScreen(contentPadding = PaddingValues(0.dp))
