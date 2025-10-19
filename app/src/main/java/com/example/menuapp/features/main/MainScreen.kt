@@ -1,5 +1,8 @@
 package com.example.menuapp.features.main
 
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.menuapp.ui.theme.MenuAppTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -114,5 +117,13 @@ fun MainScreen(
                 viewModel = ordersViewModel
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    MenuAppTheme {
+        MainScreen(mainNavController = rememberNavController())
     }
 }

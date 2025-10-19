@@ -1,5 +1,7 @@
 package com.example.menuapp.features.auth
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.menuapp.ui.theme.MenuAppTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -74,5 +76,13 @@ fun OtpVerificationScreen(
             Text("Verify OTP")
         }
         Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OtpVerificationScreenPreview() {
+    MenuAppTheme {
+        OtpVerificationScreen(onVerifyOtpClicked = {})
     }
 }
