@@ -3,7 +3,7 @@ package com.example.menuapp.features.welcome
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -49,14 +49,8 @@ fun WelcomeScreen(
                     painter = painterResource(id = R.drawable.app_logo),
                     contentDescription = "App Logo",
                     modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                )
-                Text(
-                    text = restaurantName,
-                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 24.sp),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground
+                        .size(160.dp)
+                        .clip(RoundedCornerShape(16.dp))
                 )
             }
 
