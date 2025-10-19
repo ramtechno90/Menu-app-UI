@@ -10,14 +10,14 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary = Red,
-    secondary = Yellow,
+    primary = Primary,
+    secondary = Secondary,
     background = BackgroundLight,
-    surface = BackgroundLight,
-    onPrimary = White,
-    onSecondary = Black,
-    onBackground = TextBlack,
-    onSurface = TextBlack
+    surface = CardBackgroundColor, // Use cream for cards and surfaces
+    onPrimary = TextOnPrimary,
+    onSecondary = TextOnSecondary,
+    onBackground = TextStandard,
+    onSurface = TextStandard
 )
 
 @Composable
@@ -29,7 +29,7 @@ fun MenuAppTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.surface.toArgb()
+            window.statusBarColor = colorScheme.background.toArgb() // Set status bar to main background color
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         }
     }
