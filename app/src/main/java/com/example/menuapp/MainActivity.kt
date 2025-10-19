@@ -29,7 +29,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var isDarkTheme by remember { mutableStateOf(false) }
             val isAuthenticated by authRepository.isAuthenticated.collectAsState(initial = false)
             val viewModel: AuthViewModel = hiltViewModel()
             val navController = rememberNavController()
@@ -42,10 +41,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            MenuAppTheme(darkTheme = isDarkTheme) {
+            MenuAppTheme {
                 AppNavigation(
-                    isDarkTheme = isDarkTheme,
-                    onThemeToggle = { isDarkTheme = !isDarkTheme },
                     startDestination = if (isAuthenticated) Screen.Main.route else Screen.Welcome.route,
                     onSendOtpClicked = { phoneNumber -> viewModel.sendOtp(phoneNumber, this) },
                     onVerifyOtpClicked = { verificationId, otp -> viewModel.verifyOtp(verificationId, otp) },
