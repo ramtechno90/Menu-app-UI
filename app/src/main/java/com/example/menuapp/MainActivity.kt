@@ -43,8 +43,6 @@ class MainActivity : ComponentActivity() {
 
             MenuAppTheme {
                 AppNavigation(
-                    isDarkTheme = false,
-                    onThemeToggle = { /* No-op */ },
                     startDestination = if (isAuthenticated) Screen.Main.route else Screen.Welcome.route,
                     onSendOtpClicked = { phoneNumber -> viewModel.sendOtp(phoneNumber, this) },
                     onVerifyOtpClicked = { verificationId, otp -> viewModel.verifyOtp(verificationId, otp) },

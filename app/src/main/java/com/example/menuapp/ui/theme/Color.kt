@@ -3,7 +3,7 @@ package com.example.menuapp.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val Primary = Color(0xFFFFC107) // Yellow
-val BackgroundLight = Color(0xFFFFEBEE) // Light Red
+val BackgroundLight = Color(0xFFD32F2F) // Red
 
 // Define other colors from the design if needed
 val White = Color(0xFFFFFFFF)
