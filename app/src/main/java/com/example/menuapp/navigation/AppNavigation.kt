@@ -15,7 +15,6 @@ import androidx.navigation.NavHostController
 import com.example.menuapp.features.auth.OtpVerificationScreen
 import com.example.menuapp.features.auth.SignInScreen
 import com.example.menuapp.features.auth.SignUpScreen
-import com.example.menuapp.features.map.MapScreen
 import com.example.menuapp.features.welcome.WelcomeScreen
 
 @Composable
@@ -110,12 +109,6 @@ fun AppNavigation(
                     onBackPressed = { navController.popBackStack() }
                 )
             }
-        }
-        composable(
-            route = Screen.Map.route,
-            arguments = listOf(navArgument("orderId") { type = NavType.StringType })
-        ) {
-            MapScreen(onBackPressed = { navController.popBackStack() })
         }
     }
 }
