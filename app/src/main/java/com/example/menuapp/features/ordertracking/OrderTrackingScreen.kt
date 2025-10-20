@@ -55,7 +55,6 @@ val trackingStates = listOf(
 @Composable
 fun OrderTrackingScreen(
     onBackPressed: () -> Unit,
-    onNavigateToMap: (String) -> Unit,
     viewModel: OrderTrackingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -91,23 +90,6 @@ fun OrderTrackingScreen(
                     item { OtpCard(order = uiState.order!!) }
                 }
                 item { TrackingTimeline(order = uiState.order!!) }
-                item {
-                    val orderId = uiState.order?.id
-                    if (!orderId.isNullOrBlank()) {
-                        Button(
-                            onClick = { onNavigateToMap(orderId) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Map,
-                                contentDescription = "Map Icon",
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            Text("View Live Map")
-                        }
-                    }
-                }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         } else {
@@ -368,6 +350,6 @@ private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
 @Composable
 fun OrderTrackingScreenPreview() {
     MenuAppTheme {
-        OrderTrackingScreen(onBackPressed = {}, onNavigateToMap = {})
+        OrderTrackingScreen(onBackPressed = {})
     }
 }
