@@ -81,10 +81,7 @@ fun AppNavigation(
         }
         composable(Screen.OrderTracking.route) {
             OrderTrackingScreen(
-                onBackPressed = { navController.popBackStack() },
-                onNavigateToMap = { orderId ->
-                    navController.navigate(Screen.Map.createRoute(orderId))
-                }
+                onBackPressed = { navController.popBackStack() }
             )
         }
         composable(
