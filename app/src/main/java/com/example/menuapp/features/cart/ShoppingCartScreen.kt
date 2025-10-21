@@ -259,7 +259,7 @@ private fun CheckoutFooter(uiState: CartUiState, onPlaceOrderClicked: () -> Unit
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
             enabled = uiState.cartItems.isNotEmpty() && uiState.deliveryAddress.isNotEmpty()
         ) {
             Text("Proceed to Place Order", fontSize = 18.sp, fontWeight = FontWeight.Bold)
