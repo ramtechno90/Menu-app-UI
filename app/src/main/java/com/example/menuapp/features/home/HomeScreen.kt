@@ -125,8 +125,8 @@ private fun MenuItemCard(
                 onClick = { onAddToCart(menuItem) },
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                    contentColor = MaterialTheme.colorScheme.secondary
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    contentColor = MaterialTheme.colorScheme.primary
                 )
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add to cart", modifier = Modifier.size(18.dp))
