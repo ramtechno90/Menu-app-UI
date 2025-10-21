@@ -132,7 +132,7 @@ private fun OrderStatusHeader(order: Order) {
         Icon(
             imageVector = Icons.Default.LocalShipping,
             contentDescription = "Delivery Status",
-            tint = Color(0xFF2E7D32), // Green color for shipping
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(40.dp)
         )
     }
@@ -230,7 +230,7 @@ private fun OrderActionsFooter(onTrackOrderClicked: () -> Unit) {
             onClick = onTrackOrderClicked,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text("Track Order", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }

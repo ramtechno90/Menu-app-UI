@@ -72,7 +72,7 @@ fun OtpVerificationScreen(
         Button(
             onClick = { onVerifyOtpClicked(otp) },
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text("Verify OTP")
         }

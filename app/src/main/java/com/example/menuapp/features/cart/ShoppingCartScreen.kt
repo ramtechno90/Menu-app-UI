@@ -206,16 +206,22 @@ private fun QuantityStepper(
     ) {
         IconButton(
             onClick = { onQuantityChange(quantity - 1) },
-            modifier = Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)),
-            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSecondary)
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.primary)
         ) {
             Icon(Icons.Default.Remove, contentDescription = "Decrease quantity")
         }
         Text(quantity.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
         IconButton(
             onClick = { onQuantityChange(quantity + 1) },
-            modifier = Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)),
-            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSecondary)
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.primary)
         ) {
             Icon(Icons.Default.Add, contentDescription = "Increase quantity")
         }
@@ -253,7 +259,7 @@ private fun CheckoutFooter(uiState: CartUiState, onPlaceOrderClicked: () -> Unit
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             enabled = uiState.cartItems.isNotEmpty() && uiState.deliveryAddress.isNotEmpty()
         ) {
             Text("Proceed to Place Order", fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -328,7 +334,7 @@ fun DeliveryAddressSection(
                 onClick = onConfirmAddressClicked,
                 enabled = !uiState.isFetchingAddress,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 if (uiState.isFetchingAddress) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onSecondary)
@@ -346,7 +352,7 @@ fun DeliveryAddressSection(
             Button(
                 onClick = onChangeLocationClicked,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Change Location")
             }

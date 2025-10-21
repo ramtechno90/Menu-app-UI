@@ -144,7 +144,7 @@ private fun OrderSummaryCard(order: Order, showImage: Boolean) {
 
 @Composable
 private fun OtpCard(order: Order) {
-    val green = Color(0xFF4CAF50)
+    val green = MaterialTheme.colorScheme.primary
 
     val surfaceColor = when {
         order.otpVerified -> green.copy(alpha = 0.1f)
@@ -269,7 +269,7 @@ private fun TrackingTimeline(order: Order) {
 
 @Composable
 private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boolean, isLast: Boolean) {
-    val green = Color(0xFF4CAF50)
+    val green = MaterialTheme.colorScheme.primary
 
     Row(
         modifier = Modifier.fillMaxWidth(),
