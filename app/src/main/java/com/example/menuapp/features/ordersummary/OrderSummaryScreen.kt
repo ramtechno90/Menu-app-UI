@@ -41,6 +41,7 @@ fun OrderSummaryScreen(
     viewModel: OrderSummaryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -57,7 +58,13 @@ fun OrderSummaryScreen(
             )
         },
         bottomBar = {
-            OrderActionsFooter(onTrackOrderClicked = onTrackOrderClicked)
+            OrderActionsFooter(
+                onTrackOrderClicked = onTrackOrderClicked,
+                onContactSupportClicked = {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${uiState.contactNumber}"))
+                    context.startActivity(intent)
+                }
+            )
         }
     ) { paddingValues ->
         if (uiState.isLoading) {
@@ -107,11 +114,13 @@ private fun DeliveryAddressCard(order: Order) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Delivery Address",
+                "Delivery Details",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(order.deliveryAddress)
+            Text("Address: ${order.deliveryAddress}")
+            Spacer(modifier = Modifier.height(4.dp))
+            Text("Phone: ${order.customerPhoneNumber}")
         }
     }
 }
@@ -219,7 +228,10 @@ private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
 }
 
 @Composable
-private fun OrderActionsFooter(onTrackOrderClicked: () -> Unit) {
+private fun OrderActionsFooter(
+    onTrackOrderClicked: () -> Unit,
+    onContactSupportClicked: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -235,13 +247,14 @@ private fun OrderActionsFooter(onTrackOrderClicked: () -> Unit) {
         ) {
             Text("Track Order", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
-                                OutlinedButton(
-                                    onClick = { /* TODO: Implement contact support */ },
-                                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                                ) {            Text("Contact Support", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        OutlinedButton(
+            onClick = onContactSupportClicked,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Contact Restaurant", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }

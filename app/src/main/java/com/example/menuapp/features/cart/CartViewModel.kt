@@ -74,9 +74,7 @@ class CartViewModel @Inject constructor(
                 val tax = subtotal * (currentTaxRate / 100.0)
                 val deliveryFee = if (items.isNotEmpty()) deliveryFeeSettings.fee else 0.0
                 val grandTotal = subtotal + tax + deliveryFee
-                val phoneNumber = user?.phoneNumber?.let {
-                    if (it.startsWith("+91")) it else "+91$it"
-                } ?: "+91"
+            val phoneNumber = user?.phoneNumber ?: ""
 
                 _uiState.update {
                     it.copy(
@@ -87,7 +85,7 @@ class CartViewModel @Inject constructor(
                         deliveryFee = deliveryFee,
                         grandTotal = grandTotal,
                         showImages = showImages,
-                        phoneNumber = phoneNumber
+                    phoneNumber = it.phoneNumber.ifEmpty { phoneNumber }
                     )
                 }
             }.collect()

@@ -213,9 +213,11 @@ fun ShoppingCartScreenContent(
                     }
 
                     item {
-                        Text("Delivery Address", style = MaterialTheme.typography.titleLarge)
+                        Text("Delivery Details", style = MaterialTheme.typography.titleLarge)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(uiState.deliveryAddress)
+                        Text("Address: ${uiState.deliveryAddress}")
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Phone: ${uiState.phoneNumber}")
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 

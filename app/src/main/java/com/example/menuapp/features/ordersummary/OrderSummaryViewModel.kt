@@ -13,7 +13,8 @@ import javax.inject.Inject
 data class OrderSummaryUiState(
     val order: Order? = null,
     val isLoading: Boolean = true,
-    val showImages: Boolean = true
+    val showImages: Boolean = true,
+    val contactNumber: String = ""
 )
 
 @HiltViewModel
@@ -28,13 +29,23 @@ class OrderSummaryViewModel @Inject constructor(
     private val _showImages = firebaseSettingsService.getShowImagesSetting()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
-    val uiState: StateFlow<OrderSummaryUiState> = orderRepository.getOrderById(orderId)
-        .combine(_showImages) { order, showImages ->
-            OrderSummaryUiState(order = order, isLoading = false, showImages = showImages)
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = OrderSummaryUiState(isLoading = true)
+    private val _restaurantDetails = firebaseSettingsService.getRestaurantDetails()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    val uiState: StateFlow<OrderSummaryUiState> = combine(
+        orderRepository.getOrderById(orderId),
+        _showImages,
+        _restaurantDetails
+    ) { order, showImages, details ->
+        OrderSummaryUiState(
+            order = order,
+            isLoading = false,
+            showImages = showImages,
+            contactNumber = details?.contactNumber ?: ""
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = OrderSummaryUiState(isLoading = true)
+    )
 }

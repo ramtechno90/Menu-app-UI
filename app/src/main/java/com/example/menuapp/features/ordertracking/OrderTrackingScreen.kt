@@ -59,6 +59,7 @@ fun OrderTrackingScreen(
     viewModel: OrderTrackingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -70,6 +71,14 @@ fun OrderTrackingScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+            )
+        },
+        bottomBar = {
+            OrderActionsFooter(
+                onContactSupportClicked = {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${uiState.contactNumber}"))
+                    context.startActivity(intent)
+                }
             )
         }
     ) { paddingValues ->
@@ -335,6 +344,27 @@ private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
     "OUT_FOR_DELIVERY", "PICKED_UP" -> TrackingStatus.OUT_FOR_DELIVERY
     "DELIVERED" -> TrackingStatus.DELIVERED
     else -> TrackingStatus.PLACED
+}
+
+@Composable
+private fun OrderActionsFooter(onContactSupportClicked: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        OutlinedButton(
+            onClick = onContactSupportClicked,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Contact Restaurant", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        }
+    }
 }
 
 @Preview(showBackground = true, name = "Light Mode")
