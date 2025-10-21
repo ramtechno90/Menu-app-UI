@@ -91,6 +91,32 @@ class AuthRepositoryImpl @Inject constructor(
         firebaseAuth.signOut()
     }
 
+    override fun getUserFlow(): Flow<com.example.menuapp.data.model.User?> = callbackFlow {
+        val firebaseUser = firebaseAuth.currentUser
+        if (firebaseUser == null) {
+            trySend(null)
+            close()
+            return@callbackFlow
+        }
+
+        val documentRef = firestore.collection("users").document(firebaseUser.uid)
+        val listener = documentRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val user = snapshot.toObject(com.example.menuapp.data.model.User::class.java)
+                trySend(user)
+            } else {
+                trySend(null)
+            }
+        }
+
+        awaitClose { listener.remove() }
+    }
+
     override suspend fun getCurrentUser(): com.example.menuapp.data.model.User? {
         val firebaseUser = firebaseAuth.currentUser ?: return null
         return try {

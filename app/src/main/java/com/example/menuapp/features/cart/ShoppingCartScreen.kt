@@ -474,6 +474,7 @@ fun ShoppingCartScreenPreview() {
             onAddressSelectionChange = {},
             onManualAddressChange = {},
             onChangeLocationClicked = {},
+            onPhoneNumberChange = {},
             onNextStep = {},
             onPreviousStep = {}
         )
