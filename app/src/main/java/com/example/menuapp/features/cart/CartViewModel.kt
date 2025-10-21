@@ -30,12 +30,19 @@ data class CartUiState(
     val locationResultForConfirmation: LocationResult.Success? = null,
     val manualAddressInput: String = "",
     val addressSelection: AddressSelection = AddressSelection.CURRENT_LOCATION,
-    val showImages: Boolean = true
+    val showImages: Boolean = true,
+    val cartStep: CartStep = CartStep.ITEMS
 )
 
 enum class AddressSelection {
     CURRENT_LOCATION,
     MANUAL_ENTRY
+}
+
+enum class CartStep {
+    ITEMS,
+    DELIVERY,
+    SUMMARY
 }
 
 @HiltViewModel
@@ -231,6 +238,22 @@ class CartViewModel @Inject constructor(
                 deliveryAddress = "",
                 locationResultForConfirmation = null
             )
+        }
+    }
+
+    fun nextStep() {
+        when (_uiState.value.cartStep) {
+            CartStep.ITEMS -> _uiState.update { it.copy(cartStep = CartStep.DELIVERY) }
+            CartStep.DELIVERY -> _uiState.update { it.copy(cartStep = CartStep.SUMMARY) }
+            CartStep.SUMMARY -> {}
+        }
+    }
+
+    fun previousStep() {
+        when (_uiState.value.cartStep) {
+            CartStep.DELIVERY -> _uiState.update { it.copy(cartStep = CartStep.ITEMS) }
+            CartStep.SUMMARY -> _uiState.update { it.copy(cartStep = CartStep.DELIVERY) }
+            CartStep.ITEMS -> {}
         }
     }
 }

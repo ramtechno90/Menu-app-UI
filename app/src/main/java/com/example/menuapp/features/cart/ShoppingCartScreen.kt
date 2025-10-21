@@ -86,7 +86,9 @@ fun ShoppingCartScreen(
         },
         onAddressSelectionChange = viewModel::onAddressSelectionChange,
         onManualAddressChange = viewModel::onManualAddressInputChange,
-        onChangeLocationClicked = viewModel::changeLocation
+        onChangeLocationClicked = viewModel::changeLocation,
+        onNextStep = viewModel::nextStep,
+        onPreviousStep = viewModel::previousStep
     )
 }
 
@@ -100,48 +102,126 @@ fun ShoppingCartScreenContent(
     onNotesChange: (String, String) -> Unit,
     onAddressSelectionChange: (AddressSelection) -> Unit,
     onManualAddressChange: (String) -> Unit,
-    onChangeLocationClicked: () -> Unit
+    onChangeLocationClicked: () -> Unit,
+    onNextStep: () -> Unit,
+    onPreviousStep: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(contentPadding)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
-        ) {
-            items(uiState.cartItems) { item ->
-                CartListItem(
-                    item = item,
-                    onQuantityChange = { newQuantity ->
-                        onQuantityChange(item.id, newQuantity)
-                    },
-                    onNotesChange = { newNotes ->
-                        onNotesChange(item.id, newNotes)
-                    },
-                    showImage = uiState.showImages
-                )
-            }
+        when (uiState.cartStep) {
+            CartStep.ITEMS -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    items(uiState.cartItems) { item ->
+                        CartListItem(
+                            item = item,
+                            onQuantityChange = { newQuantity ->
+                                onQuantityChange(item.id, newQuantity)
+                            },
+                            onNotesChange = { newNotes ->
+                                onNotesChange(item.id, newNotes)
+                            },
+                            showImage = uiState.showImages
+                        )
+                    }
 
-            item {
-                DeliveryAddressSection(
-                    uiState = uiState,
-                    onConfirmAddressClicked = onConfirmAddressClicked,
-                    onAddressSelectionChange = onAddressSelectionChange,
-                    onManualAddressChange = onManualAddressChange,
-                    onChangeLocationClicked = onChangeLocationClicked
-                )
+                    item {
+                        Button(onClick = onNextStep, modifier = Modifier.fillMaxWidth()) {
+                            Text("Proceed to Delivery")
+                        }
+                    }
+                }
             }
+            CartStep.DELIVERY -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    item {
+                        DeliveryAddressSection(
+                            uiState = uiState,
+                            onConfirmAddressClicked = onConfirmAddressClicked,
+                            onAddressSelectionChange = onAddressSelectionChange,
+                            onManualAddressChange = onManualAddressChange,
+                            onChangeLocationClicked = onChangeLocationClicked
+                        )
+                    }
 
-            item {
-                CheckoutFooter(
-                    uiState = uiState,
-                    onPlaceOrderClicked = onPlaceOrderClicked
-                )
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = onPreviousStep,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Back to Items")
+                            }
+                            Button(
+                                onClick = onNextStep,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Proceed to Summary")
+                            }
+                        }
+                    }
+                }
+            }
+            CartStep.SUMMARY -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    item {
+                        Text("Items", style = MaterialTheme.typography.titleLarge)
+                    }
+
+                    items(uiState.cartItems) { item ->
+                        CartListItem(
+                            item = item,
+                            onQuantityChange = { newQuantity ->
+                                onQuantityChange(item.id, newQuantity)
+                            },
+                            onNotesChange = { newNotes ->
+                                onNotesChange(item.id, newNotes)
+                            },
+                            showImage = uiState.showImages
+                        )
+                    }
+
+                    item {
+                        Text("Delivery Address", style = MaterialTheme.typography.titleLarge)
+                        Text(uiState.deliveryAddress)
+                    }
+
+                    item {
+                        CheckoutFooter(
+                            uiState = uiState,
+                            onPlaceOrderClicked = onPlaceOrderClicked
+                        )
+                    }
+
+                    item {
+                        OutlinedButton(onClick = onPreviousStep, modifier = Modifier.fillMaxWidth()) {
+                            Text("Back to Delivery")
+                        }
+                    }
+                }
             }
         }
     }
