@@ -134,6 +134,10 @@ fun ShoppingCartScreenContent(
                     }
 
                     item {
+                        PriceDetailsCard(uiState = uiState)
+                    }
+
+                    item {
                         Button(onClick = onNextStep, modifier = Modifier.fillMaxWidth()) {
                             Text("Proceed to Delivery")
                         }
@@ -159,21 +163,21 @@ fun ShoppingCartScreenContent(
                     }
 
                     item {
-                        Row(
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            OutlinedButton(
-                                onClick = onPreviousStep,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("Back to Items")
-                            }
                             Button(
                                 onClick = onNextStep,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text("Proceed to Summary")
+                            }
+                            OutlinedButton(
+                                onClick = onPreviousStep,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Back to Items")
                             }
                         }
                     }
@@ -210,10 +214,17 @@ fun ShoppingCartScreenContent(
                     }
 
                     item {
-                        CheckoutFooter(
-                            uiState = uiState,
-                            onPlaceOrderClicked = onPlaceOrderClicked
-                        )
+                        PriceDetailsCard(uiState = uiState)
+                    }
+
+                    item {
+                        Button(
+                            onClick = onPlaceOrderClicked,
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = uiState.cartItems.isNotEmpty() && uiState.deliveryAddress.isNotEmpty()
+                        ) {
+                            Text("Proceed to Place Order")
+                        }
                     }
 
                     item {
@@ -228,13 +239,39 @@ fun ShoppingCartScreenContent(
 }
 
 @Composable
+fun PriceDetailsCard(uiState: CartUiState) {
+    Column(
+        modifier = Modifier
+            .background(
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                RoundedCornerShape(12.dp)
+            )
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val taxRateFormat = DecimalFormat("#.##'%'")
+        val taxLabel =
+            if (uiState.taxRate > 0) "Taxes (${taxRateFormat.format(uiState.taxRate)})" else "Taxes"
+
+        SummaryRow("Subtotal", String.format("₹%.2f", uiState.subtotal))
+        SummaryRow(taxLabel, String.format("₹%.2f", uiState.tax))
+        SummaryRow("Delivery Fee", String.format("₹%.2f", uiState.deliveryFee))
+        Divider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+        )
+        SummaryRow("Grand Total", String.format("₹%.2f", uiState.grandTotal), isBold = true)
+    }
+}
+
+@Composable
 private fun CartListItem(
     item: CartItem,
     onQuantityChange: (Int) -> Unit,
     onNotesChange: (String) -> Unit,
     showImage: Boolean
 ) {
-    Column {
+    Column(modifier = Modifier.padding(vertical = 16.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -311,44 +348,6 @@ private fun QuantityStepper(
     }
 }
 
-@Composable
-private fun CheckoutFooter(uiState: CartUiState, onPlaceOrderClicked: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(elevation = 8.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val taxRateFormat = DecimalFormat("#.##'%'")
-            val taxLabel = if (uiState.taxRate > 0) "Taxes (${taxRateFormat.format(uiState.taxRate)})" else "Taxes"
-
-            SummaryRow("Subtotal", String.format("₹%.2f", uiState.subtotal))
-            SummaryRow(taxLabel, String.format("₹%.2f", uiState.tax))
-            SummaryRow("Delivery Fee", String.format("₹%.2f", uiState.deliveryFee))
-            Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-            SummaryRow("Grand Total", String.format("₹%.2f", uiState.grandTotal), isBold = true)
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = onPlaceOrderClicked,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-            enabled = uiState.cartItems.isNotEmpty() && uiState.deliveryAddress.isNotEmpty()
-        ) {
-            Text("Proceed to Place Order", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        }
-    }
-}
 
 @Composable
 private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
