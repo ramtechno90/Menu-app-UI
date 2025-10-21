@@ -456,7 +456,9 @@ fun ShoppingCartScreenPreview() {
             onNotesChange = { _, _ -> },
             onAddressSelectionChange = {},
             onManualAddressChange = {},
-            onChangeLocationClicked = {}
+            onChangeLocationClicked = {},
+            onNextStep = {},
+            onPreviousStep = {}
         )
     }
 }
