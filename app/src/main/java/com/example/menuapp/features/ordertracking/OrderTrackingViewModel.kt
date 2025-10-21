@@ -45,7 +45,7 @@ class OrderTrackingViewModel @Inject constructor(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSub-scribed(5_000),
+        started = SharingStarted.WhileSubscribed(5_000),
         initialValue = OrderTrackingUiState(isLoading = true)
     )
 }
