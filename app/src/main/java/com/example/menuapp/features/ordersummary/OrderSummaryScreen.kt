@@ -132,7 +132,7 @@ private fun OrderStatusHeader(order: Order) {
         Icon(
             imageVector = Icons.Default.LocalShipping,
             contentDescription = "Delivery Status",
-            tint = MaterialTheme.colorScheme.primary,
+            tint = Green,
             modifier = Modifier.size(40.dp)
         )
     }

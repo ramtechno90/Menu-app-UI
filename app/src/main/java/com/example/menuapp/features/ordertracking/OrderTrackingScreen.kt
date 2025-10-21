@@ -144,10 +144,8 @@ private fun OrderSummaryCard(order: Order, showImage: Boolean) {
 
 @Composable
 private fun OtpCard(order: Order) {
-    val green = MaterialTheme.colorScheme.primary
-
     val surfaceColor = when {
-        order.otpVerified -> green.copy(alpha = 0.1f)
+        order.otpVerified -> Green.copy(alpha = 0.1f)
         order.otpInvalid -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
         else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
     }
@@ -162,15 +160,9 @@ private fun OtpCard(order: Order) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val titleColor = when {
-                order.otpVerified -> green
-                order.otpInvalid -> MaterialTheme.colorScheme.error
-                else -> MaterialTheme.colorScheme.primary
-            }
-
             Text(
                 text = "Delivery OTP",
-                color = titleColor,
+                color = Color.Black,
                 fontWeight = FontWeight.Bold
             )
 
@@ -181,13 +173,13 @@ private fun OtpCard(order: Order) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = "Verified",
-                        tint = green,
+                        tint = Green,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "OTP Verified",
-                        color = green,
+                        color = Green,
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp
                     )
@@ -202,14 +194,14 @@ private fun OtpCard(order: Order) {
                 // Always show OTP if not yet verified
                 Text(
                     text = order.otp?.chunked(1)?.joinToString(" ") ?: "----",
-                    color = if (order.otpInvalid) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                    color = if (order.otpInvalid) MaterialTheme.colorScheme.error else Green,
                     fontWeight = FontWeight.Bold,
                     fontSize = 40.sp,
                     letterSpacing = 8.sp,
                     modifier = Modifier
                         .border(
                             1.dp,
-                            (if (order.otpInvalid) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary).copy(
+                            (if (order.otpInvalid) MaterialTheme.colorScheme.error else Green).copy(
                                 alpha = 0.3f
                             ),
                             RoundedCornerShape(8.dp)
@@ -269,8 +261,6 @@ private fun TrackingTimeline(order: Order) {
 
 @Composable
 private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boolean, isLast: Boolean) {
-    val green = MaterialTheme.colorScheme.primary
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
@@ -281,12 +271,12 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isCurrent) green else MaterialTheme.colorScheme.surface
+                        if (isCurrent) Green else MaterialTheme.colorScheme.surface
                     )
                     .then(
                         when {
                             isCurrent -> Modifier
-                            isActive -> Modifier.border(2.dp, green, CircleShape)
+                            isActive -> Modifier.border(2.dp, Green, CircleShape)
                             else -> Modifier.border(2.dp, Color.LightGray, CircleShape)
                         }
                     ),
@@ -297,14 +287,14 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                     contentDescription = state.title,
                     tint = when {
                         isCurrent -> Color.White
-                        isActive -> green
+                        isActive -> Green
                         else -> Color.Gray
                     },
                     modifier = Modifier.size(24.dp)
                 )
             }
             if (!isLast) {
-                val lineColor = if (isActive) green else Color.LightGray.copy(alpha = 0.5f)
+                val lineColor = if (isActive) Green else Color.LightGray.copy(alpha = 0.5f)
                 Canvas(Modifier.width(2.dp).weight(1f)) {
                     drawLine(
                         color = lineColor,
@@ -321,7 +311,7 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
                 text = state.title,
                 fontWeight = FontWeight.Bold,
                 color = when {
-                    isCurrent -> green
+                    isCurrent -> Green
                     isActive -> MaterialTheme.colorScheme.onSurface
                     else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 }

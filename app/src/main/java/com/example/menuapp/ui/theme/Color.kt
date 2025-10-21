@@ -8,6 +8,7 @@ val AmberYellow = Color(0xFFFFC107)
 val LightYellow = Color(0xFFFFFDE7) // Reverted background color
 val PureWhite = Color(0xFFFFFFFF)
 val DarkCharcoal = Color(0xFF333333)
+val Green = Color(0xFF4CAF50)
 
 val Primary = BrightRed
 val Secondary = AmberYellow
