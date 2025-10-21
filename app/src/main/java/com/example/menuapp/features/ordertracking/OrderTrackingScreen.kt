@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.menuapp.data.firebase.model.Order
+import com.example.menuapp.ui.theme.Green
 import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
 
