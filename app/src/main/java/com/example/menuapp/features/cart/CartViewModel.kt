@@ -118,7 +118,8 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             val user = authRepository.getCurrentUser()
             val customerName = user?.username ?: "Guest"
-            orderRepository.createOrder(address, customerName)
+            val customerPhoneNumber = user?.phoneNumber
+            orderRepository.createOrder(address, customerName, customerPhoneNumber)
         }
     }
 

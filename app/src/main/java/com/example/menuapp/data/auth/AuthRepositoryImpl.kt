@@ -94,10 +94,31 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun getCurrentUser(): com.example.menuapp.data.model.User? {
         val firebaseUser = firebaseAuth.currentUser ?: return null
         return try {
-            val document = firestore.collection("users").document(firebaseUser.uid).get().await()
-            document.toObject(com.example.menuapp.data.model.User::class.java)
+            val documentRef = firestore.collection("users").document(firebaseUser.uid)
+            val document = documentRef.get().await()
+
+            var user = document.toObject(com.example.menuapp.data.model.User::class.java)
+
+            if (user != null && user.phoneNumber.isNullOrBlank() && !firebaseUser.phoneNumber.isNullOrBlank()) {
+                val authPhoneNumber = firebaseUser.phoneNumber!!
+                documentRef.update("phoneNumber", authPhoneNumber).await()
+                user = user.copy(phoneNumber = authPhoneNumber)
+            } else if (user == null) {
+                user = com.example.menuapp.data.model.User(
+                    uid = firebaseUser.uid,
+                    username = firebaseUser.displayName,
+                    email = firebaseUser.email,
+                    phoneNumber = firebaseUser.phoneNumber
+                )
+            }
+            user
         } catch (e: Exception) {
-            null
+            return com.example.menuapp.data.model.User(
+                uid = firebaseUser.uid,
+                username = firebaseUser.displayName,
+                email = firebaseUser.email,
+                phoneNumber = firebaseUser.phoneNumber
+            )
         }
     }
 }

@@ -3,6 +3,7 @@ package com.example.menuapp.data.firebase.model
 data class Order(
     var id: String = "",
     val customerName: String = "",
+    val customerPhoneNumber: String? = null,
     val items: List<CartItem> = emptyList(),
     val subtotal: Double = 0.0,
     val tax: Double = 0.0,

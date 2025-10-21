@@ -100,7 +100,7 @@ class OrderRepository @Inject constructor(
             }
     }
 
-    suspend fun createOrder(address: String, customerName: String) {
+    suspend fun createOrder(address: String, customerName: String, customerPhoneNumber: String?) {
         val cartItems = menuRepository.getCartItems().first()
         if (cartItems.isEmpty()) {
             return // Can't create an empty order
@@ -127,6 +127,7 @@ class OrderRepository @Inject constructor(
         val order = Order(
             id = newOrderRef.id, // Use the unique ID from the document reference
             customerName = customerName,
+            customerPhoneNumber = customerPhoneNumber,
             items = cartItems,
             subtotal = subtotal,
             tax = tax,
