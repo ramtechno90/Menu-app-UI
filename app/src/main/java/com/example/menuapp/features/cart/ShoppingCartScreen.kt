@@ -136,11 +136,15 @@ fun ShoppingCartScreenContent(
                     onChangeLocationClicked = onChangeLocationClicked
                 )
             }
+            }
+
+            item {
+                CheckoutFooter(
+                    uiState = uiState,
+                    onPlaceOrderClicked = onPlaceOrderClicked
+                )
+            }
         }
-        CheckoutFooter(
-            uiState = uiState,
-            onPlaceOrderClicked = onPlaceOrderClicked
-        )
     }
 }
 
