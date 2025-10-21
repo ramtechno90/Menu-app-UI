@@ -30,6 +30,7 @@ import com.example.menuapp.data.firebase.model.Order
 import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
 import java.text.DecimalFormat
+import androidx.compose.foundation.BorderStroke
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -229,16 +230,17 @@ private fun OrderActionsFooter(onTrackOrderClicked: () -> Unit) {
             onClick = onTrackOrderClicked,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
         ) {
             Text("Track Order", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
-        OutlinedButton(
-            onClick = { /* TODO: Implement contact support */ },
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Contact Support", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                OutlinedButton(
+                                    onClick = { /* TODO: Implement contact support */ },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                                ) {            Text("Contact Support", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }

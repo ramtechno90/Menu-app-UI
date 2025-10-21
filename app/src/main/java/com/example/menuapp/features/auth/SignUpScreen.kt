@@ -82,11 +82,12 @@ fun SignUpScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = authState !is AuthState.Loading
+            enabled = authState !is AuthState.Loading,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
         ) {
             Text("Sign Up")
         }
-        TextButton(onClick = onNavigateToSignIn) {
+        TextButton(onClick = onNavigateToSignIn, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)) {
             Text("Already have an account? Sign in")
         }
         when (val state = authState) {

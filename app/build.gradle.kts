@@ -30,7 +30,6 @@ android {
             localProperties.load(localPropertiesFile.inputStream())
         }
         manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY")
-        resValue("string", "default_web_client_id", localProperties.getProperty("DEFAULT_WEB_CLIENT_ID"))
     }
 
     buildTypes {
@@ -71,6 +70,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.5.0")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.7.6")
     implementation("io.coil-kt:coil-compose:2.5.0")

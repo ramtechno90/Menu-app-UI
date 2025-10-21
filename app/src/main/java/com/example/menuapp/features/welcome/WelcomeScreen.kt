@@ -19,6 +19,7 @@ import com.example.menuapp.R
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.menuapp.ui.theme.MenuAppTheme
+import androidx.compose.foundation.BorderStroke
 
 @Composable
 fun WelcomeScreen(
@@ -62,13 +63,16 @@ fun WelcomeScreen(
             ) {
                 Button(
                     onClick = onNavigateToSignIn,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                 ) {
                     Text("Sign In")
                 }
                 OutlinedButton(
                     onClick = onNavigateToSignUp,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                 ) {
                     Text("Sign Up")
                 }

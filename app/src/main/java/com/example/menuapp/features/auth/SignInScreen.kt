@@ -76,11 +76,12 @@ fun SignInScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = authState !is AuthState.Loading
+            enabled = authState !is AuthState.Loading,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
         ) {
             Text("Send OTP")
         }
-        TextButton(onClick = onNavigateToSignUp) {
+        TextButton(onClick = onNavigateToSignUp, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)) {
             Text("Don't have an account? Sign up")
         }
 

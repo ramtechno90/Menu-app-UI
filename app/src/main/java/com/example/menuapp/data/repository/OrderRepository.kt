@@ -86,13 +86,17 @@ class OrderRepository @Inject constructor(
         }
     }
 
-    fun getOrderById(orderId: String): Flow<Order> {
+    fun getOrderById(orderId: String): Flow<Order?> {
         return firestore.collection("orders").document(orderId)
             .snapshots()
             .map { snapshot ->
-                val order = snapshot.toObject(Order::class.java)!!
-                order.id = snapshot.id
-                order
+                if (snapshot.exists()) {
+                    val order = snapshot.toObject(Order::class.java)
+                    order?.id = snapshot.id
+                    order
+                } else {
+                    null
+                }
             }
     }
 

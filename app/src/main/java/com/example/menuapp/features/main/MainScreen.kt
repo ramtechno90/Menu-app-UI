@@ -74,7 +74,7 @@ fun MainScreen(
                 },
                 actions = {
                     if (selectedTab == BottomNavItem.Home) {
-                        TextButton(onClick = { authAwareViewModel.signOut() }) {
+                        TextButton(onClick = { authAwareViewModel.signOut() }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)) {
                             Icon(Icons.Default.Logout, contentDescription = "Sign Out")
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Logout")
