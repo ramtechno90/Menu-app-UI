@@ -39,7 +39,13 @@ fun OrdersScreen(
                 Tab(
                     selected = uiState.selectedTabIndex == index,
                     onClick = { viewModel.onTabSelected(index) },
-                    text = { Text(title, fontWeight = if (uiState.selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal) }
+                    text = {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = if (uiState.selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
                 )
             }
         }
