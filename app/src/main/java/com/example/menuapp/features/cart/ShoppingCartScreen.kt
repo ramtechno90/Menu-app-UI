@@ -213,11 +213,14 @@ fun ShoppingCartScreenContent(
                     }
 
                     item {
+                        val phoneNumber =
+                            uiState.phoneNumberInput.ifBlank { uiState.userDefaultPhoneNumber }
+
                         Text("Delivery Details", style = MaterialTheme.typography.titleLarge)
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         Text("Address: ${uiState.deliveryAddress}")
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("Phone: ${uiState.phoneNumber}")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Phone: $phoneNumber")
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
@@ -453,8 +456,9 @@ fun DeliveryAddressSection(
             Text("Confirm Phone Number", fontWeight = FontWeight.Bold, fontSize = 18.sp)
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = uiState.phoneNumber,
+                value = uiState.phoneNumberInput,
                 onValueChange = onPhoneNumberChange,
+                placeholder = { Text(uiState.userDefaultPhoneNumber) },
                 label = { Text("Phone Number") },
                 modifier = Modifier.fillMaxWidth()
             )

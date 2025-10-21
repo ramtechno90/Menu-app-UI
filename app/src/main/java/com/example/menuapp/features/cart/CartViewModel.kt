@@ -26,7 +26,8 @@ data class CartUiState(
     val grandTotal: Double = 0.0,
     val isFetchingAddress: Boolean = false,
     val deliveryAddress: String = "",
-    val phoneNumber: String = "",
+    val phoneNumberInput: String = "", // The text in the TextField
+    val userDefaultPhoneNumber: String = "", // The number from user's profile for placeholder
     val errorMessage: String? = null,
     val locationResultForConfirmation: LocationResult.Success? = null,
     val manualAddressInput: String = "",
@@ -74,7 +75,7 @@ class CartViewModel @Inject constructor(
                 val tax = subtotal * (currentTaxRate / 100.0)
                 val deliveryFee = if (items.isNotEmpty()) deliveryFeeSettings.fee else 0.0
                 val grandTotal = subtotal + tax + deliveryFee
-            val phoneNumber = user?.phoneNumber ?: ""
+            val defaultPhoneNumber = user?.phoneNumber ?: ""
 
                 _uiState.update {
                     it.copy(
@@ -85,7 +86,7 @@ class CartViewModel @Inject constructor(
                         deliveryFee = deliveryFee,
                         grandTotal = grandTotal,
                         showImages = showImages,
-                    phoneNumber = it.phoneNumber.ifEmpty { phoneNumber }
+                    userDefaultPhoneNumber = defaultPhoneNumber
                     )
                 }
             }.collect()
@@ -129,13 +130,14 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             val user = authRepository.getCurrentUser()
             val customerName = user?.username ?: "Guest"
-            val customerPhoneNumber = _uiState.value.phoneNumber
+        val customerPhoneNumber =
+            _uiState.value.phoneNumberInput.ifBlank { _uiState.value.userDefaultPhoneNumber }
             orderRepository.createOrder(address, customerName, customerPhoneNumber)
         }
     }
 
     fun onPhoneNumberChange(phoneNumber: String) {
-        _uiState.update { it.copy(phoneNumber = phoneNumber) }
+    _uiState.update { it.copy(phoneNumberInput = phoneNumber) }
     }
 
     fun fetchAddress() {
