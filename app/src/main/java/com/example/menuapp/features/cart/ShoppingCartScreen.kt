@@ -136,7 +136,6 @@ fun ShoppingCartScreenContent(
                     onChangeLocationClicked = onChangeLocationClicked
                 )
             }
-            }
 
             item {
                 CheckoutFooter(
