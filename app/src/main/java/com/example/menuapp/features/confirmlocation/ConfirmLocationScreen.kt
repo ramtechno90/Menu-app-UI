@@ -96,7 +96,7 @@ fun ConfirmLocationScreen(
                 onClick = { onConfirmClicked(uiState.address) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Confirm Location")
             }
