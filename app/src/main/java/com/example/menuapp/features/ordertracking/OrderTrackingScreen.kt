@@ -195,7 +195,7 @@ private fun OtpCard(order: Order) {
                 // Always show OTP if not yet verified
                 Text(
                     text = order.otp?.chunked(1)?.joinToString(" ") ?: "----",
-                    color = if (order.otpInvalid) MaterialTheme.colorScheme.error else Green,
+                    color = if (order.otpInvalid) MaterialTheme.colorScheme.error else Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 40.sp,
                     letterSpacing = 8.sp,
