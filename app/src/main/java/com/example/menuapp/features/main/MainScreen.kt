@@ -85,10 +85,23 @@ fun MainScreen(
         },
         bottomBar = {
             NavigationBar {
+                val cartUiState by cartViewModel.uiState.collectAsStateWithLifecycle()
+                val cartItemCount = cartUiState.cartItems.sumOf { it.quantity }
                 val items = listOf(BottomNavItem.Home, BottomNavItem.Cart, BottomNavItem.Orders)
+
                 items.forEach { item ->
                     NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.title) },
+                        icon = {
+                            if (item.route == BottomNavItem.Cart.route && cartItemCount > 0) {
+                                BadgedBox(
+                                    badge = { Badge { Text(cartItemCount.toString()) } }
+                                ) {
+                                    Icon(item.icon, contentDescription = item.title)
+                                }
+                            } else {
+                                Icon(item.icon, contentDescription = item.title)
+                            }
+                        },
                         label = { Text(item.title) },
                         selected = selectedTab == item,
                         onClick = { mainViewModel.onTabSelected(item) }
