@@ -87,6 +87,7 @@ fun ShoppingCartScreen(
         onAddressSelectionChange = viewModel::onAddressSelectionChange,
         onManualAddressChange = viewModel::onManualAddressInputChange,
         onChangeLocationClicked = viewModel::changeLocation,
+        onPhoneNumberChange = viewModel::onPhoneNumberChange,
         onNextStep = viewModel::nextStep,
         onPreviousStep = viewModel::previousStep
     )
@@ -103,6 +104,7 @@ fun ShoppingCartScreenContent(
     onAddressSelectionChange: (AddressSelection) -> Unit,
     onManualAddressChange: (String) -> Unit,
     onChangeLocationClicked: () -> Unit,
+    onPhoneNumberChange: (String) -> Unit,
     onNextStep: () -> Unit,
     onPreviousStep: () -> Unit
 ) {
@@ -158,11 +160,13 @@ fun ShoppingCartScreenContent(
                             onConfirmAddressClicked = onConfirmAddressClicked,
                             onAddressSelectionChange = onAddressSelectionChange,
                             onManualAddressChange = onManualAddressChange,
-                            onChangeLocationClicked = onChangeLocationClicked
+                            onChangeLocationClicked = onChangeLocationClicked,
+                            onPhoneNumberChange = onPhoneNumberChange
                         )
                     }
 
                     item {
+                        Spacer(modifier = Modifier.height(32.dp))
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -210,7 +214,9 @@ fun ShoppingCartScreenContent(
 
                     item {
                         Text("Delivery Address", style = MaterialTheme.typography.titleLarge)
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(uiState.deliveryAddress)
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     item {
@@ -377,7 +383,8 @@ fun DeliveryAddressSection(
     onConfirmAddressClicked: () -> Unit,
     onAddressSelectionChange: (AddressSelection) -> Unit,
     onManualAddressChange: (String) -> Unit,
-    onChangeLocationClicked: () -> Unit
+    onChangeLocationClicked: () -> Unit,
+    onPhoneNumberChange: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -385,7 +392,7 @@ fun DeliveryAddressSection(
             .padding(top = 16.dp)
     ) {
         Text("Delivery Address", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         if (uiState.deliveryAddress.isEmpty()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -438,6 +445,17 @@ fun DeliveryAddressSection(
             ) {
                 Text("Change Location")
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Confirm Phone Number", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = uiState.phoneNumber,
+                onValueChange = onPhoneNumberChange,
+                label = { Text("Phone Number") },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

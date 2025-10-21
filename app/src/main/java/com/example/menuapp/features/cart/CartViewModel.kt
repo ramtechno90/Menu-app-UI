@@ -26,6 +26,7 @@ data class CartUiState(
     val grandTotal: Double = 0.0,
     val isFetchingAddress: Boolean = false,
     val deliveryAddress: String = "",
+    val phoneNumber: String = "",
     val errorMessage: String? = null,
     val locationResultForConfirmation: LocationResult.Success? = null,
     val manualAddressInput: String = "",
@@ -65,13 +66,17 @@ class CartViewModel @Inject constructor(
                 menuRepository.getCartItems(),
                 firebaseSettingsService.getTaxSettings(),
                 firebaseSettingsService.getShowImagesSetting(),
-                firebaseSettingsService.getDeliveryFeeSettings()
-            ) { items, taxSettings, showImages, deliveryFeeSettings ->
+                firebaseSettingsService.getDeliveryFeeSettings(),
+                authRepository.getUserFlow()
+            ) { items, taxSettings, showImages, deliveryFeeSettings, user ->
                 val subtotal = items.sumOf { it.price * it.quantity }
                 val currentTaxRate = if (taxSettings.universalTax) taxSettings.taxRate else 8.0
                 val tax = subtotal * (currentTaxRate / 100.0)
                 val deliveryFee = if (items.isNotEmpty()) deliveryFeeSettings.fee else 0.0
                 val grandTotal = subtotal + tax + deliveryFee
+                val phoneNumber = user?.phoneNumber?.let {
+                    if (it.startsWith("+91")) it else "+91$it"
+                } ?: "+91"
 
                 _uiState.update {
                     it.copy(
@@ -81,7 +86,8 @@ class CartViewModel @Inject constructor(
                         taxRate = currentTaxRate,
                         deliveryFee = deliveryFee,
                         grandTotal = grandTotal,
-                        showImages = showImages
+                        showImages = showImages,
+                        phoneNumber = phoneNumber
                     )
                 }
             }.collect()
@@ -125,9 +131,13 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             val user = authRepository.getCurrentUser()
             val customerName = user?.username ?: "Guest"
-            val customerPhoneNumber = user?.phoneNumber
+            val customerPhoneNumber = _uiState.value.phoneNumber
             orderRepository.createOrder(address, customerName, customerPhoneNumber)
         }
+    }
+
+    fun onPhoneNumberChange(phoneNumber: String) {
+        _uiState.update { it.copy(phoneNumber = phoneNumber) }
     }
 
     fun fetchAddress() {
