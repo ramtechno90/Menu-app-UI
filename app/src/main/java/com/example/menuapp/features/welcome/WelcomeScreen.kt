@@ -27,7 +27,6 @@ import com.example.menuapp.R
 import com.example.menuapp.features.auth.AuthState
 import com.example.menuapp.features.auth.AuthViewModel
 import com.example.menuapp.ui.theme.GoldenYellow
-
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,58 +53,59 @@ fun WelcomeScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-        Image(
-            painter = painterResource(id = R.drawable.app_logo),
-            contentDescription = "App Logo",
-            modifier = Modifier
-                .size(300.dp)
-                .clip(RoundedCornerShape(16.dp))
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            text = "Welcome to Pizza Paradize",
-            style = MaterialTheme.typography.headlineMedium,
-            color = GoldenYellow
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Enter Your Name") },
-            isError = authState is AuthState.Error,
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                cursorColor = MaterialTheme.colorScheme.onPrimary,
-                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+            Image(
+                painter = painterResource(id = R.drawable.app_logo),
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(300.dp)
+                    .clip(RoundedCornerShape(16.dp))
             )
-        )
-        if (authState is AuthState.Error) {
+            Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = (authState as AuthState.Error).message,
-                color = MaterialTheme.colorScheme.onError,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp)
+                text = "Welcome to Pizza Paradize",
+                style = MaterialTheme.typography.headlineMedium,
+                color = GoldenYellow
             )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = { viewModel.saveUsername(name) },
-            enabled = name.isNotBlank() && authState !is AuthState.Loading,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.onPrimary,
-                contentColor = MaterialTheme.colorScheme.primary
+            Spacer(modifier = Modifier.height(32.dp))
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Enter Your Name") },
+                isError = authState is AuthState.Error,
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                )
             )
-        ) {
-            if (authState is AuthState.Loading) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-            } else {
-                Text("Start Ordering")
+            if (authState is AuthState.Error) {
+                Text(
+                    text = (authState as AuthState.Error).message,
+                    color = MaterialTheme.colorScheme.onError,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { viewModel.saveUsername(name) },
+                enabled = name.isNotBlank() && authState !is AuthState.Loading,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                if (authState is AuthState.Loading) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                } else {
+                    Text("Start Ordering")
+                }
             }
         }
     }
