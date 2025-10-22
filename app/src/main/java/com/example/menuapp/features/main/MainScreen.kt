@@ -84,13 +84,22 @@ fun MainScreen(
             )
         },
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.primary,
+            ) {
                 val cartUiState by cartViewModel.uiState.collectAsStateWithLifecycle()
                 val cartItemCount = cartUiState.cartItems.sumOf { it.quantity }
                 val items = listOf(BottomNavItem.Home, BottomNavItem.Cart, BottomNavItem.Orders)
 
                 items.forEach { item ->
                     NavigationBarItem(
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.onPrimary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+                            unselectedTextColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+                            indicatorColor = MaterialTheme.colorScheme.primary
+                        ),
                         icon = {
                             if (item.route == BottomNavItem.Cart.route && cartItemCount > 0) {
                                 BadgedBox(
