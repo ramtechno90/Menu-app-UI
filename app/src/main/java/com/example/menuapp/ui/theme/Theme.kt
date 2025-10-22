@@ -1,7 +1,6 @@
 package com.example.menuapp.ui.theme
 
 import android.app.Activity
-import android.app.Activity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
