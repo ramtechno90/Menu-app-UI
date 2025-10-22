@@ -30,22 +30,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val isAuthenticated by authRepository.isAuthenticated.collectAsState(initial = false)
-            val viewModel: AuthViewModel = hiltViewModel()
             val navController = rememberNavController()
-
-            LaunchedEffect(viewModel.authState) {
-                viewModel.authState.collect { state ->
-                    if (state is AuthState.OtpSent) {
-                        navController.navigate(Screen.OtpVerification.createRoute(state.verificationId))
-                    }
-                }
-            }
 
             MenuAppTheme {
                 AppNavigation(
                     startDestination = if (isAuthenticated) Screen.Main.route else Screen.Welcome.route,
-                    onSendOtpClicked = { phoneNumber -> viewModel.sendOtp(phoneNumber, this) },
-                    onVerifyOtpClicked = { verificationId, otp -> viewModel.verifyOtp(verificationId, otp) },
                     navController = navController
                 )
             }

@@ -12,52 +12,27 @@ import com.example.menuapp.features.confirmlocation.ConfirmLocationScreen
 import com.example.menuapp.features.ordertracking.OrderTrackingScreen
 import java.net.URLDecoder
 import androidx.navigation.NavHostController
-import com.example.menuapp.features.auth.OtpVerificationScreen
-import com.example.menuapp.features.auth.SignInScreen
-import com.example.menuapp.features.auth.SignUpScreen
+import com.example.menuapp.features.auth.EnterNameScreen
 import com.example.menuapp.features.welcome.WelcomeScreen
 
 @Composable
 fun AppNavigation(
     startDestination: String,
-    onSendOtpClicked: (String) -> Unit,
-    onVerifyOtpClicked: (String, String) -> Unit,
     navController: NavHostController
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
-        composable(Screen.SignIn.route) {
-            SignInScreen(
-                onSignInSuccess = {
-                    navController.navigate(Screen.Main.route) {
-                        popUpTo(Screen.Welcome.route) { inclusive = true }
-                    }
-                },
-                onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) },
-                onSendOtpClicked = onSendOtpClicked
-            )
-        }
-        composable(Screen.SignUp.route) {
-            SignUpScreen(
-                onSignUpSuccess = {
-                    navController.navigate(Screen.Main.route) {
-                        popUpTo(Screen.Welcome.route) { inclusive = true }
-                    }
-                },
-                onNavigateToSignIn = { navController.popBackStack() }
-            )
-        }
-        composable(Screen.OtpVerification.route) { backStackEntry ->
-            val verificationId = backStackEntry.arguments?.getString("verificationId")
-            if (verificationId != null) {
-                OtpVerificationScreen(onVerifyOtpClicked = { otp ->
-                    onVerifyOtpClicked(verificationId, otp)
-                })
-            }
-        }
         composable(Screen.Welcome.route) {
             WelcomeScreen(
-                onNavigateToSignIn = { navController.navigate(Screen.SignIn.route) },
-                onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) }
+                onNavigateToEnterName = { navController.navigate(Screen.EnterName.route) }
+            )
+        }
+        composable(Screen.EnterName.route) {
+            EnterNameScreen(
+                onNameEntered = {
+                    navController.navigate(Screen.Main.route) {
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
+                    }
+                }
             )
         }
         composable(Screen.Main.route) {

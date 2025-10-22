@@ -31,51 +31,14 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendOtp(phoneNumber: String, activity: Activity): Flow<Result<String>> = callbackFlow {
-        val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                // Auto-retrieval of verification code completed.
-            }
-
-            override fun onVerificationFailed(e: com.google.firebase.FirebaseException) {
-                trySend(Result.failure(e))
-            }
-
-            override fun onCodeSent(
-                verificationId: String,
-                token: PhoneAuthProvider.ForceResendingToken
-            ) {
-                trySend(Result.success(verificationId))
-            }
-        }
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-            phoneNumber,
-            60,
-            TimeUnit.SECONDS,
-            activity,
-            callbacks
-        )
-        awaitClose { }
-    }
-
-    override suspend fun verifyOtp(verificationId: String, otp: String): Result<Unit> {
+    override suspend fun signInAnonymouslyAndSaveUsername(username: String): Result<Unit> {
         return try {
-            val credential = PhoneAuthProvider.getCredential(verificationId, otp)
-            firebaseAuth.signInWithCredential(credential).await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun createUserProfile(username: String): Result<Unit> {
-        return try {
-            val firebaseUser = firebaseAuth.currentUser
+            val authResult = firebaseAuth.signInAnonymously().await()
+            val firebaseUser = authResult.user
             if (firebaseUser != null) {
                 val user = mapOf(
                     "uid" to firebaseUser.uid,
-                    "username" to username,
-                    "phoneNumber" to firebaseUser.phoneNumber
+                    "username" to username
                 )
                 firestore.collection("users").document(firebaseUser.uid).set(user).await()
                 Result.success(Unit)
