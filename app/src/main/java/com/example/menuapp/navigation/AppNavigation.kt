@@ -12,7 +12,6 @@ import com.example.menuapp.features.confirmlocation.ConfirmLocationScreen
 import com.example.menuapp.features.ordertracking.OrderTrackingScreen
 import java.net.URLDecoder
 import androidx.navigation.NavHostController
-import com.example.menuapp.features.auth.EnterNameScreen
 import com.example.menuapp.features.welcome.WelcomeScreen
 
 @Composable
@@ -23,11 +22,6 @@ fun AppNavigation(
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Welcome.route) {
             WelcomeScreen(
-                onNavigateToEnterName = { navController.navigate(Screen.EnterName.route) }
-            )
-        }
-        composable(Screen.EnterName.route) {
-            EnterNameScreen(
                 onNameEntered = {
                     navController.navigate(Screen.Main.route) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }

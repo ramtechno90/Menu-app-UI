@@ -2,7 +2,6 @@ package com.example.menuapp.navigation
 
 sealed class Screen(val route: String) {
     object Welcome : Screen("welcome")
-    object EnterName : Screen("enter_name")
     object Main : Screen("main") // This will be a container for screens with bottom nav
     object Home : Screen("home")
     object ShoppingCart : Screen("shopping_cart")
