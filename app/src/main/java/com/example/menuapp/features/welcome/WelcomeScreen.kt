@@ -26,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.menuapp.R
 import com.example.menuapp.features.auth.AuthState
 import com.example.menuapp.features.auth.AuthViewModel
+import com.example.menuapp.ui.theme.GoldenYellow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +88,7 @@ fun WelcomeScreen(
         Text(
             text = "Welcome to Pizza Paradize",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = GoldenYellow
         )
         Spacer(modifier = Modifier.height(32.dp))
         OutlinedTextField(
