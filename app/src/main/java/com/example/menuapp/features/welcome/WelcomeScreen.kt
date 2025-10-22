@@ -36,6 +36,7 @@ fun WelcomeScreen(
     var name by remember { mutableStateOf("") }
     val authState by viewModel.authState.collectAsState()
     val view = LocalView.current
+    val primaryColor = MaterialTheme.colorScheme.primary
     val originalStatusBarColor = remember { (view.context as? Activity)?.window?.statusBarColor }
     val originalIsLightStatusBars = remember {
         (view.context as? Activity)?.window?.let {
@@ -52,7 +53,7 @@ fun WelcomeScreen(
     DisposableEffect(Unit) {
         if (!view.isInEditMode) {
             val window = (view.context as Activity).window
-            window.statusBarColor = MaterialTheme.colorScheme.primary.toArgb()
+            window.statusBarColor = primaryColor.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
         }
         onDispose {
@@ -96,7 +97,8 @@ fun WelcomeScreen(
             isError = authState is AuthState.Error,
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = MaterialTheme.colorScheme.onPrimary,
+                focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
                 cursorColor = MaterialTheme.colorScheme.onPrimary,
                 focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
