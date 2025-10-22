@@ -28,6 +28,8 @@ import com.example.menuapp.features.auth.AuthState
 import com.example.menuapp.features.auth.AuthViewModel
 import com.example.menuapp.ui.theme.GoldenYellow
 
+import com.example.menuapp.ui.theme.MenuAppTheme
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WelcomeScreen(
@@ -36,14 +38,6 @@ fun WelcomeScreen(
 ) {
     var name by remember { mutableStateOf("") }
     val authState by viewModel.authState.collectAsState()
-    val view = LocalView.current
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val originalStatusBarColor = remember { (view.context as? Activity)?.window?.statusBarColor }
-    val originalIsLightStatusBars = remember {
-        (view.context as? Activity)?.window?.let {
-            WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars
-        }
-    }
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
@@ -51,32 +45,15 @@ fun WelcomeScreen(
         }
     }
 
-    DisposableEffect(Unit) {
-        if (!view.isInEditMode) {
-            val window = (view.context as Activity).window
-            window.statusBarColor = primaryColor.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-        }
-        onDispose {
-            if (!view.isInEditMode) {
-                val window = (view.context as Activity).window
-                originalStatusBarColor?.let { window.statusBarColor = it }
-                originalIsLightStatusBars?.let {
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = it
-                }
-            }
-        }
-    }
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    MenuAppTheme(statusBarColor = MaterialTheme.colorScheme.primary) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         Image(
             painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "App Logo",
