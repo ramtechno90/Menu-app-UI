@@ -211,7 +211,7 @@ fun ShoppingCartScreenContent(
                                 onClick = onNextStep,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("Proceed to Summary")
+                                Text("Proceed to Payment Options")
                             }
                             OutlinedButton(
                                 onClick = onPreviousStep,
@@ -261,14 +261,49 @@ fun ShoppingCartScreenContent(
                             uiState.phoneNumberInput.ifBlank { uiState.userDefaultPhoneNumber }
 
                         Text("Delivery Details", style = MaterialTheme.typography.titleLarge)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("Address: ${uiState.deliveryAddress}")
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Phone: $phoneNumber")
+                        Column(
+                            modifier = Modifier.padding(start = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row {
+                                Text(
+                                    text = "Address: ",
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                )
+                                Text(
+                                    text = uiState.deliveryAddress,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text = "Phone: ",
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                )
+                                Text(
+                                    text = phoneNumber,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(16.dp))
                         Text("Payment Method", style = MaterialTheme.typography.titleLarge)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(uiState.paymentMethod)
+                        Row(modifier = Modifier.padding(start = 8.dp)) {
+                            Text(
+                                text = "Method: ",
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                            Text(
+                                text = uiState.paymentMethod,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
@@ -288,7 +323,7 @@ fun ShoppingCartScreenContent(
 
                     item {
                         OutlinedButton(onClick = onPreviousStep, modifier = Modifier.fillMaxWidth()) {
-                            Text("Back to Delivery")
+                            Text("Back to Payment Options")
                         }
                     }
                 }
