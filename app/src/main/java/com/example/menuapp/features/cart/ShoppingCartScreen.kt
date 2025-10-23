@@ -560,7 +560,7 @@ fun PaymentMethodSelection(
             Column {
                 Text("Cash on Delivery")
                 Text(
-                    "Note: Even UPI payment accepted by delivery staff",
+                    "Note: UPI payments are also accepted by the delivery staff",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
