@@ -29,6 +29,7 @@ data class CartUiState(
     val phoneNumberInput: String = "", // The text in the TextField
     val userDefaultPhoneNumber: String = "", // The number from user's profile for placeholder
     val errorMessage: String? = null,
+    val showErrorDialog: Boolean = false,
     val locationResultForConfirmation: LocationResult.Success? = null,
     val manualAddressInput: String = "",
     val addressSelection: AddressSelection = AddressSelection.CURRENT_LOCATION,
@@ -163,7 +164,8 @@ class CartViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isFetchingAddress = false,
-                            errorMessage = "Location permission not granted."
+                            errorMessage = "Location permission not granted.",
+                            showErrorDialog = true
                         )
                     }
                 }
@@ -171,7 +173,8 @@ class CartViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isFetchingAddress = false,
-                            errorMessage = "Please enable location services."
+                            errorMessage = "Please enable location services.",
+                            showErrorDialog = true
                         )
                     }
                 }
@@ -179,7 +182,8 @@ class CartViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isFetchingAddress = false,
-                            errorMessage = result.exception.message ?: "An unknown error occurred."
+                            errorMessage = result.exception.message ?: "An unknown error occurred.",
+                            showErrorDialog = true
                         )
                     }
                 }
@@ -196,7 +200,7 @@ class CartViewModel @Inject constructor(
     }
 
     fun clearErrorMessage() {
-        _uiState.update { it.copy(errorMessage = null) }
+        _uiState.update { it.copy(errorMessage = null, showErrorDialog = false) }
     }
 
     fun onAddressSelectionChange(selection: AddressSelection) {
@@ -215,7 +219,8 @@ class CartViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isFetchingAddress = false,
-                        errorMessage = "Address cannot be empty."
+                        errorMessage = "Address cannot be empty.",
+                        showErrorDialog = true
                     )
                 }
                 return@launch
@@ -271,11 +276,21 @@ class CartViewModel @Inject constructor(
                 val address = state.deliveryAddress.ifBlank { state.manualAddressInput }
 
                 if (address.isBlank()) {
-                    _uiState.update { it.copy(errorMessage = "Address cannot be empty.") }
+                    _uiState.update {
+                        it.copy(
+                            errorMessage = "Address cannot be empty.",
+                            showErrorDialog = true
+                        )
+                    }
                     return
                 }
                 if (phoneNumber.isBlank()) {
-                    _uiState.update { it.copy(errorMessage = "Phone number cannot be empty.") }
+                    _uiState.update {
+                        it.copy(
+                            errorMessage = "Phone number cannot be empty.",
+                            showErrorDialog = true
+                        )
+                    }
                     return
                 }
                 _uiState.update { it.copy(cartStep = CartStep.PAYMENT) }

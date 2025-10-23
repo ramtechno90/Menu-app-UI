@@ -51,11 +51,17 @@ fun ShoppingCartScreen(
         }
     )
 
-    LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-            viewModel.clearErrorMessage()
-        }
+    if (uiState.showErrorDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearErrorMessage() },
+            title = { Text("Error") },
+            text = { Text(uiState.errorMessage ?: "An unknown error occurred.") },
+            confirmButton = {
+                Button(onClick = { viewModel.clearErrorMessage() }) {
+                    Text("Close")
+                }
+            }
+        )
     }
 
     LaunchedEffect(uiState.locationResultForConfirmation) {
@@ -526,7 +532,7 @@ fun PaymentMethodSelection(
             Column {
                 Text("Cash on Delivery")
                 Text(
-                    "You can pay with UPI to the delivery staff",
+                    "Note: Even UPI payment accepted by delivery staff",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
