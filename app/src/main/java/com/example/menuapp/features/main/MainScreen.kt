@@ -2,6 +2,7 @@ package com.example.menuapp.features.main
 
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.example.menuapp.ui.theme.GoldenYellow
 import com.example.menuapp.ui.theme.MenuAppTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -68,7 +69,7 @@ fun MainScreen(
                     val title = when (selectedTab) {
                         BottomNavItem.Home -> mainUiState.restaurantName
                         BottomNavItem.Cart -> "Your Cart"
-                        BottomNavItem.Orders -> if (ordersUiState.selectedTabIndex == 0) "My Current Orders" else "Delivered Orders"
+                        BottomNavItem.Orders -> "My Current Orders"
                     }
                     Text(text = title)
                 },
@@ -103,7 +104,11 @@ fun MainScreen(
                         icon = {
                             if (item.route == BottomNavItem.Cart.route && cartItemCount > 0) {
                                 BadgedBox(
-                                    badge = { Badge { Text(cartItemCount.toString()) } }
+                                    badge = {
+                                        Badge(
+                                            containerColor = GoldenYellow
+                                        ) { Text(cartItemCount.toString()) }
+                                    }
                                 ) {
                                     Icon(item.icon, contentDescription = item.title)
                                 }

@@ -23,44 +23,17 @@ fun OrdersScreen(
     contentPadding: PaddingValues = PaddingValues()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val tabs = listOf("Current Orders", "Delivered Orders")
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(contentPadding)
     ) {
-        TabRow(
-            selectedTabIndex = uiState.selectedTabIndex,
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.primary
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = uiState.selectedTabIndex == index,
-                    onClick = { viewModel.onTabSelected(index) },
-                    text = {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = if (uiState.selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
-                        )
-                    }
-                )
-            }
-        }
-
-        when (uiState.selectedTabIndex) {
-            0 -> CurrentOrdersScreen(
-                onOrderClicked = { order -> onOrderClicked(order.id) },
-                orders = uiState.ongoingOrders,
-                showImages = uiState.showImages
-            )
-            1 -> DeliveredOrdersScreen(
-                onOrderClicked = { order -> onOrderClicked(order.id) },
-                orders = uiState.deliveredOrders
-            )
-        }
+        CurrentOrdersScreen(
+            onOrderClicked = { order -> onOrderClicked(order.id) },
+            orders = uiState.ongoingOrders,
+            showImages = uiState.showImages
+        )
     }
 }
 
