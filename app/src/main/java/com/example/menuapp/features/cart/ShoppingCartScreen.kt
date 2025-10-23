@@ -1,6 +1,9 @@
 package com.example.menuapp.features.cart
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -69,13 +72,16 @@ fun ShoppingCartScreen(
         AlertDialog(
             onDismissRequest = { showPermissionRationale = false },
             title = { Text("Location Permission Required") },
-            text = { Text("This feature requires location access to determine your delivery address. Please grant the permission to continue.") },
+            text = { Text("Location permission is required to determine your delivery address. Please grant the permission in the app settings.") },
             confirmButton = {
                 Button(onClick = {
                     showPermissionRationale = false
-                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", context.packageName, null)
+                    intent.data = uri
+                    context.startActivity(intent)
                 }) {
-                    Text("Grant Permission")
+                    Text("Open Settings")
                 }
             },
             dismissButton = {
