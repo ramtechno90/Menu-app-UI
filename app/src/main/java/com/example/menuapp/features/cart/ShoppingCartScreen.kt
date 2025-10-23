@@ -496,10 +496,11 @@ fun ShoppingCartScreenPreview() {
             onChangeLocationClicked = {},
             onPhoneNumberChange = {},
             onNextStep = {},
-        onPreviousStep = {},
-        onPaymentMethodSelected = {}
+            onPreviousStep = {},
+            onPaymentMethodSelected = {}
         )
     }
+}
 
 @Composable
 fun PaymentMethodSelection(
@@ -547,5 +548,4 @@ fun PaymentMethodSelection(
             Text("Back to Delivery")
         }
     }
-}
 }
