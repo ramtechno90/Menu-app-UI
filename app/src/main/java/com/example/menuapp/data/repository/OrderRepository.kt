@@ -35,69 +35,41 @@ class OrderRepository @Inject constructor(
     }
 
     fun getOngoingOrders(): Flow<List<Order>> = callbackFlow {
+        // Fetch all orders from the last 48 hours to include recent delivered/rejected ones
+        val fortyEightHoursAgo = System.currentTimeMillis() - 48 * 60 * 60 * 1000
         val twentyFourHoursAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
 
-        // Regular ongoing orders
-        val ongoingQuery = firestore.collection("orders")
-            .whereIn("status", listOf("PENDING", "ACCEPTED", "PREPARING", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "PICKED_UP", "COMPLETED"))
+        val query = firestore.collection("orders")
+            .whereGreaterThanOrEqualTo("orderDate", fortyEightHoursAgo)
+            .orderBy("orderDate", Query.Direction.DESCENDING)
 
-        // Delivered orders within the last 24 hours
-        val deliveredQuery = firestore.collection("orders")
-            .whereEqualTo("status", "DELIVERED")
-            .whereGreaterThanOrEqualTo("orderDate", twentyFourHoursAgo)
+        val listener = query.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
 
-        // Rejected orders within the last 24 hours
-        val rejectedQuery = firestore.collection("orders")
-            .whereEqualTo("status", "REJECTED")
-            .whereGreaterThanOrEqualTo("orderDate", twentyFourHoursAgo)
+            if (snapshot != null) {
+                val orders = snapshot.documents.mapNotNull { document ->
+                    document.toObject(Order::class.java)?.apply { id = document.id }
+                }.filter { order ->
+                    // Standard ongoing statuses
+                    val isOngoing = order.status in listOf(
+                        "PENDING", "ACCEPTED", "PREPARING",
+                        "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "PICKED_UP", "COMPLETED"
+                    )
+                    // Delivered or Rejected within the last 24 hours
+                    val isRecentAndFinished =
+                        (order.status == "DELIVERED" || order.status == "REJECTED") &&
+                                order.orderDate >= twentyFourHoursAgo
 
-        val listeners = mutableListOf<com.google.firebase.firestore.ListenerRegistration>()
-        val allOrders = mutableMapOf<String, Order>()
-
-        fun updateOrders() {
-            val sortedOrders = allOrders.values.sortedByDescending { it.orderDate }
-            trySend(sortedOrders)
+                    isOngoing || isRecentAndFinished
+                }
+                trySend(orders)
+            }
         }
 
-        listeners.add(ongoingQuery.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error)
-                return@addSnapshotListener
-            }
-            snapshot?.documents?.forEach { doc ->
-                val order = doc.toObject(Order::class.java)?.apply { id = doc.id }
-                if (order != null) allOrders[doc.id] = order
-            }
-            updateOrders()
-        })
-
-        listeners.add(deliveredQuery.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error)
-                return@addSnapshotListener
-            }
-            snapshot?.documents?.forEach { doc ->
-                val order = doc.toObject(Order::class.java)?.apply { id = doc.id }
-                if (order != null) allOrders[doc.id] = order
-            }
-            updateOrders()
-        })
-
-        listeners.add(rejectedQuery.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error)
-                return@addSnapshotListener
-            }
-            snapshot?.documents?.forEach { doc ->
-                val order = doc.toObject(Order::class.java)?.apply { id = doc.id }
-                if (order != null) allOrders[doc.id] = order
-            }
-            updateOrders()
-        })
-
-        awaitClose {
-            listeners.forEach { it.remove() }
-        }
+        awaitClose { listener.remove() }
     }
 
     fun getDeliveredOrders(): Flow<List<Order>> = callbackFlow {
