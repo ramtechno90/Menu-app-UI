@@ -39,6 +39,7 @@ fun ShoppingCartScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var showPermissionRationale by remember { mutableStateOf(false) }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -46,7 +47,7 @@ fun ShoppingCartScreen(
             if (isGranted) {
                 viewModel.fetchAddress()
             } else {
-                Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+                showPermissionRationale = true
             }
         }
     )
@@ -59,6 +60,27 @@ fun ShoppingCartScreen(
             confirmButton = {
                 Button(onClick = { viewModel.clearErrorMessage() }) {
                     Text("Close")
+                }
+            }
+        )
+    }
+
+    if (showPermissionRationale) {
+        AlertDialog(
+            onDismissRequest = { showPermissionRationale = false },
+            title = { Text("Location Permission Required") },
+            text = { Text("This feature requires location access to determine your delivery address. Please grant the permission to continue.") },
+            confirmButton = {
+                Button(onClick = {
+                    showPermissionRationale = false
+                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }) {
+                    Text("Grant Permission")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showPermissionRationale = false }) {
+                    Text("Cancel")
                 }
             }
         )
