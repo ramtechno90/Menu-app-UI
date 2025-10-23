@@ -13,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.menuapp.features.currentorders.CurrentOrdersScreen
-import com.example.menuapp.features.deliveredorders.DeliveredOrdersScreen
 import com.example.menuapp.ui.theme.MenuAppTheme
 
 @Composable
