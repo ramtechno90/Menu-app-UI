@@ -89,7 +89,8 @@ fun ShoppingCartScreen(
         onChangeLocationClicked = viewModel::changeLocation,
         onPhoneNumberChange = viewModel::onPhoneNumberChange,
         onNextStep = viewModel::nextStep,
-        onPreviousStep = viewModel::previousStep
+        onPreviousStep = viewModel::previousStep,
+        onPaymentMethodSelected = viewModel::onPaymentMethodSelected
     )
 }
 
@@ -106,7 +107,8 @@ fun ShoppingCartScreenContent(
     onChangeLocationClicked: () -> Unit,
     onPhoneNumberChange: (String) -> Unit,
     onNextStep: () -> Unit,
-    onPreviousStep: () -> Unit
+    onPreviousStep: () -> Unit,
+    onPaymentMethodSelected: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -187,6 +189,14 @@ fun ShoppingCartScreenContent(
                     }
                 }
             }
+            CartStep.PAYMENT -> {
+                PaymentMethodSelection(
+                    onNextStep = onNextStep,
+                    onPreviousStep = onPreviousStep,
+                    onPaymentMethodSelected = onPaymentMethodSelected,
+                    selectedPaymentMethod = uiState.paymentMethod
+                )
+            }
             CartStep.SUMMARY -> {
                 LazyColumn(
                     modifier = Modifier
@@ -221,6 +231,10 @@ fun ShoppingCartScreenContent(
                         Text("Address: ${uiState.deliveryAddress}")
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Phone: $phoneNumber")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Payment Method", style = MaterialTheme.typography.titleLarge)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(uiState.paymentMethod)
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
@@ -482,7 +496,56 @@ fun ShoppingCartScreenPreview() {
             onChangeLocationClicked = {},
             onPhoneNumberChange = {},
             onNextStep = {},
-            onPreviousStep = {}
+        onPreviousStep = {},
+        onPaymentMethodSelected = {}
         )
     }
+
+@Composable
+fun PaymentMethodSelection(
+    onNextStep: () -> Unit,
+    onPreviousStep: () -> Unit,
+    onPaymentMethodSelected: (String) -> Unit,
+    selectedPaymentMethod: String
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text("Payment Method", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = selectedPaymentMethod == "Cash on Delivery",
+                onClick = { onPaymentMethodSelected("Cash on Delivery") }
+            )
+            Column {
+                Text("Cash on Delivery")
+                Text(
+                    "You can pay with UPI to the delivery staff",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = onNextStep,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = selectedPaymentMethod.isNotEmpty()
+        ) {
+            Text("Proceed to Summary")
+        }
+        OutlinedButton(
+            onClick = onPreviousStep,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Back to Delivery")
+        }
+    }
+}
 }

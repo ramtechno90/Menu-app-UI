@@ -14,6 +14,7 @@ data class Order(
     val status: String = "",
     val deliveryAddress: String = "",
     val assignedTo: String? = null,
+    val paymentMethod: String? = null,
 
     // OTP fields
     val otp: String? = null,

@@ -33,7 +33,8 @@ data class CartUiState(
     val manualAddressInput: String = "",
     val addressSelection: AddressSelection = AddressSelection.CURRENT_LOCATION,
     val showImages: Boolean = true,
-    val cartStep: CartStep = CartStep.ITEMS
+    val cartStep: CartStep = CartStep.ITEMS,
+    val paymentMethod: String = ""
 )
 
 enum class AddressSelection {
@@ -44,6 +45,7 @@ enum class AddressSelection {
 enum class CartStep {
     ITEMS,
     DELIVERY,
+    PAYMENT,
     SUMMARY
 }
 
@@ -130,9 +132,14 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             val user = authRepository.getCurrentUser()
             val customerName = user?.username ?: "Guest"
-        val customerPhoneNumber =
-            _uiState.value.phoneNumberInput.ifBlank { _uiState.value.userDefaultPhoneNumber }
-            orderRepository.createOrder(address, customerName, customerPhoneNumber)
+            val customerPhoneNumber =
+                _uiState.value.phoneNumberInput.ifBlank { _uiState.value.userDefaultPhoneNumber }
+            orderRepository.createOrder(
+                address = address,
+                customerName = customerName,
+                customerPhoneNumber = customerPhoneNumber,
+                paymentMethod = _uiState.value.paymentMethod
+            )
         }
     }
 
@@ -251,10 +258,29 @@ class CartViewModel @Inject constructor(
         }
     }
 
+    fun onPaymentMethodSelected(paymentMethod: String) {
+        _uiState.update { it.copy(paymentMethod = paymentMethod) }
+    }
+
     fun nextStep() {
         when (_uiState.value.cartStep) {
             CartStep.ITEMS -> _uiState.update { it.copy(cartStep = CartStep.DELIVERY) }
-            CartStep.DELIVERY -> _uiState.update { it.copy(cartStep = CartStep.SUMMARY) }
+            CartStep.DELIVERY -> {
+                val state = _uiState.value
+                val phoneNumber = state.phoneNumberInput.ifBlank { state.userDefaultPhoneNumber }
+                val address = state.deliveryAddress.ifBlank { state.manualAddressInput }
+
+                if (address.isBlank()) {
+                    _uiState.update { it.copy(errorMessage = "Address cannot be empty.") }
+                    return
+                }
+                if (phoneNumber.isBlank()) {
+                    _uiState.update { it.copy(errorMessage = "Phone number cannot be empty.") }
+                    return
+                }
+                _uiState.update { it.copy(cartStep = CartStep.PAYMENT) }
+            }
+            CartStep.PAYMENT -> _uiState.update { it.copy(cartStep = CartStep.SUMMARY) }
             CartStep.SUMMARY -> {}
         }
     }
@@ -262,7 +288,8 @@ class CartViewModel @Inject constructor(
     fun previousStep() {
         when (_uiState.value.cartStep) {
             CartStep.DELIVERY -> _uiState.update { it.copy(cartStep = CartStep.ITEMS) }
-            CartStep.SUMMARY -> _uiState.update { it.copy(cartStep = CartStep.DELIVERY) }
+            CartStep.PAYMENT -> _uiState.update { it.copy(cartStep = CartStep.DELIVERY) }
+            CartStep.SUMMARY -> _uiState.update { it.copy(cartStep = CartStep.PAYMENT) }
             CartStep.ITEMS -> {}
         }
     }

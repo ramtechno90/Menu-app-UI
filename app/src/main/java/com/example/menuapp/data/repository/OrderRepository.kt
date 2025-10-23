@@ -112,7 +112,12 @@ class OrderRepository @Inject constructor(
             }
     }
 
-    suspend fun createOrder(address: String, customerName: String, customerPhoneNumber: String?) {
+    suspend fun createOrder(
+        address: String,
+        customerName: String,
+        customerPhoneNumber: String?,
+        paymentMethod: String
+    ) {
         val cartItems = menuRepository.getCartItems().first()
         if (cartItems.isEmpty()) {
             return // Can't create an empty order
@@ -147,7 +152,8 @@ class OrderRepository @Inject constructor(
             grandTotal = grandTotal,
             orderDate = System.currentTimeMillis(),
             status = "PENDING",
-            deliveryAddress = address
+            deliveryAddress = address,
+            paymentMethod = paymentMethod
         )
 
         // Set the data for the new document
