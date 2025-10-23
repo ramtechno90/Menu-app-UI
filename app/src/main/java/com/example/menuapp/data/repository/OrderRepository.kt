@@ -35,28 +35,68 @@ class OrderRepository @Inject constructor(
     }
 
     fun getOngoingOrders(): Flow<List<Order>> = callbackFlow {
-        val query = firestore.collection("orders")
+        val twentyFourHoursAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
+
+        // Regular ongoing orders
+        val ongoingQuery = firestore.collection("orders")
             .whereIn("status", listOf("PENDING", "ACCEPTED", "PREPARING", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "PICKED_UP", "COMPLETED"))
-            .orderBy("orderDate", Query.Direction.DESCENDING)
 
-        val listener = query.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error) // Close the flow on error
-                return@addSnapshotListener
-            }
+        // Delivered orders within the last 24 hours
+        val deliveredQuery = firestore.collection("orders")
+            .whereEqualTo("status", "DELIVERED")
+            .whereGreaterThanOrEqualTo("orderDate", twentyFourHoursAgo)
 
-            if (snapshot != null) {
-                val orders = snapshot.documents.mapNotNull { document ->
-                    document.toObject(Order::class.java)?.apply {
-                        id = document.id
-                    }
-                }
-                trySend(orders) // Send the latest data to the flow
-            }
+        // Rejected orders within the last 24 hours
+        val rejectedQuery = firestore.collection("orders")
+            .whereEqualTo("status", "REJECTED")
+            .whereGreaterThanOrEqualTo("orderDate", twentyFourHoursAgo)
+
+        val listeners = mutableListOf<com.google.firebase.firestore.ListenerRegistration>()
+        val allOrders = mutableMapOf<String, Order>()
+
+        fun updateOrders() {
+            val sortedOrders = allOrders.values.sortedByDescending { it.orderDate }
+            trySend(sortedOrders)
         }
 
+        listeners.add(ongoingQuery.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            snapshot?.documents?.forEach { doc ->
+                val order = doc.toObject(Order::class.java)?.apply { id = doc.id }
+                if (order != null) allOrders[doc.id] = order
+            }
+            updateOrders()
+        })
+
+        listeners.add(deliveredQuery.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            snapshot?.documents?.forEach { doc ->
+                val order = doc.toObject(Order::class.java)?.apply { id = doc.id }
+                if (order != null) allOrders[doc.id] = order
+            }
+            updateOrders()
+        })
+
+        listeners.add(rejectedQuery.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            snapshot?.documents?.forEach { doc ->
+                val order = doc.toObject(Order::class.java)?.apply { id = doc.id }
+                if (order != null) allOrders[doc.id] = order
+            }
+            updateOrders()
+        })
+
         awaitClose {
-            listener.remove() // Clean up the listener when the flow is cancelled
+            listeners.forEach { it.remove() }
         }
     }
 

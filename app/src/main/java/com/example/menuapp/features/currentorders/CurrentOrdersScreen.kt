@@ -32,14 +32,23 @@ fun CurrentOrdersScreen(
     orders: List<Order>,
     showImages: Boolean
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(orders) { order ->
-            CurrentOrderCard(order = order, onClick = { onOrderClicked(order) }, showImage = showImages)
+    if (orders.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("You have no current orders.")
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(orders) { order ->
+                CurrentOrderCard(order = order, onClick = { onOrderClicked(order) }, showImage = showImages)
+            }
         }
     }
 }
