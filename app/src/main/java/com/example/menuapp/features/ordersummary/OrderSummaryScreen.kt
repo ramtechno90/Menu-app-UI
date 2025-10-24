@@ -114,16 +114,30 @@ private fun DeliveryAddressCard(order: Order) {
         modifier = Modifier.fillMaxWidth(),
         shadowElevation = 2.dp
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 "Delivery Details",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Address: ${order.deliveryAddress}")
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Phone: ${order.customerPhoneNumber}")
+            InfoRow(label = "Address", value = order.deliveryAddress)
+            InfoRow(label = "Phone", value = order.customerPhoneNumber ?: "N/A")
+            order.paymentMethod?.let {
+                InfoRow(label = "Payment Mode", value = it)
+            }
         }
+    }
+}
+
+@Composable
+private fun InfoRow(label: String, value: String) {
+    Row {
+        Text(
+            "$label: ",
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+        Text(value, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 

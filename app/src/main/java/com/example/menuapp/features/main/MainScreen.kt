@@ -69,7 +69,7 @@ fun MainScreen(
                     val title = when (selectedTab) {
                         BottomNavItem.Home -> mainUiState.restaurantName
                         BottomNavItem.Cart -> "Your Cart"
-                        BottomNavItem.Orders -> "My Current Orders"
+                        BottomNavItem.Orders -> "Order Summary"
                     }
                     Text(text = title)
                 },
