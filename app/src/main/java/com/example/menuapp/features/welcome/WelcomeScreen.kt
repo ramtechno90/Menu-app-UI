@@ -69,7 +69,11 @@ fun WelcomeScreen(
             Spacer(modifier = Modifier.height(32.dp))
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = { newName ->
+                    if (newName.all { it.isLetter() || it.isWhitespace() }) {
+                        name = newName
+                    }
+                },
                 label = { Text("Enter Your Name") },
                 isError = authState is AuthState.Error,
                 modifier = Modifier.fillMaxWidth(),

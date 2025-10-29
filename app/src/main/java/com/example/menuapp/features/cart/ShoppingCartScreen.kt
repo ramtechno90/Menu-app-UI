@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,6 +25,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -540,10 +542,17 @@ fun DeliveryAddressSection(
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = uiState.phoneNumberInput,
-                onValueChange = onPhoneNumberChange,
+                onValueChange = { newNumber ->
+                    val digitsOnly = newNumber.filter { it.isDigit() }
+                    if (digitsOnly.length <= 10) {
+                        onPhoneNumberChange(digitsOnly)
+                    }
+                },
                 placeholder = { Text(uiState.userDefaultPhoneNumber) },
                 label = { Text("Phone Number") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                prefix = { Text("+91 ") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
             )
         }
     }
