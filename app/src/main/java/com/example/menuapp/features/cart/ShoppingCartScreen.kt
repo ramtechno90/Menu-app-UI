@@ -179,7 +179,7 @@ fun ShoppingCartScreenContent(
 
                     item {
                         Button(onClick = onNextStep, modifier = Modifier.fillMaxWidth()) {
-                            Text("Proceed to Delivery")
+                            Text("Proceed to Delivery Details")
                         }
                     }
                 }
@@ -481,7 +481,12 @@ fun DeliveryAddressSection(
             .fillMaxWidth()
             .padding(top = 16.dp)
     ) {
-        Text("Delivery Address", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(
+            text = "Delivery Details",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.primary
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         if (uiState.deliveryAddress.isEmpty()) {
@@ -553,6 +558,12 @@ fun DeliveryAddressSection(
                 modifier = Modifier.fillMaxWidth(),
                 prefix = { Text("+91 ") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            )
+            Text(
+                text = "The phone number collected is for communication related to the orders.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
             )
         }
     }
