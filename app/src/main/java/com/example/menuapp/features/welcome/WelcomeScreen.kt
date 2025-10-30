@@ -64,7 +64,7 @@ fun WelcomeScreen(
             Text(
                 text = "Welcome to Pizza Paradize",
                 style = MaterialTheme.typography.headlineMedium,
-                color = GoldenYellow
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Spacer(modifier = Modifier.height(32.dp))
             OutlinedTextField(

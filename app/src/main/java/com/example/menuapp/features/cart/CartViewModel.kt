@@ -28,6 +28,7 @@ data class CartUiState(
     val deliveryAddress: String = "",
     val phoneNumberInput: String = "", // The text in the TextField
     val userDefaultPhoneNumber: String = "", // The number from user's profile for placeholder
+    val phoneNumberError: String? = null,
     val errorMessage: String? = null,
     val showErrorDialog: Boolean = false,
     val locationResultForConfirmation: LocationResult.Success? = null,
@@ -145,7 +146,7 @@ class CartViewModel @Inject constructor(
     }
 
     fun onPhoneNumberChange(phoneNumber: String) {
-    _uiState.update { it.copy(phoneNumberInput = phoneNumber) }
+        _uiState.update { it.copy(phoneNumberInput = phoneNumber, phoneNumberError = null) }
     }
 
     fun fetchAddress() {
@@ -290,6 +291,12 @@ class CartViewModel @Inject constructor(
                             errorMessage = "Phone number cannot be empty.",
                             showErrorDialog = true
                         )
+                    }
+                    return
+                }
+                if (phoneNumber.length != 10) {
+                    _uiState.update {
+                        it.copy(phoneNumberError = "Please enter a valid 10-digit phone number.")
                     }
                     return
                 }
