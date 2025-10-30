@@ -481,7 +481,7 @@ fun DeliveryAddressSection(
             .fillMaxWidth()
             .padding(top = 16.dp)
     ) {
-        Text("Delivery Address", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text("Delivery Details", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(16.dp))
 
         if (uiState.deliveryAddress.isEmpty()) {
@@ -522,6 +522,7 @@ fun DeliveryAddressSection(
                 }
             }
         } else {
+            Text("Delivery Point Address", style = MaterialTheme.typography.titleMedium)
             Text(
                 text = uiState.deliveryAddress,
                 modifier = Modifier.fillMaxWidth(),
@@ -536,6 +537,7 @@ fun DeliveryAddressSection(
                 Text("Change Location")
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Confirm Phone Number", fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -553,6 +555,11 @@ fun DeliveryAddressSection(
                 modifier = Modifier.fillMaxWidth(),
                 prefix = { Text("+91 ") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Note: Your phone number will only be used for communication related to your order and delivery.",
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }
@@ -623,7 +630,7 @@ fun PaymentMethodSelection(
             onClick = onPreviousStep,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Back to Delivery")
+            Text("Back to Delivery Details")
         }
     }
 }
