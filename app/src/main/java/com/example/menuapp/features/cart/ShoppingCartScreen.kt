@@ -523,6 +523,7 @@ fun DeliveryAddressSection(
             }
         } else {
             Text("Delivery Point Address", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = uiState.deliveryAddress,
                 modifier = Modifier.fillMaxWidth(),
