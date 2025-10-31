@@ -34,6 +34,8 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
 import java.text.DecimalFormat
 import androidx.compose.foundation.BorderStroke
+import com.example.menuapp.features.ordertracking.TrackingStatus
+import com.example.menuapp.features.ordertracking.toTrackingStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,13 +62,33 @@ fun OrderSummaryScreen(
             )
         },
         bottomBar = {
-            OrderActionsFooter(
-                onTrackOrderClicked = onTrackOrderClicked,
-                onContactSupportClicked = {
-                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${uiState.contactNumber}"))
-                    context.startActivity(intent)
-                }
-            )
+            val order = uiState.order
+            if (order != null) {
+                val currentStatus = order.status.toTrackingStatus()
+                val showContactDeliveryButton =
+                    currentStatus.ordinal >= TrackingStatus.OUT_FOR_DELIVERY.ordinal
+
+                OrderActionsFooter(
+                    onTrackOrderClicked = onTrackOrderClicked,
+                    onContactSupportClicked = {
+                        val intent =
+                            Intent(
+                                Intent.ACTION_DIAL,
+                                Uri.parse("tel:${uiState.contactNumber}")
+                            )
+                        context.startActivity(intent)
+                    },
+                    onContactDeliveryStaffClicked = {
+                        val staffPhoneNumber = uiState.deliveryStaffPhoneNumber
+                        if (!staffPhoneNumber.isNullOrBlank()) {
+                            val intent =
+                                Intent(Intent.ACTION_DIAL, Uri.parse("tel:$staffPhoneNumber"))
+                            context.startActivity(intent)
+                        }
+                    },
+                    showContactDeliveryStaffButton = showContactDeliveryButton
+                )
+            }
         }
     ) { paddingValues ->
         if (uiState.isLoading) {
@@ -83,7 +105,14 @@ fun OrderSummaryScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item { OrderStatusHeader(order) }
-                item { DeliveryAddressCard(order) }
+                item {
+                    DeliveryAddressCard(
+                        order = order,
+                        onPhoneNumberChanged = { newPhoneNumber ->
+                            viewModel.updatePhoneNumber(newPhoneNumber)
+                        }
+                    )
+                }
                 item {
                     Text(
                         "Items in Your Order",
@@ -107,27 +136,61 @@ fun OrderSummaryScreen(
 }
 
 @Composable
-private fun DeliveryAddressCard(order: Order) {
+private fun DeliveryAddressCard(
+    order: Order,
+    onPhoneNumberChanged: (String) -> Unit
+) {
+    var showEditPhoneNumberDialog by remember { mutableStateOf(false) }
+
+    if (showEditPhoneNumberDialog) {
+        EditPhoneNumberDialog(
+            currentPhoneNumber = order.customerPhoneNumber ?: "",
+            onDismiss = { showEditPhoneNumberDialog = false },
+            onSave = { newPhoneNumber ->
+                onPhoneNumberChanged(newPhoneNumber)
+                showEditPhoneNumberDialog = false
+            }
+        )
+    }
+
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth(),
         shadowElevation = 2.dp
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text(
                 "Delivery Details",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
             Spacer(modifier = Modifier.height(8.dp))
             InfoRow(label = "Address", value = order.deliveryAddress)
-            InfoRow(label = "Phone", value = order.customerPhoneNumber ?: "N/A")
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                InfoRow(label = "Phone", value = order.customerPhoneNumber ?: "N/A")
+                TextButton(onClick = { showEditPhoneNumberDialog = true }) {
+                    Text("Edit")
+                }
+            }
             order.paymentMethod?.let {
                 InfoRow(label = "Payment Mode", value = it)
             }
         }
     }
 }
+
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 private fun InfoRow(label: String, value: String) {
@@ -139,6 +202,39 @@ private fun InfoRow(label: String, value: String) {
         )
         Text(value, color = MaterialTheme.colorScheme.onSurface)
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditPhoneNumberDialog(
+    currentPhoneNumber: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var phoneNumber by remember { mutableStateOf(currentPhoneNumber) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Phone Number") },
+        text = {
+            OutlinedTextField(
+                value = phoneNumber,
+                onValueChange = { phoneNumber = it },
+                label = { Text("Phone Number") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            )
+        },
+        confirmButton = {
+            Button(onClick = { onSave(phoneNumber) }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable
@@ -246,7 +342,9 @@ private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
 @Composable
 private fun OrderActionsFooter(
     onTrackOrderClicked: () -> Unit,
-    onContactSupportClicked: () -> Unit
+    onContactSupportClicked: () -> Unit,
+    onContactDeliveryStaffClicked: () -> Unit,
+    showContactDeliveryStaffButton: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -257,15 +355,34 @@ private fun OrderActionsFooter(
     ) {
         Button(
             onClick = onTrackOrderClicked,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text("Track Order", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
+
+        if (showContactDeliveryStaffButton) {
+            OutlinedButton(
+                onClick = onContactDeliveryStaffClicked,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Contact Delivery Staff", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+        }
+
         OutlinedButton(
             onClick = onContactSupportClicked,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)

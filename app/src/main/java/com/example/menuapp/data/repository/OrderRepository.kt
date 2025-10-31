@@ -160,4 +160,10 @@ class OrderRepository @Inject constructor(
         newOrderRef.set(order).await()
         menuRepository.clearCart()
     }
+
+    suspend fun updatePhoneNumber(orderId: String, newPhoneNumber: String) {
+        firestore.collection("orders").document(orderId)
+            .update("customerPhoneNumber", newPhoneNumber)
+            .await()
+    }
 }
