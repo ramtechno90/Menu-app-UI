@@ -48,7 +48,7 @@ val trackingStates = listOf(
     TrackingState(OrderStatusMapper.mapOrderStatus("ACCEPTED"), "Your order has been confirmed.", Icons.Default.Check, TrackingStatus.CONFIRMED),
     TrackingState(OrderStatusMapper.mapOrderStatus("PREPARING"), "We are preparing your order.", Icons.Default.Restaurant, TrackingStatus.PREPARING),
     TrackingState(OrderStatusMapper.mapOrderStatus("COMPLETED"), "Your order is completed.", Icons.Default.Done, TrackingStatus.COMPLETED),
-    TrackingState(OrderStatusMapper.mapOrderStatus("OUT_FOR_DELIVERY"), "Estimated delivery: 20 mins", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
+    TrackingState("Out for Delivery", "Estimated delivery: 20 mins", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
     TrackingState(OrderStatusMapper.mapOrderStatus("DELIVERED"), "Your order has been delivered.", Icons.Default.CheckCircle, TrackingStatus.DELIVERED)
 )
 
