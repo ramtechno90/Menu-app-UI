@@ -34,6 +34,11 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
 import java.text.DecimalFormat
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.menuapp.features.ordertracking.TrackingStatus
 import com.example.menuapp.features.ordertracking.toTrackingStatus
 
@@ -185,12 +190,6 @@ private fun DeliveryAddressCard(
         }
     }
 }
-
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 private fun InfoRow(label: String, value: String) {
