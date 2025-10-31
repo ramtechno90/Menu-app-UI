@@ -22,6 +22,5 @@ data class Order(
     val otpVerified: Boolean = false,
     val otpExpiry: com.google.firebase.Timestamp? = null,
 
-    val otpInvalid: Boolean = false,
-    val deliveryStaffPhoneNumber: String? = null
+    val otpInvalid: Boolean = false
 )

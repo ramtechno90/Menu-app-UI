@@ -211,20 +211,45 @@ private fun EditPhoneNumberDialog(
     onSave: (String) -> Unit
 ) {
     var phoneNumber by remember { mutableStateOf(currentPhoneNumber) }
+    var phoneError by remember { mutableStateOf<String?>(null) }
+    val isPhoneValid = phoneNumber.length == 10 && phoneNumber.all { it.isDigit() }
+
+    fun validatePhoneNumber(number: String) {
+        if (number.length > 10) return
+        phoneNumber = number.filter { it.isDigit() }
+        if (phoneNumber.length < 10) {
+            phoneError = "Phone number must be 10 digits"
+        } else {
+            phoneError = null
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Edit Phone Number") },
         text = {
-            OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
-                label = { Text("Phone Number") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-            )
+            Column {
+                OutlinedTextField(
+                    value = phoneNumber,
+                    onValueChange = { validatePhoneNumber(it) },
+                    label = { Text("Phone Number") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    isError = phoneError != null,
+                    supportingText = {
+                        if (phoneError != null) {
+                            Text(text = phoneError!!, color = MaterialTheme.colorScheme.error)
+                        } else {
+                            Text(text = "Note: Your phone number will only be used for communication related to your order and delivery.")
+                        }
+                    }
+                )
+            }
         },
         confirmButton = {
-            Button(onClick = { onSave(phoneNumber) }) {
+            Button(
+                onClick = { onSave(phoneNumber) },
+                enabled = isPhoneValid
+            ) {
                 Text("Save")
             }
         },
