@@ -1,68 +1,67 @@
-const functions = require("firebase-functions");
+const {
+  onDocumentCreated,
+  onDocumentUpdated,
+} = require("firebase-functions/v2/firestore");
+const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
-admin.initializeApp();
-const db = admin.firestore();
 
-// Generate 4-digit OTP
+// Initialize the Admin SDK
+admin.initializeApp();
+
+/**
+ * Generates a 4-digit OTP.
+ * @return {string} The generated OTP.
+ */
 function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-// Trigger when a new order document is created
-exports.addOtpOnOrderCreate = functions.firestore
-  .document("orders/{orderId}")
-  .onCreate(async (snap, context) => {
-    const otp = generateOtp();
+// Trigger when a new order document is created to add an OTP.
+exports.addOtpOnOrderCreate = onDocumentCreated("orders/{orderId}", async (event) => {
+  const otp = generateOtp();
+  const { orderId } = event.params;
 
-    await snap.ref.update({
-      otp: otp,
-      otpEntered: null,
-      otpVerified: false,
-      otpInvalid: false, // Initialize as not invalid
-    });
+  logger.log(`Generated OTP ${otp} for order ${orderId}`);
 
-    console.log(`OTP ${otp} created for order ${context.params.orderId}`);
+  // Update the document with the new OTP and reset related fields.
+  return event.data.ref.update({
+    otp: otp,
+    otpEntered: null,
+    otpVerified: false,
+    otpInvalid: false,
   });
+});
 
+// Trigger to verify the OTP when a staff member enters it.
+exports.verifyOtp = onDocumentUpdated("orders/{orderId}", async (event) => {
+  const before = event.data.before.data();
+  const after = event.data.after.data();
 
-// Trigger to verify OTP when staff enters it
-exports.verifyOtp = functions.firestore
-  .document("orders/{orderId}")
-  .onUpdate(async (change, context) => {
-    const before = change.before.data();
-    const after = change.after.data();
-
-    // Only run if staff entered a new OTP
-    if (before.otpEntered === after.otpEntered || after.otpEntered === null) {
-      return null;
-    }
-
-    const correctOtp = after.otp;
-    const enteredOtp = after.otpEntered;
-
-    const isCorrect = enteredOtp === correctOtp;
-
-    if (isCorrect) {
-      // Correct OTP
-      await change.after.ref.update({
-        otpVerified: true,
-        otpInvalid: false,
-        status: "DELIVERED",
-      });
-      console.log(
-        `Order ${context.params.orderId}: entered=${enteredOtp}, verified=true`
-      );
-    } else {
-      // Incorrect or expired OTP
-      await change.after.ref.update({
-        otpVerified: false,
-        otpInvalid: true,
-        otpEntered: null, // Reset for re-entry
-      });
-      console.log(
-        `Order ${context.params.orderId}: entered=${enteredOtp}, verified=false`
-      );
-    }
-
+  // Exit if the OTP entered by the staff hasn't changed.
+  if (before.otpEntered === after.otpEntered || after.otpEntered === null) {
     return null;
-  });
+  }
+
+  const { orderId } = event.params;
+  const correctOtp = after.otp;
+  const enteredOtp = after.otpEntered;
+  const isCorrect = enteredOtp === correctOtp;
+
+  if (isCorrect) {
+    logger.log(`OTP for order ${orderId} is correct. Marking as verified.`);
+    // If correct, update the order status to DELIVERED.
+    return event.data.after.ref.update({
+      otpVerified: true,
+      otpInvalid: false,
+      status: "DELIVERED",
+    });
+  } else {
+    logger.warn(`Incorrect OTP entered for order ${orderId}.`);
+    // If incorrect, mark it as invalid and reset the entered OTP.
+    return event.data.after.ref.update({
+      otpVerified: false,
+      otpInvalid: true,
+      otpEntered: null, // Reset for re-entry
+    });
+  }
+});
