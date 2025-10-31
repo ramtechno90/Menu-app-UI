@@ -8,6 +8,7 @@ import com.example.menuapp.data.repository.OrderRepository
 import com.example.menuapp.data.service.FirebaseSettingsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 import com.example.menuapp.data.repository.MenuRepository
@@ -64,7 +65,7 @@ class OrderSummaryViewModel @Inject constructor(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSub-scribed(5_000),
+        started = SharingStarted.WhileSubscribed(5_000),
         initialValue = OrderSummaryUiState(isLoading = true)
     )
     fun updatePhoneNumber(newPhoneNumber: String) {

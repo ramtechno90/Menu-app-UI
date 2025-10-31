@@ -35,9 +35,6 @@ import com.example.menuapp.ui.theme.Green
 import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
 
-enum class TrackingStatus {
-    PLACED, CONFIRMED, PREPARING, COMPLETED, OUT_FOR_DELIVERY, DELIVERED
-}
 
 data class TrackingState(
     val title: String,
