@@ -60,7 +60,7 @@ exports.verifyOtp = functions.firestore
         otpEntered: null, // Reset for re-entry
       });
       console.log(
-        `Order ${context.params.orderId}: entered=${enteredOtp}, verified=false (expired: ${isExpired})`
+        `Order ${context.params.orderId}: entered=${enteredOtp}, verified=false`
       );
     }
 
