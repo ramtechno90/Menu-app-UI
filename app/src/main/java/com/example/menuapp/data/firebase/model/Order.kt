@@ -20,7 +20,6 @@ data class Order(
     val otp: String? = null,
     val otpEntered: String? = null,
     val otpVerified: Boolean = false,
-    val otpExpiry: com.google.firebase.Timestamp? = null,
 
     val otpInvalid: Boolean = false
 )

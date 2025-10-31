@@ -66,33 +66,6 @@ fun OrderSummaryScreen(
                 )
             )
         },
-        bottomBar = {
-            val order = uiState.order
-            if (order != null) {
-                val showContactDeliveryButton = order.status == "PICKED_UP"
-
-                OrderActionsFooter(
-                    onTrackOrderClicked = onTrackOrderClicked,
-                    onContactSupportClicked = {
-                        val intent =
-                            Intent(
-                                Intent.ACTION_DIAL,
-                                Uri.parse("tel:${uiState.contactNumber}")
-                            )
-                        context.startActivity(intent)
-                    },
-                    onContactDeliveryStaffClicked = {
-                        val staffPhoneNumber = uiState.deliveryStaffPhoneNumber
-                        if (!staffPhoneNumber.isNullOrBlank()) {
-                            val intent =
-                                Intent(Intent.ACTION_DIAL, Uri.parse("tel:$staffPhoneNumber"))
-                            context.startActivity(intent)
-                        }
-                    },
-                    showContactDeliveryStaffButton = showContactDeliveryButton
-                )
-            }
-        }
     ) { paddingValues ->
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -127,6 +100,29 @@ fun OrderSummaryScreen(
                 }
                 item {
                     SummaryCard(order = order)
+                }
+                item {
+                    val showContactDeliveryButton = order.status == "PICKED_UP"
+                    OrderActionsFooter(
+                        onTrackOrderClicked = onTrackOrderClicked,
+                        onContactSupportClicked = {
+                            val intent =
+                                Intent(
+                                    Intent.ACTION_DIAL,
+                                    Uri.parse("tel:${uiState.contactNumber}")
+                                )
+                            context.startActivity(intent)
+                        },
+                        onContactDeliveryStaffClicked = {
+                            val staffPhoneNumber = uiState.deliveryStaffPhoneNumber
+                            if (!staffPhoneNumber.isNullOrBlank()) {
+                                val intent =
+                                    Intent(Intent.ACTION_DIAL, Uri.parse("tel:$staffPhoneNumber"))
+                                context.startActivity(intent)
+                            }
+                        },
+                        showContactDeliveryStaffButton = showContactDeliveryButton
+                    )
                 }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }

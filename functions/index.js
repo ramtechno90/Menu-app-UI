@@ -13,16 +13,12 @@ exports.addOtpOnOrderCreate = functions.firestore
   .document("orders/{orderId}")
   .onCreate(async (snap, context) => {
     const otp = generateOtp();
-    const expiry = admin.firestore.Timestamp.fromDate(
-      new Date(Date.now() + 15 * 60 * 1000) // 15 min validity
-    );
 
     await snap.ref.update({
       otp: otp,
       otpEntered: null,
       otpVerified: false,
       otpInvalid: false, // Initialize as not invalid
-      otpExpiry: expiry,
     });
 
     console.log(`OTP ${otp} created for order ${context.params.orderId}`);
@@ -43,12 +39,10 @@ exports.verifyOtp = functions.firestore
 
     const correctOtp = after.otp;
     const enteredOtp = after.otpEntered;
-    const expiry = after.otpExpiry.toDate();
 
-    const isExpired = Date.now() > expiry.getTime();
     const isCorrect = enteredOtp === correctOtp;
 
-    if (!isExpired && isCorrect) {
+    if (isCorrect) {
       // Correct OTP
       await change.after.ref.update({
         otpVerified: true,
