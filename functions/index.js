@@ -65,3 +65,27 @@ exports.verifyOtp = onDocumentUpdated("orders/{orderId}", async (event) => {
     });
   }
 });
+
+// Sends a push notification when a new order is created.
+exports.sendNewOrderNotification = onDocumentCreated("orders/{orderId}", async (event) => {
+  const order = event.data.data();
+  const { orderId } = event.params;
+  const customerName = order.customerName;
+
+  logger.log(`New order received: ${orderId} from ${customerName}. Preparing notification.`);
+
+  const payload = {
+    notification: {
+      title: "New Order Received!",
+      body: `A new order has been placed by ${customerName}.`,
+    },
+    topic: "new_orders", // Targeting the 'new_orders' FCM topic
+  };
+
+  try {
+    await admin.messaging().send(payload);
+    logger.log("Notification sent successfully.");
+  } catch (error) {
+    logger.error("Error sending notification:", error);
+  }
+});
