@@ -76,9 +76,7 @@ fun OrderTrackingScreen(
         bottomBar = {
             val order = uiState.order
             if (order != null) {
-                val currentStatus = order.status.toTrackingStatus()
-                val showContactDeliveryButton =
-                    currentStatus.ordinal >= TrackingStatus.OUT_FOR_DELIVERY.ordinal
+                val showContactDeliveryButton = order.status == "PICKED_UP"
 
                 OrderActionsFooter(
                     onContactSupportClicked = {
