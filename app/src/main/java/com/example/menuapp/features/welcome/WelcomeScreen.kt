@@ -35,7 +35,7 @@ fun WelcomeScreen(
     onNameEntered: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateof("") }
     val authState by viewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
@@ -45,70 +45,66 @@ fun WelcomeScreen(
     }
 
     MenuAppTheme(statusBarColor = MaterialTheme.colorScheme.primary) {
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.primary)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "App Logo",
-                modifier = Modifier
-                    .size(300.dp)
-                    .clip(RoundedCornerShape(16.dp))
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                text = "Welcome to Pizza Paradize",
-                style = MaterialTheme.typography.headlineMedium,
-                color = androidx.compose.ui.graphics.Color.White
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            OutlinedTextField(
-                value = name,
-                onValueChange = { newName ->
-                    if (newName.all { it.isLetter() || it.isWhitespace() }) {
-                        name = newName
+            if (maxWidth < 600.dp) { // Portrait mode
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.app_logo),
+                        contentDescription = "App Logo",
+                        modifier = Modifier
+                            .size(300.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    WelcomeContent(
+                        name = name,
+                        onNameChange = { newName ->
+                            if (newName.all { it.isLetter() || it.isWhitespace() }) {
+                                name = newName
+                            }
+                        },
+                        authState = authState,
+                        onSaveUsername = { viewModel.saveUsername(name) }
+                    )
+                }
+            } else { // Landscape mode
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.app_logo),
+                        contentDescription = "App Logo",
+                        modifier = Modifier
+                            .size(250.dp) // Smaller logo for landscape
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+                    Spacer(modifier = Modifier.width(32.dp))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        WelcomeContent(
+                            name = name,
+                            onNameChange = { newName ->
+                                if (newName.all { it.isLetter() || it.isWhitespace() }) {
+                                    name = newName
+                                }
+                            },
+                            authState = authState,
+                            onSaveUsername = { viewModel.saveUsername(name) }
+                        )
                     }
-                },
-                label = { Text("Enter Your Name") },
-                isError = authState is AuthState.Error,
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    cursorColor = MaterialTheme.colorScheme.onPrimary,
-                    focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-                )
-            )
-            if (authState is AuthState.Error) {
-                Text(
-                    text = (authState as AuthState.Error).message,
-                    color = MaterialTheme.colorScheme.onError,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { viewModel.saveUsername(name) },
-                enabled = name.isNotBlank() && authState !is AuthState.Loading,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.onPrimary,
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                if (authState is AuthState.Loading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                } else {
-                    Text("Start Ordering")
                 }
             }
         }
