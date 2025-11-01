@@ -35,7 +35,7 @@ fun WelcomeScreen(
     onNameEntered: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
-    var name by remember { mutableStateof("") }
+    var name by remember { mutableStateOf("") }
     val authState by viewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
@@ -107,6 +107,62 @@ fun WelcomeScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WelcomeContent(
+    name: String,
+    onNameChange: (String) -> Unit,
+    authState: AuthState,
+    onSaveUsername: () -> Unit
+) {
+    Text(
+        text = "Welcome to Pizza Paradize",
+        style = MaterialTheme.typography.headlineMedium,
+        color = androidx.compose.ui.graphics.Color.White
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+    OutlinedTextField(
+        value = name,
+        onValueChange = onNameChange,
+        label = { Text("Enter Your Name") },
+        isError = authState is AuthState.Error,
+        modifier = Modifier.fillMaxWidth(),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+            cursorColor = MaterialTheme.colorScheme.onPrimary,
+            focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+        )
+    )
+    if (authState is AuthState.Error) {
+        Text(
+            text = authState.message,
+            color = MaterialTheme.colorScheme.onError,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+    Button(
+        onClick = onSaveUsername,
+        enabled = name.isNotBlank() && authState !is AuthState.Loading,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.onPrimary,
+            contentColor = MaterialTheme.colorScheme.primary
+        )
+    ) {
+        if (authState is AuthState.Loading) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        } else {
+            Text("Start Ordering")
         }
     }
 }
