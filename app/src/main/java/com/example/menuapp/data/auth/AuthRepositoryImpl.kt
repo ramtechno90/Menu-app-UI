@@ -40,7 +40,7 @@ class AuthRepositoryImpl @Inject constructor(
                     "uid" to firebaseUser.uid,
                     "username" to username
                 )
-                firestore.collection("users").document(firebaseUser.uid).set(user).await()
+                firestore.collection("users").document(firebaseUser.uid).set(user)
                 Result.success(Unit)
             } else {
                 Result.failure(IllegalStateException("User not logged in"))
