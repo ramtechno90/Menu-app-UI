@@ -35,6 +35,9 @@ import com.example.menuapp.ui.theme.Green
 import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
 
+enum class TrackingStatus {
+    PLACED, CONFIRMED, PREPARING, COMPLETED, OUT_FOR_DELIVERY, DELIVERED
+}
 
 data class TrackingState(
     val title: String,
@@ -48,7 +51,7 @@ val trackingStates = listOf(
     TrackingState(OrderStatusMapper.mapOrderStatus("ACCEPTED"), "Your order has been confirmed.", Icons.Default.Check, TrackingStatus.CONFIRMED),
     TrackingState(OrderStatusMapper.mapOrderStatus("PREPARING"), "We are preparing your order.", Icons.Default.Restaurant, TrackingStatus.PREPARING),
     TrackingState(OrderStatusMapper.mapOrderStatus("COMPLETED"), "Your order is completed.", Icons.Default.Done, TrackingStatus.COMPLETED),
-    TrackingState("Out for Delivery", "The delivery staff is on the way.", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
+    TrackingState(OrderStatusMapper.mapOrderStatus("OUT_FOR_DELIVERY"), "Estimated delivery: 20 mins", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
     TrackingState(OrderStatusMapper.mapOrderStatus("DELIVERED"), "Your order has been delivered.", Icons.Default.CheckCircle, TrackingStatus.DELIVERED)
 )
 
@@ -73,6 +76,14 @@ fun OrderTrackingScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
+        bottomBar = {
+            OrderActionsFooter(
+                onContactSupportClicked = {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${uiState.contactNumber}"))
+                    context.startActivity(intent)
+                }
+            )
+        }
     ) { paddingValues ->
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -92,31 +103,6 @@ fun OrderTrackingScreen(
                     item { OtpCard(order = uiState.order!!) }
                 }
                 item { TrackingTimeline(order = uiState.order!!) }
-                item {
-                    val order = uiState.order
-                    if (order != null) {
-                        val showContactDeliveryButton = order.status == "PICKED_UP"
-                        OrderActionsFooter(
-                            onContactSupportClicked = {
-                                val intent =
-                                    Intent(
-                                        Intent.ACTION_DIAL,
-                                        Uri.parse("tel:${uiState.contactNumber}")
-                                    )
-                                context.startActivity(intent)
-                            },
-                            onContactDeliveryStaffClicked = {
-                                val staffPhoneNumber = uiState.deliveryStaffPhoneNumber
-                                if (!staffPhoneNumber.isNullOrBlank()) {
-                                    val intent =
-                                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$staffPhoneNumber"))
-                                    context.startActivity(intent)
-                                }
-                            },
-                            showContactDeliveryStaffButton = showContactDeliveryButton
-                        )
-                    }
-                }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         } else {
@@ -353,13 +339,18 @@ private fun TimelineNode(state: TrackingState, isActive: Boolean, isCurrent: Boo
 }
 
 
+private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
+    "PENDING" -> TrackingStatus.PLACED
+    "ACCEPTED" -> TrackingStatus.CONFIRMED
+    "PREPARING" -> TrackingStatus.PREPARING
+    "COMPLETED", "READY_FOR_DELIVERY" -> TrackingStatus.COMPLETED
+    "OUT_FOR_DELIVERY", "PICKED_UP" -> TrackingStatus.OUT_FOR_DELIVERY
+    "DELIVERED" -> TrackingStatus.DELIVERED
+    else -> TrackingStatus.PLACED
+}
 
 @Composable
-private fun OrderActionsFooter(
-    onContactSupportClicked: () -> Unit,
-    onContactDeliveryStaffClicked: () -> Unit,
-    showContactDeliveryStaffButton: Boolean
-) {
+private fun OrderActionsFooter(onContactSupportClicked: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -367,25 +358,9 @@ private fun OrderActionsFooter(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (showContactDeliveryStaffButton) {
-            OutlinedButton(
-                onClick = onContactDeliveryStaffClicked,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-            ) {
-                Text("Contact Delivery Staff", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            }
-        }
-
         OutlinedButton(
             onClick = onContactSupportClicked,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)

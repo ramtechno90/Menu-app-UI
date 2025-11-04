@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -597,12 +596,10 @@ fun PaymentMethodSelection(
         Text("Payment Method", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { onPaymentMethodSelected("Cash on Delivery") }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
                 selected = selectedPaymentMethod == "Cash on Delivery",
-                onClick = null
+                onClick = { onPaymentMethodSelected("Cash on Delivery") }
             )
             Column {
                 Text("Cash on Delivery")

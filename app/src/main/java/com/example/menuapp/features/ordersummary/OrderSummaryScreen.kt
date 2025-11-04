@@ -34,13 +34,6 @@ import com.example.menuapp.ui.theme.MenuAppTheme
 import com.example.menuapp.utils.OrderStatusMapper
 import java.text.DecimalFormat
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
-import com.example.menuapp.features.ordertracking.TrackingStatus
-import com.example.menuapp.features.ordertracking.toTrackingStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +59,15 @@ fun OrderSummaryScreen(
                 )
             )
         },
+        bottomBar = {
+            OrderActionsFooter(
+                onTrackOrderClicked = onTrackOrderClicked,
+                onContactSupportClicked = {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${uiState.contactNumber}"))
+                    context.startActivity(intent)
+                }
+            )
+        }
     ) { paddingValues ->
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -81,14 +83,7 @@ fun OrderSummaryScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item { OrderStatusHeader(order) }
-                item {
-                    DeliveryAddressCard(
-                        order = order,
-                        onPhoneNumberChanged = { newPhoneNumber ->
-                            viewModel.updatePhoneNumber(newPhoneNumber)
-                        }
-                    )
-                }
+                item { DeliveryAddressCard(order) }
                 item {
                     Text(
                         "Items in Your Order",
@@ -101,29 +96,6 @@ fun OrderSummaryScreen(
                 item {
                     SummaryCard(order = order)
                 }
-                item {
-                    val showContactDeliveryButton = order.status == "PICKED_UP"
-                    OrderActionsFooter(
-                        onTrackOrderClicked = onTrackOrderClicked,
-                        onContactSupportClicked = {
-                            val intent =
-                                Intent(
-                                    Intent.ACTION_DIAL,
-                                    Uri.parse("tel:${uiState.contactNumber}")
-                                )
-                            context.startActivity(intent)
-                        },
-                        onContactDeliveryStaffClicked = {
-                            val staffPhoneNumber = uiState.deliveryStaffPhoneNumber
-                            if (!staffPhoneNumber.isNullOrBlank()) {
-                                val intent =
-                                    Intent(Intent.ACTION_DIAL, Uri.parse("tel:$staffPhoneNumber"))
-                                context.startActivity(intent)
-                            }
-                        },
-                        showContactDeliveryStaffButton = showContactDeliveryButton
-                    )
-                }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         } else {
@@ -135,49 +107,21 @@ fun OrderSummaryScreen(
 }
 
 @Composable
-private fun DeliveryAddressCard(
-    order: Order,
-    onPhoneNumberChanged: (String) -> Unit
-) {
-    var showEditPhoneNumberDialog by remember { mutableStateOf(false) }
-
-    if (showEditPhoneNumberDialog) {
-        EditPhoneNumberDialog(
-            currentPhoneNumber = order.customerPhoneNumber ?: "",
-            onDismiss = { showEditPhoneNumberDialog = false },
-            onSave = { newPhoneNumber ->
-                onPhoneNumberChanged(newPhoneNumber)
-                showEditPhoneNumberDialog = false
-            }
-        )
-    }
-
+private fun DeliveryAddressCard(order: Order) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth(),
         shadowElevation = 2.dp
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 "Delivery Details",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
             Spacer(modifier = Modifier.height(8.dp))
             InfoRow(label = "Address", value = order.deliveryAddress)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                InfoRow(label = "Phone", value = order.customerPhoneNumber ?: "N/A")
-                TextButton(onClick = { showEditPhoneNumberDialog = true }) {
-                    Text("Edit")
-                }
-            }
+            InfoRow(label = "Phone", value = order.customerPhoneNumber ?: "N/A")
             order.paymentMethod?.let {
                 InfoRow(label = "Payment Mode", value = it)
             }
@@ -195,64 +139,6 @@ private fun InfoRow(label: String, value: String) {
         )
         Text(value, color = MaterialTheme.colorScheme.onSurface)
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun EditPhoneNumberDialog(
-    currentPhoneNumber: String,
-    onDismiss: () -> Unit,
-    onSave: (String) -> Unit
-) {
-    var phoneNumber by remember { mutableStateOf(currentPhoneNumber) }
-    var phoneError by remember { mutableStateOf<String?>(null) }
-    val isPhoneValid = phoneNumber.length == 10 && phoneNumber.all { it.isDigit() }
-
-    fun validatePhoneNumber(number: String) {
-        if (number.length > 10) return
-        phoneNumber = number.filter { it.isDigit() }
-        if (phoneNumber.length < 10) {
-            phoneError = "Phone number must be 10 digits"
-        } else {
-            phoneError = null
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Edit Phone Number") },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = phoneNumber,
-                    onValueChange = { validatePhoneNumber(it) },
-                    label = { Text("Phone Number") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    isError = phoneError != null,
-                    supportingText = {
-                        if (phoneError != null) {
-                            Text(text = phoneError!!, color = MaterialTheme.colorScheme.error)
-                        } else {
-                            Text(text = "Note: Your phone number will only be used for communication related to your order and delivery.")
-                        }
-                    }
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onSave(phoneNumber) },
-                enabled = isPhoneValid
-            ) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }
 
 @Composable
@@ -360,9 +246,7 @@ private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
 @Composable
 private fun OrderActionsFooter(
     onTrackOrderClicked: () -> Unit,
-    onContactSupportClicked: () -> Unit,
-    onContactDeliveryStaffClicked: () -> Unit,
-    showContactDeliveryStaffButton: Boolean
+    onContactSupportClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -373,34 +257,15 @@ private fun OrderActionsFooter(
     ) {
         Button(
             onClick = onTrackOrderClicked,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text("Track Order", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
-
-        if (showContactDeliveryStaffButton) {
-            OutlinedButton(
-                onClick = onContactDeliveryStaffClicked,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-            ) {
-                Text("Contact Delivery Staff", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            }
-        }
-
         OutlinedButton(
             onClick = onContactSupportClicked,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)

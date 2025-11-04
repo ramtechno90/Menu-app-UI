@@ -109,17 +109,4 @@ class MenuRepository @Inject constructor(
             MenuItem(name = "Gulab Jamun", description = "Sweet milk solids dumplings in syrup.", price = 80.0, category = "Dessert", imageUrl = "https://source.unsplash.com/random/400x400?gulabjamun")
         )
     }
-
-    fun getDeliveryStaffPhoneNumber(staffName: String): Flow<String?> {
-        return firestore.collection("delivery_staff")
-            .whereEqualTo("name", staffName)
-            .snapshots()
-            .map { snapshot ->
-                if (snapshot.isEmpty) {
-                    null
-                } else {
-                    snapshot.documents.first().getString("phone")
-                }
-            }
-    }
 }
