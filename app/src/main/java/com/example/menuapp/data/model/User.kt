@@ -1,5 +1,8 @@
 package com.example.menuapp.data.model
 
+import com.google.firebase.firestore.IgnoreExtraProperties
+
+@IgnoreExtraProperties
 data class User(
     val uid: String = "",
     val username: String? = null,
