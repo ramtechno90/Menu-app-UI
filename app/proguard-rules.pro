@@ -1,0 +1,1 @@
+-keep class com.example.menuapp.data.model.** { *; }
