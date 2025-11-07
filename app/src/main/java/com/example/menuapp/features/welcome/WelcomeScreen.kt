@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -28,6 +29,7 @@ import com.example.menuapp.features.auth.AuthState
 import com.example.menuapp.features.auth.AuthViewModel
 import com.example.menuapp.ui.theme.GoldenYellow
 import com.example.menuapp.ui.theme.MenuAppTheme
+import com.example.menuapp.ui.theme.NewWelcomeBackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,11 +46,11 @@ fun WelcomeScreen(
         }
     }
 
-    MenuAppTheme(statusBarColor = MaterialTheme.colorScheme.primary) {
+    MenuAppTheme(statusBarColor = NewWelcomeBackgroundColor) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.primary)
+                .background(NewWelcomeBackgroundColor)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -64,7 +66,7 @@ fun WelcomeScreen(
             Text(
                 text = "Welcome to Pizza Paradize",
                 style = MaterialTheme.typography.headlineMedium,
-                color = GoldenYellow
+                color = Color.White
             )
             Spacer(modifier = Modifier.height(32.dp))
             OutlinedTextField(
