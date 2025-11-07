@@ -112,6 +112,9 @@ dependencies {
     // Coroutines Play Services
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
+    // Keep annotation
+    implementation("androidx.annotation:annotation:1.7.0")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
