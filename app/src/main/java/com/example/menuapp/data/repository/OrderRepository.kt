@@ -41,6 +41,7 @@ class OrderRepository @Inject constructor(
                     order
                 }
             }
+        }
     }
 
     fun getOngoingOrders(): Flow<List<Order>> {
