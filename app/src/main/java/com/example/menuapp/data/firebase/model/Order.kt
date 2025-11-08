@@ -2,6 +2,7 @@ package com.example.menuapp.data.firebase.model
 
 data class Order(
     var id: String = "",
+    val userId: String = "",
     val customerName: String = "",
     val customerPhoneNumber: String? = null,
     val items: List<CartItem> = emptyList(),

@@ -11,19 +11,28 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import com.example.menuapp.data.auth.AuthRepository
 import com.example.menuapp.data.service.FirebaseSettingsService
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 
 @Singleton
 class OrderRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val menuRepository: MenuRepository,
-    private val settingsService: FirebaseSettingsService
+    private val settingsService: FirebaseSettingsService,
+    private val authRepository: AuthRepository
 ) {
     fun getAllOrders(): Flow<List<Order>> {
-        return firestore.collection("orders")
-            .orderBy("orderDate", Query.Direction.DESCENDING)
+        return authRepository.getUserFlow().flatMapLatest { user ->
+            if (user == null) {
+                return@flatMapLatest flowOf(emptyList<Order>())
+            }
+            firestore.collection("orders")
+                .whereEqualTo("userId", user.uid)
+                .orderBy("orderDate", Query.Direction.DESCENDING)
             .snapshots()
             .map { snapshot ->
                 snapshot.documents.map { document ->
@@ -34,20 +43,27 @@ class OrderRepository @Inject constructor(
             }
     }
 
-    fun getOngoingOrders(): Flow<List<Order>> = callbackFlow {
-        // Fetch all orders from the last 48 hours to include recent delivered/rejected ones
-        val fortyEightHoursAgo = System.currentTimeMillis() - 48 * 60 * 60 * 1000
-        val twentyFourHoursAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
-
-        val query = firestore.collection("orders")
-            .whereGreaterThanOrEqualTo("orderDate", fortyEightHoursAgo)
-            .orderBy("orderDate", Query.Direction.DESCENDING)
-
-        val listener = query.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error)
-                return@addSnapshotListener
+    fun getOngoingOrders(): Flow<List<Order>> {
+        return authRepository.getUserFlow().flatMapLatest { user ->
+            if (user == null) {
+                return@flatMapLatest flowOf(emptyList<Order>())
             }
+
+            callbackFlow {
+                // Fetch all orders from the last 48 hours to include recent delivered/rejected ones
+                val fortyEightHoursAgo = System.currentTimeMillis() - 48 * 60 * 60 * 1000
+                val twentyFourHoursAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
+
+                val query = firestore.collection("orders")
+                    .whereEqualTo("userId", user.uid)
+                    .whereGreaterThanOrEqualTo("orderDate", fortyEightHoursAgo)
+                    .orderBy("orderDate", Query.Direction.DESCENDING)
+
+                val listener = query.addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        close(error)
+                        return@addSnapshotListener
+                    }
 
             if (snapshot != null) {
                 val orders = snapshot.documents.mapNotNull { document ->
@@ -69,19 +85,27 @@ class OrderRepository @Inject constructor(
             }
         }
 
-        awaitClose { listener.remove() }
+                awaitClose { listener.remove() }
+            }
+        }
     }
 
-    fun getDeliveredOrders(): Flow<List<Order>> = callbackFlow {
-        val query = firestore.collection("orders")
-            .whereEqualTo("status", "DELIVERED")
-            .orderBy("orderDate", Query.Direction.DESCENDING)
-
-        val listener = query.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error) // Close the flow on error
-                return@addSnapshotListener
+    fun getDeliveredOrders(): Flow<List<Order>> {
+        return authRepository.getUserFlow().flatMapLatest { user ->
+            if (user == null) {
+                return@flatMapLatest flowOf(emptyList<Order>())
             }
+            callbackFlow {
+                val query = firestore.collection("orders")
+                    .whereEqualTo("userId", user.uid)
+                    .whereEqualTo("status", "DELIVERED")
+                    .orderBy("orderDate", Query.Direction.DESCENDING)
+
+                val listener = query.addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        close(error) // Close the flow on error
+                        return@addSnapshotListener
+                    }
 
             if (snapshot != null) {
                 val orders = snapshot.documents.mapNotNull { document ->
@@ -93,23 +117,34 @@ class OrderRepository @Inject constructor(
             }
         }
 
-        awaitClose {
-            listener.remove() // Clean up the listener when the flow is cancelled
+                awaitClose {
+                    listener.remove() // Clean up the listener when the flow is cancelled
+                }
+            }
         }
     }
 
     fun getOrderById(orderId: String): Flow<Order?> {
-        return firestore.collection("orders").document(orderId)
+        return authRepository.getUserFlow().flatMapLatest { user ->
+            if (user == null) {
+                return@flatMapLatest flowOf(null)
+            }
+            firestore.collection("orders").document(orderId)
             .snapshots()
             .map { snapshot ->
                 if (snapshot.exists()) {
                     val order = snapshot.toObject(Order::class.java)
-                    order?.id = snapshot.id
-                    order
+                    if (order?.userId == user.uid) {
+                        order.id = snapshot.id
+                        order
+                    } else {
+                        null // Order does not belong to the current user
+                    }
                 } else {
                     null
                 }
             }
+        }
     }
 
     suspend fun createOrder(
@@ -141,8 +176,12 @@ class OrderRepository @Inject constructor(
         // Create a new document with a unique ID
         val newOrderRef = firestore.collection("orders").document()
 
+        val user = authRepository.getCurrentUser()
+            ?: return // Ensure user is logged in
+
         val order = Order(
-            id = newOrderRef.id, // Use the unique ID from the document reference
+            id = newOrderRef.id,
+            userId = user.uid,
             customerName = customerName,
             customerPhoneNumber = customerPhoneNumber,
             items = cartItems,
