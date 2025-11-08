@@ -32,14 +32,13 @@ class OrderRepository @Inject constructor(
             }
             firestore.collection("orders")
                 .whereEqualTo("userId", user.uid)
-                .orderBy("orderDate", Query.Direction.DESCENDING)
             .snapshots()
             .map { snapshot ->
                 snapshot.documents.map { document ->
                     val order = document.toObject(Order::class.java)!!
                     order.id = document.id
                     order
-                }
+                }.sortedByDescending { it.orderDate }
             }
         }
     }
@@ -58,7 +57,6 @@ class OrderRepository @Inject constructor(
                 val query = firestore.collection("orders")
                     .whereEqualTo("userId", user.uid)
                     .whereGreaterThanOrEqualTo("orderDate", fortyEightHoursAgo)
-                    .orderBy("orderDate", Query.Direction.DESCENDING)
 
                 val listener = query.addSnapshotListener { snapshot, error ->
                     if (error != null) {
@@ -82,7 +80,7 @@ class OrderRepository @Inject constructor(
 
                     isOngoing || isRecentAndFinished
                 }
-                trySend(orders)
+                trySend(orders.sortedByDescending { it.orderDate })
             }
         }
 
@@ -100,7 +98,6 @@ class OrderRepository @Inject constructor(
                 val query = firestore.collection("orders")
                     .whereEqualTo("userId", user.uid)
                     .whereEqualTo("status", "DELIVERED")
-                    .orderBy("orderDate", Query.Direction.DESCENDING)
 
                 val listener = query.addSnapshotListener { snapshot, error ->
                     if (error != null) {
@@ -114,7 +111,7 @@ class OrderRepository @Inject constructor(
                         id = document.id
                     }
                 }
-                trySend(orders) // Send the latest data to the flow
+                trySend(orders.sortedByDescending { it.orderDate }) // Send the latest data to the flow
             }
         }
 
