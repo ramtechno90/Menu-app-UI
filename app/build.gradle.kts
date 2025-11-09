@@ -104,6 +104,9 @@ dependencies {
     // Location Services
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
+    // Google Play In-App Update
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
+
     // Google Auth
     implementation("com.google.android.gms:play-services-auth:21.2.0")
 
