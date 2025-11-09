@@ -56,7 +56,6 @@ class OrderRepository @Inject constructor(
 
                 val query = firestore.collection("orders")
                     .whereEqualTo("userId", user.uid)
-                    .whereGreaterThanOrEqualTo("orderDate", fortyEightHoursAgo)
 
                 val listener = query.addSnapshotListener { snapshot, error ->
                     if (error != null) {
@@ -97,7 +96,6 @@ class OrderRepository @Inject constructor(
             callbackFlow {
                 val query = firestore.collection("orders")
                     .whereEqualTo("userId", user.uid)
-                    .whereEqualTo("status", "DELIVERED")
 
                 val listener = query.addSnapshotListener { snapshot, error ->
                     if (error != null) {
@@ -110,7 +108,7 @@ class OrderRepository @Inject constructor(
                     document.toObject(Order::class.java)?.apply {
                         id = document.id
                     }
-                }
+                }.filter { it.status == "DELIVERED" }
                 trySend(orders.sortedByDescending { it.orderDate }) // Send the latest data to the flow
             }
         }
