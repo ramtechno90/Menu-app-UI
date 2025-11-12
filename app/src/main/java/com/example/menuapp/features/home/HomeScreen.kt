@@ -5,12 +5,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -64,7 +63,10 @@ fun HomeScreen(
             items(uiState.menuItems.filter { it.category == selectedCategory }) { menuItem ->
                 MenuItemCard(
                     menuItem = menuItem,
+                    quantity = uiState.cartQuantities[menuItem.id] ?: 0,
                     onAddToCart = { viewModel.addToCart(menuItem) },
+                    onIncrement = { viewModel.addToCart(menuItem) },
+                    onDecrement = { viewModel.decrementQuantity(menuItem) },
                     showImage = uiState.showImages
                 )
             }
@@ -105,7 +107,10 @@ private fun CategorySelection(
 @Composable
 private fun MenuItemCard(
     menuItem: MenuItem,
+    quantity: Int,
     onAddToCart: (MenuItem) -> Unit,
+    onIncrement: (MenuItem) -> Unit,
+    onDecrement: (MenuItem) -> Unit,
     showImage: Boolean
 ) {
     Row(
@@ -121,17 +126,39 @@ private fun MenuItemCard(
             Spacer(modifier = Modifier.height(8.dp))
             Text("₹${menuItem.price}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(12.dp))
-            Button(
-                onClick = { onAddToCart(menuItem) },
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add to cart", modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Add", fontWeight = FontWeight.Bold)
+
+            if (quantity == 0) {
+                Button(
+                    onClick = { onAddToCart(menuItem) },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add to cart", modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Add", fontWeight = FontWeight.Bold)
+                }
+            } else {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IconButton(
+                        onClick = { onDecrement(menuItem) },
+                        modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Remove, contentDescription = "Decrement", tint = MaterialTheme.colorScheme.primary)
+                    }
+                    Text(quantity.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    IconButton(
+                        onClick = { onIncrement(menuItem) },
+                        modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Increment", tint = MaterialTheme.colorScheme.primary)
+                    }
+                }
             }
         }
         if (showImage && menuItem.imageUrl.isNotBlank()) {
@@ -150,12 +177,11 @@ private fun MenuItemCard(
     }
 }
 
+
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun HomeScreenPreview() {
     MenuAppTheme {
-        // This preview won't have a real ViewModel, so it will show an empty list.
-        // For a more complete preview, a fake ViewModel/repository could be provided.
         HomeScreen(contentPadding = PaddingValues(0.dp))
     }
 }
