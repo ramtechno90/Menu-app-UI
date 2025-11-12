@@ -596,7 +596,12 @@ fun PaymentMethodSelection(
         Text("Payment Method", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onPaymentMethodSelected("Cash on Delivery") }
+        ) {
             RadioButton(
                 selected = selectedPaymentMethod == "Cash on Delivery",
                 onClick = { onPaymentMethodSelected("Cash on Delivery") }

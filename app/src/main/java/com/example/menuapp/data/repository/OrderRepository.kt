@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import android.content.Context
 import com.example.menuapp.data.auth.AuthRepository
 import com.example.menuapp.data.service.FirebaseSettingsService
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.flatMapLatest
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.flowOf
 
 @Singleton
 class OrderRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val firestore: FirebaseFirestore,
     private val menuRepository: MenuRepository,
     private val settingsService: FirebaseSettingsService,
@@ -175,6 +178,12 @@ class OrderRepository @Inject constructor(
         val user = authRepository.getCurrentUser()
             ?: return // Ensure user is logged in
 
+        val appVersion = try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        } catch (e: Exception) {
+            "Unknown"
+        }
+
         val order = Order(
             id = newOrderRef.id,
             userId = user.uid,
@@ -188,7 +197,8 @@ class OrderRepository @Inject constructor(
             orderDate = System.currentTimeMillis(),
             status = "PENDING",
             deliveryAddress = address,
-            paymentMethod = paymentMethod
+            paymentMethod = paymentMethod,
+            appVersion = appVersion
         )
 
         // Set the data for the new document
