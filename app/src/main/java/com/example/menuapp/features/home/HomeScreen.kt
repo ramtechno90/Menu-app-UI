@@ -185,9 +185,7 @@ private fun AddToCartButton(
             ),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add to cart", modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-            Text("Add", fontWeight = FontWeight.Bold)
+            Text("+ Add", fontWeight = FontWeight.Bold)
         }
     } else {
         Row(
