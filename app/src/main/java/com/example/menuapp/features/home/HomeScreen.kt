@@ -141,15 +141,15 @@ private fun MenuItemCard(
                 )
             }
             Text(
-                text = menuItem.description,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
                 text = "₹${menuItem.price}",
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = menuItem.description,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
         if (showImage && menuItem.imageUrl.isNotBlank()) {
