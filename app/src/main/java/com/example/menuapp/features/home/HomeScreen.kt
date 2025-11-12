@@ -118,48 +118,39 @@ private fun MenuItemCard(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
             .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(menuItem.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(menuItem.description, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("₹${menuItem.price}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (quantity == 0) {
-                Button(
-                    onClick = { onAddToCart(menuItem) },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        contentColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add to cart", modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add", fontWeight = FontWeight.Bold)
-                }
-            } else {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    IconButton(
-                        onClick = { onDecrement(menuItem) },
-                        modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
-                    ) {
-                        Icon(Icons.Default.Remove, contentDescription = "Decrement", tint = MaterialTheme.colorScheme.primary)
-                    }
-                    Text(quantity.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    IconButton(
-                        onClick = { onIncrement(menuItem) },
-                        modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "Increment", tint = MaterialTheme.colorScheme.primary)
-                    }
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = menuItem.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                AddToCartButton(
+                    quantity = quantity,
+                    onAddToCart = { onAddToCart(menuItem) },
+                    onIncrement = { onIncrement(menuItem) },
+                    onDecrement = { onDecrement(menuItem) }
+                )
             }
+            Text(
+                text = menuItem.description,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "₹${menuItem.price}",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
         }
         if (showImage && menuItem.imageUrl.isNotBlank()) {
             AsyncImage(
@@ -173,6 +164,50 @@ private fun MenuItemCard(
                     .size(100.dp)
                     .clip(RoundedCornerShape(12.dp))
             )
+        }
+    }
+}
+
+@Composable
+private fun AddToCartButton(
+    quantity: Int,
+    onAddToCart: () -> Unit,
+    onIncrement: () -> Unit,
+    onDecrement: () -> Unit
+) {
+    if (quantity == 0) {
+        Button(
+            onClick = onAddToCart,
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                contentColor = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add to cart", modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Add", fontWeight = FontWeight.Bold)
+        }
+    } else {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            IconButton(
+                onClick = onDecrement,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
+            ) {
+                Icon(Icons.Default.Remove, contentDescription = "Decrement", tint = MaterialTheme.colorScheme.primary)
+            }
+            Text(quantity.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            IconButton(
+                onClick = onIncrement,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Increment", tint = MaterialTheme.colorScheme.primary)
+            }
         }
     }
 }
