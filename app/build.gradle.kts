@@ -120,6 +120,9 @@ dependencies {
     // Coroutines Play Services
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
+    // Recaptcha
+    implementation("com.google.android.recaptcha:recaptcha:18.4.0")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
