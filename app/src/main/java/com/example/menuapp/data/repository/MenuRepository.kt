@@ -5,6 +5,8 @@ import com.example.menuapp.data.firebase.model.MenuItem
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.snapshots
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -12,7 +14,8 @@ import javax.inject.Singleton
 
 @Singleton
 class MenuRepository @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val authRepository: com.example.menuapp.data.auth.AuthRepository
 ) {
     // Menu
     fun getMenuItems(): Flow<List<MenuItem>> {
@@ -39,22 +42,31 @@ class MenuRepository @Inject constructor(
 
     // Cart
     fun getCartItems(): Flow<List<CartItem>> {
-        return firestore.collection("cart_items")
-            .snapshots()
-            .map { snapshot ->
-                snapshot.documents.map { document ->
-                    val cartItem = document.toObject(CartItem::class.java)!!
-                    cartItem.id = document.id
-                    cartItem
-                }
+        return authRepository.getUserFlow().flatMapLatest { user ->
+            if (user == null) {
+                flowOf(emptyList())
+            } else {
+                firestore.collection("cart_items")
+                    .whereEqualTo("userId", user.uid)
+                    .snapshots()
+                    .map { snapshot ->
+                        snapshot.documents.map { document ->
+                            val cartItem = document.toObject(CartItem::class.java)!!
+                            cartItem.id = document.id
+                            cartItem
+                        }
+                    }
             }
+        }
     }
 
     suspend fun addToCart(menuItem: MenuItem) {
+        val user = authRepository.getCurrentUser() ?: return
         if (menuItem.id.isEmpty()) {
             return // Do not add to cart if menu item has no id
         }
-        val cartItemRef = firestore.collection("cart_items").document(menuItem.id)
+        val cartItemRef = firestore.collection("cart_items")
+            .document("${user.uid}_${menuItem.id}")
         val snapshot = cartItemRef.get().await()
         if (snapshot.exists()) {
             val existingItem = snapshot.toObject(CartItem::class.java)!!
@@ -66,13 +78,15 @@ class MenuRepository @Inject constructor(
                 name = menuItem.name,
                 price = menuItem.price,
                 imageUrl = menuItem.imageUrl,
-                quantity = 1
+                quantity = 1,
+                userId = user.uid
             )
             cartItemRef.set(cartItem).await()
         }
     }
 
     suspend fun updateQuantity(itemId: String, newQuantity: Int) {
+        authRepository.getCurrentUser() ?: return
         val cartItemRef = firestore.collection("cart_items").document(itemId)
         if (newQuantity > 0) {
             cartItemRef.update("quantity", newQuantity).await()
@@ -82,12 +96,15 @@ class MenuRepository @Inject constructor(
     }
 
     suspend fun updateNotes(itemId: String, notes: String) {
+        authRepository.getCurrentUser() ?: return
         val cartItemRef = firestore.collection("cart_items").document(itemId)
         cartItemRef.update("notes", notes).await()
     }
 
     suspend fun clearCart() {
-        val cartItems = firestore.collection("cart_items").get().await()
+        val user = authRepository.getCurrentUser() ?: return
+        val cartItems = firestore.collection("cart_items")
+            .whereEqualTo("userId", user.uid).get().await()
         for (document in cartItems.documents) {
             document.reference.delete().await()
         }
