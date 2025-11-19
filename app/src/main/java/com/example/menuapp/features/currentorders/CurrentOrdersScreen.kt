@@ -111,7 +111,7 @@ private fun CurrentOrderCard(order: Order, onClick: () -> Unit, showImage: Boole
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                     Text(
-                        "${order.items.size} items",
+                        "${order.items.sumOf { it.quantity }} items",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
