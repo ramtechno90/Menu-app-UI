@@ -51,7 +51,7 @@ val trackingStates = listOf(
     TrackingState(OrderStatusMapper.mapOrderStatus("ACCEPTED"), "Your order has been confirmed.", Icons.Default.Check, TrackingStatus.CONFIRMED),
     TrackingState(OrderStatusMapper.mapOrderStatus("PREPARING"), "We are preparing your order.", Icons.Default.Restaurant, TrackingStatus.PREPARING),
     TrackingState(OrderStatusMapper.mapOrderStatus("COMPLETED"), "Your order is completed.", Icons.Default.Done, TrackingStatus.COMPLETED),
-    TrackingState(OrderStatusMapper.mapOrderStatus("OUT_FOR_DELIVERY"), "Estimated delivery: 20 mins", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
+    TrackingState(OrderStatusMapper.mapOrderStatus("PICKED_UP"), "Your order is on the way", Icons.Default.LocalShipping, TrackingStatus.OUT_FOR_DELIVERY),
     TrackingState(OrderStatusMapper.mapOrderStatus("DELIVERED"), "Your order has been delivered.", Icons.Default.CheckCircle, TrackingStatus.DELIVERED)
 )
 
@@ -343,8 +343,8 @@ private fun String?.toTrackingStatus(): TrackingStatus = when (this) {
     "PENDING" -> TrackingStatus.PLACED
     "ACCEPTED" -> TrackingStatus.CONFIRMED
     "PREPARING" -> TrackingStatus.PREPARING
-    "COMPLETED", "READY_FOR_DELIVERY" -> TrackingStatus.COMPLETED
-    "OUT_FOR_DELIVERY", "PICKED_UP" -> TrackingStatus.OUT_FOR_DELIVERY
+    "COMPLETED", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY" -> TrackingStatus.COMPLETED
+    "PICKED_UP" -> TrackingStatus.OUT_FOR_DELIVERY
     "DELIVERED" -> TrackingStatus.DELIVERED
     else -> TrackingStatus.PLACED
 }
