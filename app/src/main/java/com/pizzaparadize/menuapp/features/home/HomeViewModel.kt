@@ -71,4 +71,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun incrementQuantity(menuItem: MenuItem) {
+        viewModelScope.launch {
+            val currentQuantity = uiState.value.cartQuantities[menuItem.id] ?: 0
+            menuRepository.updateQuantity(menuItem.id, currentQuantity + 1)
+        }
+    }
 }
