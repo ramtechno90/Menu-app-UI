@@ -175,25 +175,17 @@ private fun AddToCartButton(
     onIncrement: () -> Unit,
     onDecrement: () -> Unit
 ) {
-    if (quantity == 0) {
-        Button(
-            onClick = onAddToCart,
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-        ) {
-            Text("+ Add", fontWeight = FontWeight.Bold)
-        }
-    } else {
-        QuantitySelector(
-            quantity = quantity,
-            onIncrement = onIncrement,
-            onDecrement = onDecrement
-        )
-    }
+    QuantitySelector(
+        quantity = quantity,
+        onIncrement = {
+            if (quantity == 0) {
+                onAddToCart()
+            } else {
+                onIncrement()
+            }
+        },
+        onDecrement = onDecrement
+    )
 }
 
 @Composable
@@ -208,6 +200,7 @@ private fun QuantitySelector(
     ) {
         IconButton(
             onClick = onDecrement,
+            enabled = quantity > 0,
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
         ) {
