@@ -188,25 +188,38 @@ private fun AddToCartButton(
             Text("+ Add", fontWeight = FontWeight.Bold)
         }
     } else {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        QuantitySelector(
+            quantity = quantity,
+            onIncrement = onIncrement,
+            onDecrement = onDecrement
+        )
+    }
+}
+
+@Composable
+private fun QuantitySelector(
+    quantity: Int,
+    onIncrement: () -> Unit,
+    onDecrement: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        IconButton(
+            onClick = onDecrement,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
         ) {
-            IconButton(
-                onClick = onDecrement,
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
-            ) {
-                Icon(Icons.Default.Remove, contentDescription = "Decrement", tint = MaterialTheme.colorScheme.primary)
-            }
-            Text(quantity.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            IconButton(
-                onClick = onIncrement,
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Increment", tint = MaterialTheme.colorScheme.primary)
-            }
+            Icon(Icons.Default.Remove, contentDescription = "Decrement", tint = MaterialTheme.colorScheme.primary)
+        }
+        Text(quantity.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        IconButton(
+            onClick = onIncrement,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Increment", tint = MaterialTheme.colorScheme.primary)
         }
     }
 }
