@@ -175,17 +175,21 @@ private fun AddToCartButton(
     onIncrement: () -> Unit,
     onDecrement: () -> Unit
 ) {
-    QuantitySelector(
-        quantity = quantity,
-        onIncrement = {
-            if (quantity == 0) {
-                onAddToCart()
-            } else {
-                onIncrement()
-            }
-        },
-        onDecrement = onDecrement
-    )
+    if (quantity == 0) {
+        Button(
+            onClick = onAddToCart,
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
+        ) {
+            Text(text = "+ Add", fontWeight = FontWeight.Bold)
+        }
+    } else {
+        QuantitySelector(
+            quantity = quantity,
+            onIncrement = onIncrement,
+            onDecrement = onDecrement
+        )
+    }
 }
 
 @Composable
