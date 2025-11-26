@@ -65,7 +65,7 @@ fun HomeScreen(
                     menuItem = menuItem,
                     quantity = uiState.cartQuantities[menuItem.id] ?: 0,
                     onAddToCart = { viewModel.addToCart(menuItem) },
-                    onIncrement = { viewModel.addToCart(menuItem) },
+                    onIncrement = { viewModel.incrementQuantity(menuItem) },
                     onDecrement = { viewModel.decrementQuantity(menuItem) },
                     showImage = uiState.showImages
                 )
