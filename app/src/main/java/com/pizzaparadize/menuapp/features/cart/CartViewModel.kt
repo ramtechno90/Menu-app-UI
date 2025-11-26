@@ -109,7 +109,7 @@ class CartViewModel @Inject constructor(
         // Update the UI state immediately
         _uiState.update { currentState ->
             val updatedItems = currentState.cartItems.map {
-                if (it.id == itemId) {
+                if (it.menuItemId == itemId) {
                     it.copy(notes = notes)
                 } else {
                     it

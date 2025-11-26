@@ -165,10 +165,10 @@ fun ShoppingCartScreenContent(
                         CartListItem(
                             item = item,
                             onQuantityChange = { newQuantity ->
-                                onQuantityChange(item.id, newQuantity)
+                                onQuantityChange(item.menuItemId, newQuantity)
                             },
                             onNotesChange = { newNotes ->
-                                onNotesChange(item.id, newNotes)
+                                onNotesChange(item.menuItemId, newNotes)
                             },
                             showImage = uiState.showImages
                         )
@@ -250,10 +250,10 @@ fun ShoppingCartScreenContent(
                         CartListItem(
                             item = item,
                             onQuantityChange = { newQuantity ->
-                                onQuantityChange(item.id, newQuantity)
+                                onQuantityChange(item.menuItemId, newQuantity)
                             },
                             onNotesChange = { newNotes ->
-                                onNotesChange(item.id, newNotes)
+                                onNotesChange(item.menuItemId, newNotes)
                             },
                             showImage = uiState.showImages
                         )

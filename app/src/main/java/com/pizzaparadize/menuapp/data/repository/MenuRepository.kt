@@ -50,11 +50,7 @@ class MenuRepository @Inject constructor(
                     .whereEqualTo("userId", user.uid)
                     .snapshots()
                     .map { snapshot ->
-                        snapshot.documents.map { document ->
-                            val cartItem = document.toObject(CartItem::class.java)!!
-                            cartItem.id = document.id
-                            cartItem
-                        }
+                        snapshot.toObjects(CartItem::class.java)
                     }
             }
         }
@@ -74,7 +70,6 @@ class MenuRepository @Inject constructor(
             cartItemRef.set(updatedItem).await()
         } else {
             val cartItem = CartItem(
-                id = cartItemRef.id,
                 menuItemId = menuItem.id,
                 name = menuItem.name,
                 price = menuItem.price,

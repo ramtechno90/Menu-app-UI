@@ -1,7 +1,6 @@
 package com.pizzaparadize.menuapp.data.firebase.model
 
 data class CartItem(
-    var id: String = "",
     val menuItemId: String = "",
     val name: String = "",
     val price: Double = 0.0,
