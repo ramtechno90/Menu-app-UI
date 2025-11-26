@@ -36,7 +36,7 @@ class HomeViewModel @Inject constructor(
         _cartItems
     ) { menuItems, showImages, cartItems ->
         val categories = menuItems.map { it.category }.distinct()
-        val cartQuantities = cartItems.associate { it.id to it.quantity }
+        val cartQuantities = cartItems.associate { it.menuItemId to it.quantity }
         HomeUiState(
             menuItems = menuItems,
             categories = categories,
@@ -71,10 +71,4 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun incrementQuantity(menuItem: MenuItem) {
-        viewModelScope.launch {
-            val currentQuantity = uiState.value.cartQuantities[menuItem.id] ?: 0
-            menuRepository.updateQuantity(menuItem.id, currentQuantity + 1)
-        }
-    }
 }

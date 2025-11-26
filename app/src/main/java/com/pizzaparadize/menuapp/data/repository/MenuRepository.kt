@@ -74,7 +74,8 @@ class MenuRepository @Inject constructor(
             cartItemRef.set(updatedItem).await()
         } else {
             val cartItem = CartItem(
-                id = menuItem.id,
+                id = cartItemRef.id,
+                menuItemId = menuItem.id,
                 name = menuItem.name,
                 price = menuItem.price,
                 imageUrl = menuItem.imageUrl,
@@ -85,9 +86,9 @@ class MenuRepository @Inject constructor(
         }
     }
 
-    suspend fun updateQuantity(itemId: String, newQuantity: Int) {
-        authRepository.getCurrentUser() ?: return
-        val cartItemRef = firestore.collection("cart_items").document(itemId)
+    suspend fun updateQuantity(menuItemId: String, newQuantity: Int) {
+        val user = authRepository.getCurrentUser() ?: return
+        val cartItemRef = firestore.collection("cart_items").document("${user.uid}_${menuItemId}")
         if (newQuantity > 0) {
             cartItemRef.update("quantity", newQuantity).await()
         } else {
