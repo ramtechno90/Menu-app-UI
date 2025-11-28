@@ -3,16 +3,15 @@ package com.pizzaparadize.menuapp.data.service
 import com.pizzaparadize.menuapp.data.model.DeliveryFeeSettings
 import com.pizzaparadize.menuapp.data.model.RestaurantDetails
 import com.pizzaparadize.menuapp.data.model.TaxSettings
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
-class FirebaseSettingsService @Inject constructor() {
-    private val db = Firebase.firestore
+class FirebaseSettingsService @Inject constructor(
+    private val db: FirebaseFirestore
+) {
     private val settingsCollection = db.collection("app_settings")
 
     fun getShowImagesSetting(): Flow<Boolean> = callbackFlow {
@@ -44,7 +43,7 @@ class FirebaseSettingsService @Inject constructor() {
                 return@addSnapshotListener
             }
 
-            val details = snapshot?.toObject<RestaurantDetails>() ?: RestaurantDetails()
+            val details = snapshot?.toObject(RestaurantDetails::class.java) ?: RestaurantDetails()
             trySend(details)
         }
 
@@ -59,7 +58,7 @@ class FirebaseSettingsService @Inject constructor() {
                 close(e)
                 return@addSnapshotListener
             }
-            val settings = snapshot?.toObject<TaxSettings>() ?: TaxSettings()
+            val settings = snapshot?.toObject(TaxSettings::class.java) ?: TaxSettings()
             trySend(settings)
         }
         awaitClose { listener.remove() }
@@ -73,7 +72,7 @@ class FirebaseSettingsService @Inject constructor() {
                 close(e)
                 return@addSnapshotListener
             }
-            val settings = snapshot?.toObject<DeliveryFeeSettings>() ?: DeliveryFeeSettings()
+            val settings = snapshot?.toObject(DeliveryFeeSettings::class.java) ?: DeliveryFeeSettings()
             trySend(settings)
         }
         awaitClose { listener.remove() }

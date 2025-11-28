@@ -3,7 +3,8 @@ package com.pizzaparadize.menuapp.data.repository
 import com.pizzaparadize.menuapp.data.firebase.model.CartItem
 import com.pizzaparadize.menuapp.data.firebase.model.MenuItem
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.snapshots
+import com.google.firebase.firestore.snapshots
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -18,6 +19,7 @@ class MenuRepository @Inject constructor(
     private val authRepository: com.pizzaparadize.menuapp.data.auth.AuthRepository
 ) {
     // Menu
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getMenuItems(): Flow<List<MenuItem>> {
         return firestore.collection("menu_items")
             .snapshots()
@@ -41,6 +43,7 @@ class MenuRepository @Inject constructor(
     }
 
     // Cart
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getCartItems(): Flow<List<CartItem>> {
         return authRepository.getUserFlow().flatMapLatest { user ->
             if (user == null) {

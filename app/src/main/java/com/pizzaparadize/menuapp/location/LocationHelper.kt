@@ -68,14 +68,38 @@ class LocationHelperImpl @Inject constructor(
 
     override suspend fun geocodeAddress(address: String): LocationResult {
         return try {
-            val addresses = withContext(Dispatchers.IO) {
-                geocoder.getFromLocationName(address, 1)
-            }
-            if (addresses?.isNotEmpty() == true) {
-                val location = addresses[0]
-                LocationResult.Success(location.latitude, location.longitude, location.getAddressLine(0))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                suspendCancellableCoroutine { continuation ->
+                    try {
+                        geocoder.getFromLocationName(address, 1) { addresses ->
+                            if (addresses.isNotEmpty()) {
+                                val location = addresses[0]
+                                continuation.resume(
+                                    LocationResult.Success(
+                                        location.latitude,
+                                        location.longitude,
+                                        location.getAddressLine(0)
+                                    )
+                                )
+                            } else {
+                                continuation.resume(LocationResult.Error(Exception("No location found for the address")))
+                            }
+                        }
+                    } catch (e: Exception) {
+                        continuation.resume(LocationResult.Error(e))
+                    }
+                }
             } else {
-                LocationResult.Error(Exception("No location found for the address"))
+                val addresses = withContext(Dispatchers.IO) {
+                    @Suppress("DEPRECATION")
+                    geocoder.getFromLocationName(address, 1)
+                }
+                if (addresses?.isNotEmpty() == true) {
+                    val location = addresses[0]
+                    LocationResult.Success(location.latitude, location.longitude, location.getAddressLine(0))
+                } else {
+                    LocationResult.Error(Exception("No location found for the address"))
+                }
             }
         } catch (e: Exception) {
             LocationResult.Error(e)
@@ -111,14 +135,20 @@ class LocationHelperImpl @Inject constructor(
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 suspendCancellableCoroutine { continuation ->
-                    geocoder.getFromLocation(latitude, longitude, 1) { addresses ->
-                        val address = addresses.firstOrNull()?.getAddressLine(0) ?: "Unknown address"
-                        continuation.resume(address)
+                    try {
+                        geocoder.getFromLocation(latitude, longitude, 1) { addresses ->
+                            val address =
+                                addresses.firstOrNull()?.getAddressLine(0) ?: "Unknown address"
+                            continuation.resume(address)
+                        }
+                    } catch (e: Exception) {
+                        continuation.resume("Could not get address")
                     }
                 }
             } else {
                 withContext(Dispatchers.IO) {
-                    geocoder.getFromLocation(latitude, longitude, 1)?.firstOrNull()?.getAddressLine(0) ?: "Unknown address"
+                    geocoder.getFromLocation(latitude, longitude, 1)?.firstOrNull()
+                        ?.getAddressLine(0) ?: "Unknown address"
                 }
             }
         } catch (e: Exception) {
@@ -168,7 +198,8 @@ object LocationModule {
     @Provides
     @Singleton
     fun provideGeoApiContext(@ApplicationContext context: Context): GeoApiContext {
-        val ai = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+        val ai = context.packageManager
+            .getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
         val apiKey = ai.metaData.getString("com.google.android.geo.API_KEY")
         return GeoApiContext.Builder()
             .apiKey(apiKey)

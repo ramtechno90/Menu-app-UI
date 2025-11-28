@@ -36,6 +36,7 @@ fun MenuAppTheme(
         SideEffect {
             val window = (view.context as Activity).window
             val color = statusBarColor ?: colorScheme.background
+            @Suppress("DEPRECATION")
             window.statusBarColor = color.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
                 !color.isDark()

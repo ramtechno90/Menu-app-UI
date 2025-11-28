@@ -2,6 +2,8 @@ package com.pizzaparadize.menuapp.utils
 
 import android.app.Activity
 import android.content.Context
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -12,29 +14,23 @@ class UpdateManager(private val context: Context) {
 
     private val appUpdateManager: AppUpdateManager = AppUpdateManagerFactory.create(context)
 
-    fun checkForUpdate(activity: Activity) {
+    fun checkForUpdate(launcher: ActivityResultLauncher<IntentSenderRequest>) {
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
                 appUpdateManager.startUpdateFlowForResult(
                     appUpdateInfo,
-                    activity,
-                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build(),
-                    UPDATE_REQUEST_CODE
+                    launcher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
                 )
             } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             ) {
                 appUpdateManager.startUpdateFlowForResult(
                     appUpdateInfo,
-                    activity,
-                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build(),
-                    UPDATE_REQUEST_CODE
+                    launcher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
                 )
             }
         }
-    }
-
-    companion object {
-        const val UPDATE_REQUEST_CODE = 123
     }
 }

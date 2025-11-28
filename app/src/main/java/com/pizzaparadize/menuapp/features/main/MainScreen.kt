@@ -39,7 +39,6 @@ fun MainScreen(
     authAwareViewModel: AuthAwareViewModel = hiltViewModel()
 ) {
     val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
-    val ordersUiState by ordersViewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab = mainUiState.selectedTab
     val user by authAwareViewModel.user.collectAsStateWithLifecycle()
     val showWelcomeDialogEvent by authAwareViewModel.showWelcomeDialogEvent.collectAsStateWithLifecycle()

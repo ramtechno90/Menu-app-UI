@@ -4,7 +4,7 @@ import com.pizzaparadize.menuapp.data.firebase.model.Order
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.ktx.snapshots
+import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -17,6 +17,7 @@ import com.pizzaparadize.menuapp.data.service.FirebaseSettingsService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 
@@ -28,6 +29,7 @@ class OrderRepository @Inject constructor(
     private val settingsService: FirebaseSettingsService,
     private val authRepository: AuthRepository
 ) {
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getAllOrders(): Flow<List<Order>> {
         return authRepository.getUserFlow().flatMapLatest { user ->
             if (user == null) {
@@ -46,6 +48,7 @@ class OrderRepository @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getOngoingOrders(): Flow<List<Order>> {
         return authRepository.getUserFlow().flatMapLatest { user ->
             if (user == null) {
@@ -54,7 +57,6 @@ class OrderRepository @Inject constructor(
 
             callbackFlow {
                 // Fetch all orders from the last 48 hours to include recent delivered/rejected ones
-                val fortyEightHoursAgo = System.currentTimeMillis() - 48 * 60 * 60 * 1000
                 val twentyFourHoursAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
 
                 val query = firestore.collection("orders")
@@ -91,6 +93,7 @@ class OrderRepository @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getDeliveredOrders(): Flow<List<Order>> {
         return authRepository.getUserFlow().flatMapLatest { user ->
             if (user == null) {
@@ -123,6 +126,7 @@ class OrderRepository @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getOrderById(orderId: String): Flow<Order?> {
         return authRepository.getUserFlow().flatMapLatest { user ->
             if (user == null) {

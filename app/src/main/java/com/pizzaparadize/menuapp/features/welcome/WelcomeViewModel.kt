@@ -16,7 +16,7 @@ class WelcomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val restaurantName: StateFlow<String> = settingsService.getRestaurantDetails()
-        .map { it.name ?: "Welcome" }
+        .map { it.name.ifEmpty { "Welcome" } }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

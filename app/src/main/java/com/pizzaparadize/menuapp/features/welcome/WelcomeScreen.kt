@@ -11,8 +11,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +79,7 @@ fun WelcomeScreen(
                 label = { Text("Enter Your Name") },
                 isError = authState is AuthState.Error,
                 modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onPrimary,
                     unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
                     cursorColor = MaterialTheme.colorScheme.onPrimary,
