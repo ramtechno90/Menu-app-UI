@@ -31,6 +31,13 @@ service cloud.firestore {
       allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isStaff());
       allow update: if request.auth != null && isStaff();
       allow delete: if false; // Orders should not be deleted by clients
+
+      // Private data sub-collection (e.g., OTP)
+      // Only the customer can read this. Staff cannot.
+      match /private/{document} {
+        allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+        allow write: if false; // Only written by Cloud Functions
+      }
     }
 
     // App Settings: Publicly readable (contains tax, fees)

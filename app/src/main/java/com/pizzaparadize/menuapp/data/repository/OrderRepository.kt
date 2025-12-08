@@ -20,6 +20,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.combine
 
 @Singleton
 class OrderRepository @Inject constructor(
@@ -132,13 +133,28 @@ class OrderRepository @Inject constructor(
             if (user == null) {
                 return@flatMapLatest flowOf(null)
             }
-            firestore.collection("orders").document(orderId)
-            .snapshots()
-            .map { snapshot ->
-                if (snapshot.exists()) {
-                    val order = snapshot.toObject(Order::class.java)
+
+            // Reference to the main order document
+            val orderRef = firestore.collection("orders").document(orderId)
+            // Reference to the private data (OTP)
+            val privateRef = orderRef.collection("private").document("data")
+
+            combine(
+                orderRef.snapshots(),
+                privateRef.snapshots()
+            ) { orderSnap, privateSnap ->
+                if (orderSnap.exists()) {
+                    val order = orderSnap.toObject(Order::class.java)
                     if (order?.userId == user.uid) {
-                        order.id = snapshot.id
+                        order.id = orderSnap.id
+
+                        // Populate OTP from private doc if available
+                        if (privateSnap.exists()) {
+                            val otp = privateSnap.getString("otp")
+                            if (otp != null) {
+                                return@combine order.copy(otp = otp)
+                            }
+                        }
                         order
                     } else {
                         null // Order does not belong to the current user

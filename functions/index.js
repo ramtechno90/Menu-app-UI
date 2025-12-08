@@ -13,19 +13,26 @@ exports.addOtpOnOrderCreate = functions.firestore
   .document("orders/{orderId}")
   .onCreate(async (snap, context) => {
     const otp = generateOtp();
+    const userId = snap.data().userId;
     const expiry = admin.firestore.Timestamp.fromDate(
       new Date(Date.now() + 15 * 60 * 1000) // 15 min validity
     );
 
-    await snap.ref.update({
+    // Store OTP in a private sub-collection restricted to the user
+    await snap.ref.collection("private").doc("data").set({
       otp: otp,
+      userId: userId
+    });
+
+    // Update public document without the OTP
+    await snap.ref.update({
       otpEntered: null,
       otpVerified: false,
       otpInvalid: false, // Initialize as not invalid
       otpExpiry: expiry,
     });
 
-    console.log(`OTP ${otp} created for order ${context.params.orderId}`);
+    console.log(`OTP created for order ${context.params.orderId}`);
   });
 
 
@@ -41,10 +48,24 @@ exports.verifyOtp = functions.firestore
       return null;
     }
 
-    const correctOtp = after.otp;
     const enteredOtp = after.otpEntered;
     const expiry = after.otpExpiry.toDate();
 
+    // Fetch the correct OTP from the private collection
+    const privateSnap = await change.after.ref.collection("private").doc("data").get();
+
+    if (!privateSnap.exists) {
+        console.error(`Private data not found for order ${context.params.orderId}`);
+        // Consider failing verification or handling error
+        await change.after.ref.update({
+            otpVerified: false,
+            otpInvalid: true,
+            otpEntered: null,
+        });
+        return null;
+    }
+
+    const correctOtp = privateSnap.data().otp;
     const isExpired = Date.now() > expiry.getTime();
     const isCorrect = enteredOtp === correctOtp;
 
