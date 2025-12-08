@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -25,7 +26,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -155,16 +160,36 @@ fun WelcomeScreen(
                 }
             }
 
-            Text(
-                text = "View Terms and Conditions and Privacy Policy",
-                color = Color.White,
-                style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline),
+            val annotatedText = buildAnnotatedString {
+                append("View ")
+
+                pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/terms.html")
+                withStyle(style = SpanStyle(color = GoldenYellow, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+                    append("Terms and Conditions")
+                }
+                pop()
+
+                append(" and ")
+
+                pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/privacy.html")
+                withStyle(style = SpanStyle(color = GoldenYellow, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+                    append("Privacy Policy")
+                }
+                pop()
+            }
+
+            ClickableText(
+                text = annotatedText,
+                style = MaterialTheme.typography.bodySmall.copy(color = Color.White),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
-                    .clickable {
-                        uriHandler.openUri("https://pizzaparadize.netlify.app/privacy.html")
-                    }
+                    .padding(bottom = 16.dp),
+                onClick = { offset ->
+                    annotatedText.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                        .firstOrNull()?.let { annotation ->
+                            uriHandler.openUri(annotation.item)
+                        }
+                }
             )
         }
     }
