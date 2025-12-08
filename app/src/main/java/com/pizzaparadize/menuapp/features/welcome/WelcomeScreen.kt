@@ -129,13 +129,37 @@ fun WelcomeScreen(
                             checkmarkColor = MaterialTheme.colorScheme.primary
                         )
                     )
-                    Text(
-                        text = "I accept the Terms and Conditions and Privacy Policy",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .clickable { isTermsAccepted = !isTermsAccepted }
-                            .padding(start = 8.dp)
+
+                    val checkboxLabel = buildAnnotatedString {
+                        append("I accept the ")
+
+                        pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/terms.html")
+                        withStyle(style = SpanStyle(color = GoldenYellow, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+                            append("Terms and Conditions")
+                        }
+                        pop()
+
+                        append(" and ")
+
+                        pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/privacy.html")
+                        withStyle(style = SpanStyle(color = GoldenYellow, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+                            append("Privacy Policy")
+                        }
+                        pop()
+                    }
+
+                    ClickableText(
+                        text = checkboxLabel,
+                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onPrimary),
+                        modifier = Modifier.padding(start = 8.dp),
+                        onClick = { offset ->
+                            val annotation = checkboxLabel.getStringAnnotations(tag = "URL", start = offset, end = offset).firstOrNull()
+                            if (annotation != null) {
+                                uriHandler.openUri(annotation.item)
+                            } else {
+                                isTermsAccepted = !isTermsAccepted
+                            }
+                        }
                     )
                 }
 
@@ -160,7 +184,7 @@ fun WelcomeScreen(
                 }
             }
 
-            val annotatedText = buildAnnotatedString {
+            val footerText = buildAnnotatedString {
                 append("View ")
 
                 pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/terms.html")
@@ -179,13 +203,13 @@ fun WelcomeScreen(
             }
 
             ClickableText(
-                text = annotatedText,
+                text = footerText,
                 style = MaterialTheme.typography.bodySmall.copy(color = Color.White),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 16.dp),
                 onClick = { offset ->
-                    annotatedText.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                    footerText.getStringAnnotations(tag = "URL", start = offset, end = offset)
                         .firstOrNull()?.let { annotation ->
                             uriHandler.openUri(annotation.item)
                         }
