@@ -3,10 +3,13 @@ package com.pizzaparadize.menuapp.features.welcome
 import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -19,8 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,7 +43,9 @@ fun WelcomeScreen(
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     var name by remember { mutableStateOf("") }
+    var isTermsAccepted by remember { mutableStateOf(false) }
     val authState by viewModel.authState.collectAsState()
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
@@ -47,72 +54,118 @@ fun WelcomeScreen(
     }
 
     MenuAppTheme(statusBarColor = NewWelcomeBackgroundColor) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(NewWelcomeBackgroundColor)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "App Logo",
+            Column(
                 modifier = Modifier
-                    .size(300.dp)
-                    .clip(RoundedCornerShape(16.dp))
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                text = "Welcome to Pizza Paradize",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            OutlinedTextField(
-                value = name,
-                onValueChange = { newName ->
-                    if (newName.all { it.isLetter() || it.isWhitespace() }) {
-                        name = newName
-                    }
-                },
-                label = { Text("Enter Your Name") },
-                isError = authState is AuthState.Error,
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    cursorColor = MaterialTheme.colorScheme.onPrimary,
-                    focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-                )
-            )
-            if (authState is AuthState.Error) {
-                Text(
-                    text = (authState as AuthState.Error).message,
-                    color = MaterialTheme.colorScheme.onError,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { viewModel.saveUsername(name) },
-                enabled = name.isNotBlank() && authState !is AuthState.Loading,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.onPrimary,
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (authState is AuthState.Loading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                } else {
-                    Text("Start Ordering")
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "App Logo",
+                    modifier = Modifier
+                        .size(300.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = "Welcome to Pizza Paradize",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { newName ->
+                        if (newName.all { it.isLetter() || it.isWhitespace() }) {
+                            name = newName
+                        }
+                    },
+                    label = { Text("Enter Your Name") },
+                    isError = authState is AuthState.Error,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+                        focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                    )
+                )
+                if (authState is AuthState.Error) {
+                    Text(
+                        text = (authState as AuthState.Error).message,
+                        color = MaterialTheme.colorScheme.onError,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = isTermsAccepted,
+                        onCheckedChange = { isTermsAccepted = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.colorScheme.onPrimary,
+                            uncheckedColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+                            checkmarkColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
+                    Text(
+                        text = "I accept the Terms and Conditions and Privacy Policy",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .clickable { isTermsAccepted = !isTermsAccepted }
+                            .padding(start = 8.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { viewModel.saveUsername(name) },
+                    enabled = name.isNotBlank() && isTermsAccepted && authState !is AuthState.Loading,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onPrimary,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                        disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                    )
+                ) {
+                    if (authState is AuthState.Loading) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    } else {
+                        Text("Start Ordering")
+                    }
                 }
             }
+
+            Text(
+                text = "View Terms and Conditions and Privacy Policy",
+                color = Color.White,
+                style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+                    .clickable {
+                        uriHandler.openUri("https://pizzaparadize.netlify.app/privacy.html")
+                    }
+            )
         }
     }
 }
