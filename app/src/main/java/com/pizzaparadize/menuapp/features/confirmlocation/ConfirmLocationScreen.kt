@@ -79,6 +79,7 @@ fun ConfirmLocationScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .background(MaterialTheme.colorScheme.background)
+                .navigationBarsPadding()
                 .padding(16.dp)
         ) {
             Text(

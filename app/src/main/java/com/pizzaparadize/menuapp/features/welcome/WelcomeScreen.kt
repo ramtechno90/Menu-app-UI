@@ -67,6 +67,7 @@ fun WelcomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .systemBarsPadding()
                     .padding(16.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -207,6 +208,7 @@ fun WelcomeScreen(
                 style = MaterialTheme.typography.bodySmall.copy(color = Color.White),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
                     .padding(bottom = 16.dp),
                 onClick = { offset ->
                     footerText.getStringAnnotations(tag = "URL", start = offset, end = offset)

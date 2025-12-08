@@ -2,6 +2,7 @@ package com.pizzaparadize.menuapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
 
         updateManager = UpdateManager(this)
 
+        enableEdgeToEdge()
         setContent {
             val isAuthenticated by authRepository.isAuthenticated.collectAsState(initial = false)
             val navController = rememberNavController()
