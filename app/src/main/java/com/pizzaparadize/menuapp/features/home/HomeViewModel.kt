@@ -32,10 +32,15 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = combine(
         menuRepository.getMenuItems(),
+        menuRepository.getCategories(),
         _showImages,
         _cartItems
-    ) { menuItems, showImages, cartItems ->
-        val categories = menuItems.map { it.category }.distinct()
+    ) { menuItems, fetchedCategories, showImages, cartItems ->
+        val existingCategoryNames = menuItems.map { it.category }.toSet()
+        val categories = fetchedCategories
+            .filter { existingCategoryNames.contains(it.name) }
+            .map { it.name }
+
         val cartQuantities = cartItems.associate { it.menuItemId to it.quantity }
         HomeUiState(
             menuItems = menuItems,

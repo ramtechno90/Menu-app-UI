@@ -1,8 +1,10 @@
 package com.pizzaparadize.menuapp.data.repository
 
 import com.pizzaparadize.menuapp.data.firebase.model.CartItem
+import com.pizzaparadize.menuapp.data.firebase.model.Category
 import com.pizzaparadize.menuapp.data.firebase.model.MenuItem
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +21,20 @@ class MenuRepository @Inject constructor(
     private val authRepository: com.pizzaparadize.menuapp.data.auth.AuthRepository
 ) {
     // Menu
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getCategories(): Flow<List<Category>> {
+        return firestore.collection("categories")
+            .orderBy("order", Query.Direction.ASCENDING)
+            .snapshots()
+            .map { snapshot ->
+                snapshot.documents.map { document ->
+                    val category = document.toObject(Category::class.java)!!
+                    category.id = document.id
+                    category
+                }
+            }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getMenuItems(): Flow<List<MenuItem>> {
         return firestore.collection("menu_items")
