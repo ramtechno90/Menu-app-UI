@@ -128,7 +128,7 @@ private fun MenuItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = menuItem.name,
+                    text = formatMenuItemName(menuItem.name),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     modifier = Modifier.weight(1f, fill = false)
@@ -166,6 +166,10 @@ private fun MenuItemCard(
             )
         }
     }
+}
+
+private fun formatMenuItemName(name: String): String {
+    return name.trim().split(Regex("\\s+")).chunked(3).joinToString("\n") { it.joinToString(" ") }
 }
 
 @Composable
