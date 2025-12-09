@@ -140,6 +140,7 @@ private fun MenuItemCard(
                     onDecrement = { onDecrement(menuItem) }
                 )
             }
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "₹${menuItem.price}",
                 fontWeight = FontWeight.Bold,

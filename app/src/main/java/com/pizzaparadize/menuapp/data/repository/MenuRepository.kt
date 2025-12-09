@@ -38,6 +38,7 @@ class MenuRepository @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getMenuItems(): Flow<List<MenuItem>> {
         return firestore.collection("menu_items")
+            .orderBy("price", Query.Direction.ASCENDING)
             .snapshots()
             .map { snapshot ->
                 snapshot.documents.map { document ->
