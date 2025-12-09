@@ -7,6 +7,7 @@ import com.pizzaparadize.menuapp.ui.theme.MenuAppTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,7 +27,7 @@ import java.net.URLEncoder
 sealed class BottomNavItem(val title: String, val icon: ImageVector, val route: String) {
     object Home : BottomNavItem("Home", Icons.Default.Home, "home_tab")
     object Cart : BottomNavItem("Cart", Icons.Default.ShoppingCart, "cart_tab")
-    object Orders : BottomNavItem("Orders", Icons.Default.ReceiptLong, "orders_tab")
+    object Orders : BottomNavItem("Orders", Icons.AutoMirrored.Filled.ReceiptLong, "orders_tab")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,7 +76,7 @@ fun MainScreen(
                 actions = {
                     if (selectedTab == BottomNavItem.Home) {
                         TextButton(onClick = { authAwareViewModel.signOut() }) {
-                            Icon(Icons.Default.Logout, contentDescription = "Sign Out")
+                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Sign Out")
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Logout")
                         }

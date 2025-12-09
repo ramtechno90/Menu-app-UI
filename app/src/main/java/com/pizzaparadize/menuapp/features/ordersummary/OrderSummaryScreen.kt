@@ -218,7 +218,7 @@ private fun SummaryCard(order: Order) {
             SummaryRow("Subtotal", String.format("₹%.2f", order.subtotal))
             SummaryRow(taxLabel, String.format("₹%.2f", order.tax))
             SummaryRow("Delivery Fee", String.format("₹%.2f", order.deliveryFee))
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SummaryRow("Grand Total", String.format("₹%.2f", order.grandTotal), isBold = true)
         }
     }

@@ -6,7 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -23,13 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
@@ -50,7 +50,6 @@ fun WelcomeScreen(
     var name by remember { mutableStateOf("") }
     var isTermsAccepted by remember { mutableStateOf(false) }
     val authState by viewModel.authState.collectAsState()
-    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
@@ -118,12 +117,14 @@ fun WelcomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { isTermsAccepted = !isTermsAccepted },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
                         checked = isTermsAccepted,
-                        onCheckedChange = { isTermsAccepted = it },
+                        onCheckedChange = null,
                         colors = CheckboxDefaults.colors(
                             checkedColor = MaterialTheme.colorScheme.onPrimary,
                             uncheckedColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
@@ -134,33 +135,41 @@ fun WelcomeScreen(
                     val checkboxLabel = buildAnnotatedString {
                         append("I accept the ")
 
-                        pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/terms.html")
-                        withStyle(style = SpanStyle(color = GoldenYellow, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+                        val termsLink = LinkAnnotation.Url(
+                            "https://pizzaparadize.netlify.app/terms.html",
+                            styles = androidx.compose.ui.text.TextLinkStyles(
+                                style = SpanStyle(
+                                    color = GoldenYellow,
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        )
+                        withLink(termsLink) {
                             append("Terms and Conditions")
                         }
-                        pop()
 
                         append(" and ")
 
-                        pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/privacy.html")
-                        withStyle(style = SpanStyle(color = GoldenYellow, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+                        val privacyLink = LinkAnnotation.Url(
+                            "https://pizzaparadize.netlify.app/privacy.html",
+                            styles = androidx.compose.ui.text.TextLinkStyles(
+                                style = SpanStyle(
+                                    color = GoldenYellow,
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        )
+                        withLink(privacyLink) {
                             append("Privacy Policy")
                         }
-                        pop()
                     }
 
-                    ClickableText(
+                    Text(
                         text = checkboxLabel,
                         style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onPrimary),
-                        modifier = Modifier.padding(start = 8.dp),
-                        onClick = { offset ->
-                            val annotation = checkboxLabel.getStringAnnotations(tag = "URL", start = offset, end = offset).firstOrNull()
-                            if (annotation != null) {
-                                uriHandler.openUri(annotation.item)
-                            } else {
-                                isTermsAccepted = !isTermsAccepted
-                            }
-                        }
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
 
@@ -188,34 +197,44 @@ fun WelcomeScreen(
             val footerText = buildAnnotatedString {
                 append("View ")
 
-                pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/terms.html")
-                withStyle(style = SpanStyle(color = GoldenYellow, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+                val termsLink = LinkAnnotation.Url(
+                    "https://pizzaparadize.netlify.app/terms.html",
+                    styles = androidx.compose.ui.text.TextLinkStyles(
+                        style = SpanStyle(
+                            color = GoldenYellow,
+                            textDecoration = TextDecoration.Underline,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                )
+                withLink(termsLink) {
                     append("Terms and Conditions")
                 }
-                pop()
 
                 append(" and ")
 
-                pushStringAnnotation(tag = "URL", annotation = "https://pizzaparadize.netlify.app/privacy.html")
-                withStyle(style = SpanStyle(color = GoldenYellow, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold)) {
+                val privacyLink = LinkAnnotation.Url(
+                    "https://pizzaparadize.netlify.app/privacy.html",
+                    styles = androidx.compose.ui.text.TextLinkStyles(
+                        style = SpanStyle(
+                            color = GoldenYellow,
+                            textDecoration = TextDecoration.Underline,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                )
+                withLink(privacyLink) {
                     append("Privacy Policy")
                 }
-                pop()
             }
 
-            ClickableText(
+            Text(
                 text = footerText,
                 style = MaterialTheme.typography.bodySmall.copy(color = Color.White),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
-                    .padding(bottom = 16.dp),
-                onClick = { offset ->
-                    footerText.getStringAnnotations(tag = "URL", start = offset, end = offset)
-                        .firstOrNull()?.let { annotation ->
-                            uriHandler.openUri(annotation.item)
-                        }
-                }
+                    .padding(bottom = 16.dp)
             )
         }
     }

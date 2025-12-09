@@ -353,7 +353,7 @@ fun PriceDetailsCard(uiState: CartUiState) {
         SummaryRow("Subtotal", String.format("₹%.2f", uiState.subtotal))
         SummaryRow(taxLabel, String.format("₹%.2f", uiState.tax))
         SummaryRow("Delivery Fee", String.format("₹%.2f", uiState.deliveryFee))
-        Divider(
+        HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         )
