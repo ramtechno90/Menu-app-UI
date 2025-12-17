@@ -2,60 +2,74 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Check if the user is a delivery staff member
+    function isAdmin() {
+      return request.auth != null && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'admin@pizzaparadize.com'
+      );
+    }
+
     function isStaff() {
-      return exists(/databases/$(database)/documents/delivery_staff/$(request.auth.uid));
+      return request.auth != null && exists(/databases/$(database)/documents/delivery_staff/$(request.auth.uid));
     }
 
-    // Menu Items: Publicly readable, writable only by admin (not via client)
-    match /menu_items/{itemId} {
-      allow read: if true;
+    match /admins/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
       allow write: if false;
     }
 
-    // Cart Items: Private to the user
-    match /cart_items/{cartItemId} {
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete, read: if request.auth != null && resource.data.userId == request.auth.uid;
-    }
-
-    // Orders:
-    // - Users can read their own orders.
-    // - Users can create their own orders but must set status to PENDING and otpVerified to false.
-    // - Only staff can update orders (e.g. status, OTP verification).
-    match /orders/{orderId} {
-      allow create: if request.auth != null
-                    && request.resource.data.userId == request.auth.uid
-                    && request.resource.data.status == "PENDING"
-                    && request.resource.data.otpVerified == false;
-      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isStaff());
-      allow update: if request.auth != null && isStaff();
-      allow delete: if false; // Orders should not be deleted by clients
-
-      // Private data sub-collection (e.g., OTP)
-      // Only the customer can read this. Staff cannot.
-      match /private/{document} {
-        allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-        allow write: if false; // Only written by Cloud Functions
-      }
-    }
-
-    // App Settings: Publicly readable (contains tax, fees)
-    match /app_settings/{document=**} {
-      allow read: if true;
-      allow write: if false;
-    }
-
-    // Delivery Staff: Protected profile access
-    // Only Admin (via backend) can create/modify staff profiles.
     match /delivery_staff/{staffId} {
-      allow read: if request.auth != null; // Allow authenticated users to read staff info
-      allow write: if false; // Prevent users from self-promoting to staff
+       allow read: if isAdmin() || (request.auth != null && request.auth.uid == staffId);
+       allow write: if isAdmin();
     }
 
-    // Users: Private profiles
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /menu_items/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /cart_items/{cartItemId} {
+      // Allow user to read their own cart items (for both `get` and `list`/`query`).
+      // The client MUST query with `where('userId', '==', request.auth.uid)`.
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Allow user to create a cart item for themselves.
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+
+      // Allow user to update their own cart item, and prevent them from changing the owner.
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId
+                                            && request.auth.uid == request.resource.data.userId;
+
+      // Allow user to delete their own cart item.
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    match /orders/{orderId} {
+       allow create: if request.auth != null
+                     && request.resource.data.userId == request.auth.uid
+                     && request.resource.data.status == 'PENDING'
+                     && request.resource.data.otpVerified == false;
+       allow update: if isAdmin() || isStaff();
+       allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isStaff());
+
+       match /private/{document} {
+         allow read: if request.auth != null && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid;
+         allow write: if false;
+       }
+    }
+
+    match /app_settings/{document=**} {
+       allow read: if true;
+       allow write: if isAdmin();
     }
   }
 }
