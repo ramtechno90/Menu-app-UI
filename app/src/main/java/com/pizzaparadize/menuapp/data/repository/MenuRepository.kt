@@ -121,8 +121,8 @@ class MenuRepository @Inject constructor(
     }
 
     suspend fun updateNotes(itemId: String, notes: String) {
-        authRepository.getCurrentUser() ?: return
-        val cartItemRef = firestore.collection("cart_items").document(itemId)
+        val user = authRepository.getCurrentUser() ?: return
+        val cartItemRef = firestore.collection("cart_items").document("${user.uid}_${itemId}")
         cartItemRef.update("notes", notes).await()
     }
 
