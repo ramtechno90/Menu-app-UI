@@ -81,11 +81,20 @@ class MenuRepository @Inject constructor(
         if (menuItem.id.isEmpty()) {
             return // Do not add to cart if menu item has no id
         }
+
+        // Use a query to check for existence to avoid PERMISSION_DENIED on non-existent documents
+        // caused by security rules checking resource.data on read.
+        val querySnapshot = firestore.collection("cart_items")
+            .whereEqualTo("userId", user.uid)
+            .whereEqualTo("menuItemId", menuItem.id)
+            .get()
+            .await()
+
         val cartItemRef = firestore.collection("cart_items")
             .document("${user.uid}_${menuItem.id}")
-        val snapshot = cartItemRef.get().await()
-        if (snapshot.exists()) {
-            val existingItem = snapshot.toObject(CartItem::class.java)!!
+
+        if (!querySnapshot.isEmpty) {
+            val existingItem = querySnapshot.documents[0].toObject(CartItem::class.java)!!
             val updatedItem = existingItem.copy(quantity = existingItem.quantity + 1)
             cartItemRef.set(updatedItem).await()
         } else {
