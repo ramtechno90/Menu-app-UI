@@ -60,6 +60,7 @@ service cloud.firestore {
                      && request.resource.data.otpVerified == false;
        allow update: if isAdmin() || isStaff();
        allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isStaff());
+       allow delete: if isAdmin();
 
        match /private/{document} {
          allow read: if request.auth != null && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid;
