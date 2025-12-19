@@ -131,8 +131,12 @@ const AdminApp = {
         itemList.style.margin = '0 0 10px 0';
         itemList.style.fontSize = '0.9em';
 
-        if (order.cartItems && Array.isArray(order.cartItems)) {
-            order.cartItems.forEach(item => {
+        // Check for 'items' (new structure) or fallback to 'cartItems' (old structure)
+        const items = (order.items && Array.isArray(order.items)) ? order.items :
+                     (order.cartItems && Array.isArray(order.cartItems)) ? order.cartItems : [];
+
+        if (items.length > 0) {
+            items.forEach(item => {
                 const li = document.createElement('li');
                 let text = `${item.name} (x${item.quantity})`;
                 if (item.notes) {
