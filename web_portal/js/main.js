@@ -8,6 +8,11 @@ const App = {
 
     init: function() {
         // Listen to Auth
+        if (typeof auth === 'undefined') {
+            console.error('Firebase Auth not initialized');
+            return;
+        }
+
         auth.onAuthStateChanged(user => {
             this.currentUser = user;
             if (user) {
@@ -25,6 +30,11 @@ const App = {
     },
 
     determineRoleAndRedirect: function(user) {
+        if (typeof db === 'undefined') {
+            console.error('Firestore not initialized');
+            return;
+        }
+
         // Check Admin
         db.collection('admins').doc(user.uid).get().then(doc => {
             if (doc.exists || user.email === 'admin@pizzaparadize.com') {
@@ -48,46 +58,56 @@ const App = {
         });
     },
 
+    // Helper for safe DOM access
+    safeDisplay: function(id, display) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = display;
+        } else {
+            console.error(`Element with id '${id}' not found.`);
+        }
+    },
+
     // Navigation / View Switching
     hideAllViews: function() {
         document.querySelectorAll('.view-container').forEach(el => el.style.display = 'none');
         // Also cleanup logic
-        AdminApp.cleanup();
-        DeliveryApp.cleanup();
+        if (typeof AdminApp !== 'undefined') AdminApp.cleanup();
+        if (typeof DeliveryApp !== 'undefined') DeliveryApp.cleanup();
     },
 
     showLanding: function() {
         this.hideAllViews();
         this.viewState = 'landing';
-        document.getElementById('landing-container').style.display = 'block';
+        this.safeDisplay('landing-container', 'block');
     },
 
     showAdminLogin: function() {
         if (this.currentUser) return; // Should have redirected already
         this.hideAllViews();
         this.viewState = 'login-admin';
-        document.getElementById('admin-login-container').style.display = 'block';
+        this.safeDisplay('admin-login-container', 'block');
     },
 
     showDeliveryLogin: function() {
         if (this.currentUser) return;
         this.hideAllViews();
         this.viewState = 'login-staff';
-        document.getElementById('delivery-login-container').style.display = 'block';
+        this.safeDisplay('delivery-login-container', 'block');
     },
 
     showAdminDashboard: function() {
         this.hideAllViews();
         this.viewState = 'dashboard-admin';
-        document.getElementById('admin-dashboard-container').style.display = 'block';
-        AdminApp.init();
+        this.safeDisplay('admin-dashboard-container', 'block');
+        if (typeof AdminApp !== 'undefined') AdminApp.init();
     },
 
     showDeliveryDashboard: function(staffName) {
         this.hideAllViews();
         this.viewState = 'dashboard-staff';
-        document.getElementById('delivery-dashboard-container').style.display = 'block';
-        DeliveryApp.init(staffName);
+        this.safeDisplay('delivery-dashboard-container', 'block');
+        if (typeof DeliveryApp !== 'undefined') DeliveryApp.init(staffName);
     },
 
     // Actions
@@ -96,11 +116,20 @@ const App = {
         const passId = role === 'admin' ? 'admin-password' : 'delivery-password';
         const errId = role === 'admin' ? 'admin-login-error' : 'delivery-login-error';
 
-        const email = document.getElementById(emailId).value;
-        const pass = document.getElementById(passId).value;
+        const emailEl = document.getElementById(emailId);
+        const passEl = document.getElementById(passId);
+
+        if (!emailEl || !passEl) {
+            console.error('Login inputs not found');
+            return;
+        }
+
+        const email = emailEl.value;
+        const pass = passEl.value;
 
         auth.signInWithEmailAndPassword(email, pass).catch(err => {
-            document.getElementById(errId).innerText = err.message;
+            const errEl = document.getElementById(errId);
+            if (errEl) errEl.innerText = err.message;
         });
     },
 
