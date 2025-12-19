@@ -9,6 +9,7 @@ const firebaseConfig = {
   measurementId: "G-F6WFYRFLB0"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+// Use a named app to isolate session storage
+const adminApp = firebase.initializeApp(firebaseConfig, "AdminPortal");
+const db = adminApp.firestore();
+const auth = adminApp.auth();
