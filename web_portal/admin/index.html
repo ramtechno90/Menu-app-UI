@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pizza Paradize Web Portal</title>
+    <title>Pizza Paradize Admin Portal</title>
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Firebase SDKs -->
@@ -17,9 +17,8 @@
         <!-- Landing Page -->
         <div id="landing-container" class="view-container" style="display: block;"> <!-- Default visible -->
             <div class="auth-wrapper">
-                <h2>Pizza Paradize Portal</h2>
+                <h2>Pizza Paradize Admin Portal</h2>
                 <button class="landing-btn" onclick="App.showAdminLogin()">Admin Login</button>
-                <button class="landing-btn btn-yellow" onclick="App.showDeliveryLogin()">Delivery Staff Login</button>
             </div>
         </div>
 
@@ -29,21 +28,9 @@
                 <h2>Admin Login</h2>
                 <input type="email" id="admin-email" placeholder="Email">
                 <input type="password" id="admin-password" placeholder="Password">
-                <button onclick="App.login('admin')">Login</button>
+                <button onclick="App.login()">Login</button>
                 <button onclick="App.showLanding()" style="background: none; color: #555; margin-top: 10px;">Back</button>
                 <p id="admin-login-error" style="color: red;"></p>
-            </div>
-        </div>
-
-        <!-- Delivery Login -->
-        <div id="delivery-login-container" class="view-container">
-            <div class="auth-wrapper">
-                <h2>Delivery Staff Login</h2>
-                <input type="email" id="delivery-email" placeholder="Email">
-                <input type="password" id="delivery-password" placeholder="Password">
-                <button class="btn-yellow" onclick="App.login('staff')">Login</button>
-                <button onclick="App.showLanding()" style="background: none; color: #555; margin-top: 10px;">Back</button>
-                <p id="delivery-login-error" style="color: red;"></p>
             </div>
         </div>
     </div>
@@ -105,20 +92,6 @@
         </div>
     </div>
 
-    <!-- Delivery Dashboard -->
-    <div id="delivery-dashboard-container" class="view-container">
-        <header>
-            <div class="container">
-                <h1>My Deliveries</h1>
-                <button onclick="App.logout()" style="width: auto; background: none; color: white; border: 1px solid white; padding: 5px 10px;">Logout</button>
-            </div>
-        </header>
-
-        <div class="container" id="delivery-orders-list">
-            <p>Loading assigned orders...</p>
-        </div>
-    </div>
-
     <!-- Modals (Admin Only) -->
     <div id="category-modal" class="modal">
         <div class="modal-content">
@@ -156,7 +129,6 @@
     </script>
     <script src="js/firebase-config.js"></script>
     <script src="js/admin.js"></script>
-    <script src="js/delivery.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
