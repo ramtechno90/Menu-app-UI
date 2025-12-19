@@ -256,7 +256,13 @@ const AdminApp = {
 
     deleteSingleOrder: function(orderId) {
         if(confirm('Are you sure you want to delete this order permanently?')) {
-            db.collection('orders').doc(orderId).delete();
+            // Delete private data first to avoid phantom documents
+            db.collection('orders').doc(orderId).collection('private').doc('data').delete().then(() => {
+                 db.collection('orders').doc(orderId).delete();
+            }).catch(err => {
+                 console.error('Error deleting subcollection, trying main doc:', err);
+                 db.collection('orders').doc(orderId).delete();
+            });
         }
     },
 
@@ -287,15 +293,22 @@ const AdminApp = {
             let batch = db.batch();
             let count = 0;
 
-            snapshot.docs.forEach(doc => {
+            for (const doc of snapshot.docs) {
+                // Add delete for private data (if it exists)
+                // Note: Batch cannot delete from different collections easily if we want to ensure order.
+                // However, we can add the delete op for the subcollection doc to the same batch.
+                const privateRef = doc.ref.collection('private').doc('data');
+                batch.delete(privateRef);
+
                 batch.delete(doc.ref);
-                count++;
+                count += 2; // Counting 2 ops per order
+
                 if (count >= 450) {
                     batches.push(batch.commit());
                     batch = db.batch();
                     count = 0;
                 }
-            });
+            }
             if (count > 0) batches.push(batch.commit());
 
             await Promise.all(batches);
