@@ -1,3 +1,4 @@
+// firebase-config.js
 // Identical config placeholder
 const firebaseConfig = {
   // TODO: Replace with your project's config object
