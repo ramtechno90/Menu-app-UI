@@ -143,6 +143,9 @@ th {
     border-radius: 4px;
     font-size: 12px;
     font-weight: bold;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
 }
 
 .status-PENDING { background-color: #FFF3E0; color: #EF6C00; }
@@ -150,6 +153,7 @@ th {
 .status-READY_FOR_DELIVERY { background-color: #E8F5E9; color: #2E7D32; }
 .status-OUT_FOR_DELIVERY { background-color: #F3E5F5; color: #7B1FA2; }
 .status-DELIVERED { background-color: #E0E0E0; color: #424242; }
+.status-REJECTED { background-color: #ffebee; color: #c62828; }
 
 .controls {
     margin-bottom: 20px;
