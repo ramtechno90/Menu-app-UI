@@ -1,10 +1,9 @@
-// Main App Orchestrator
+// Admin App Orchestrator
 
 const App = {
     // State
     currentUser: null,
-    currentRole: null, // 'admin' | 'staff'
-    viewState: 'landing', // 'landing', 'login-admin', 'login-staff', 'dashboard-admin', 'dashboard-staff'
+    viewState: 'landing', // 'landing', 'login-admin', 'dashboard-admin'
 
     init: function() {
         // Listen to Auth
@@ -16,20 +15,17 @@ const App = {
         auth.onAuthStateChanged(user => {
             this.currentUser = user;
             if (user) {
-                this.determineRoleAndRedirect(user);
+                this.checkAdminAndRedirect(user);
             } else {
                 // Not logged in.
-                // If we are on a dashboard, kick to landing.
-                // If we are on a login screen, stay there.
-                // If we are on landing, stay there.
-                if (this.viewState.startsWith('dashboard')) {
+                if (this.viewState === 'dashboard-admin') {
                     this.showLanding();
                 }
             }
         });
     },
 
-    determineRoleAndRedirect: function(user) {
+    checkAdminAndRedirect: function(user) {
         if (typeof db === 'undefined') {
             console.error('Firestore not initialized');
             return;
@@ -38,19 +34,10 @@ const App = {
         // Check Admin
         db.collection('admins').doc(user.uid).get().then(doc => {
             if (doc.exists || user.email === 'admin@pizzaparadize.com') {
-                this.currentRole = 'admin';
                 this.showAdminDashboard();
             } else {
-                // Check Staff
-                db.collection('delivery_staff').doc(user.uid).get().then(doc => {
-                    if (doc.exists) {
-                        this.currentRole = 'staff';
-                        this.showDeliveryDashboard(doc.data().name);
-                    } else {
-                        alert('Unknown User Role');
-                        auth.signOut();
-                    }
-                });
+                alert('Access Denied: You are not an administrator.');
+                auth.signOut();
             }
         }).catch(err => {
             console.error(err);
@@ -73,7 +60,6 @@ const App = {
         document.querySelectorAll('.view-container').forEach(el => el.style.display = 'none');
         // Also cleanup logic
         if (typeof AdminApp !== 'undefined') AdminApp.cleanup();
-        if (typeof DeliveryApp !== 'undefined') DeliveryApp.cleanup();
     },
 
     showLanding: function() {
@@ -89,13 +75,6 @@ const App = {
         this.safeDisplay('admin-login-container', 'block');
     },
 
-    showDeliveryLogin: function() {
-        if (this.currentUser) return;
-        this.hideAllViews();
-        this.viewState = 'login-staff';
-        this.safeDisplay('delivery-login-container', 'block');
-    },
-
     showAdminDashboard: function() {
         this.hideAllViews();
         this.viewState = 'dashboard-admin';
@@ -103,18 +82,11 @@ const App = {
         if (typeof AdminApp !== 'undefined') AdminApp.init();
     },
 
-    showDeliveryDashboard: function(staffName) {
-        this.hideAllViews();
-        this.viewState = 'dashboard-staff';
-        this.safeDisplay('delivery-dashboard-container', 'block');
-        if (typeof DeliveryApp !== 'undefined') DeliveryApp.init(staffName);
-    },
-
     // Actions
-    login: function(role) {
-        const emailId = role === 'admin' ? 'admin-email' : 'delivery-email';
-        const passId = role === 'admin' ? 'admin-password' : 'delivery-password';
-        const errId = role === 'admin' ? 'admin-login-error' : 'delivery-login-error';
+    login: function() {
+        const emailId = 'admin-email';
+        const passId = 'admin-password';
+        const errId = 'admin-login-error';
 
         const emailEl = document.getElementById(emailId);
         const passEl = document.getElementById(passId);
