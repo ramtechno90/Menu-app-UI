@@ -1,0 +1,22 @@
+{
+  "hosting": [
+    {
+      "target": "admin",
+      "public": "admin_web",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "target": "delivery",
+      "public": "delivery_staff_web",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    }
+  ]
+}

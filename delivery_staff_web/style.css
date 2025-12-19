@@ -1,0 +1,118 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    max-width: 600px; /* Mobile first focus */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Auth */
+#auth-container {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 50px;
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #FFC107; /* Secondary Yellow */
+    color: #333;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #ffca28;
+}
+
+/* Header */
+header {
+    background-color: #B71C1C;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* Orders */
+.order-card {
+    background: white;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-left: 5px solid #ccc;
+}
+
+.order-card.status-READY_FOR_DELIVERY { border-left-color: #2E7D32; }
+.order-card.status-PICKED_UP { border-left-color: #1976D2; }
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.order-details {
+    margin-bottom: 15px;
+}
+
+.otp-section {
+    display: flex;
+    gap: 10px;
+}
+
+.otp-section input {
+    flex: 1;
+    text-align: center;
+    letter-spacing: 5px;
+    font-size: 18px;
+}
+
+.otp-section button {
+    width: auto;
+}
+
+.verified-badge {
+    color: green;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.error-badge {
+    color: red;
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+}
