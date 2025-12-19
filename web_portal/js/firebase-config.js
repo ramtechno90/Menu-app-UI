@@ -1,39 +1,14 @@
 // firebase-config.js
-let firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+const firebaseConfig = {
+  apiKey: "AIzaSyCLYNZwZMZQVNrQbVWOpNm_sMbXgS1pfww",
+  authDomain: "strategic-haven-471117-j1.firebaseapp.com",
+  projectId: "strategic-haven-471117-j1",
+  storageBucket: "strategic-haven-471117-j1.firebasestorage.app",
+  messagingSenderId: "855839483192",
+  appId: "1:855839483192:web:320c12657f59509744cdcd",
+  measurementId: "G-F6WFYRFLB0"
 };
 
-const savedConfig = localStorage.getItem('firebase_config');
-if (savedConfig) {
-    try {
-        const parsed = JSON.parse(savedConfig);
-        if (parsed.apiKey && parsed.apiKey !== "YOUR_API_KEY") {
-            firebaseConfig = parsed;
-        }
-    } catch(e) {
-        console.error("Failed to parse saved config", e);
-    }
-}
-
-let db = null;
-let auth = null;
-
-if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-    window.isConfigMissing = true;
-    console.warn("Firebase Config missing. Waiting for user input.");
-} else {
-    try {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-        auth = firebase.auth();
-    } catch (e) {
-        console.error("Firebase init failed", e);
-        // Fallback to setup if init fails (e.g. bad keys)
-        window.isConfigMissing = true;
-    }
-}
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();

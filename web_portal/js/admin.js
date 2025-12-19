@@ -391,7 +391,7 @@ const AdminApp = {
             let catMap = {};
             catSnap.forEach(doc => catMap[doc.data().name] = doc.id);
 
-            const batch = db.batch();
+            let batch = db.batch();
             let ops = 0;
 
             for (let i = 1; i < lines.length; i++) {
@@ -430,6 +430,7 @@ const AdminApp = {
 
                 if (ops > 450) {
                      await batch.commit();
+                     batch = db.batch();
                      ops = 0;
                 }
             }

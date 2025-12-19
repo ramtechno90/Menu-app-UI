@@ -135,6 +135,10 @@ const DeliveryApp = {
 
         db.collection('orders').doc(orderId).update({
             otpEntered: otp
+        }).then(() => {
+            alert('OTP submitted. Verification pending...');
+        }).catch(err => {
+            alert('Error submitting OTP: ' + err.message);
         });
     },
 
