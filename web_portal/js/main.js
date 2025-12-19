@@ -7,6 +7,11 @@ const App = {
     viewState: 'landing', // 'landing', 'login-admin', 'login-staff', 'dashboard-admin', 'dashboard-staff'
 
     init: function() {
+        if (window.isConfigMissing) {
+            this.showSetup();
+            return;
+        }
+
         // Listen to Auth
         auth.onAuthStateChanged(user => {
             this.currentUser = user;
@@ -22,6 +27,26 @@ const App = {
                 }
             }
         });
+    },
+
+    showSetup: function() {
+        this.hideAllViews();
+        document.getElementById('setup-container').style.display = 'block';
+    },
+
+    saveSetup: function() {
+        const jsonStr = document.getElementById('config-input').value;
+        try {
+            // Allow loose JSON (e.g. copied from JS object) by using a regex or just strict JSON.
+            // Strict JSON is safer.
+            const config = JSON.parse(jsonStr);
+            if (!config.apiKey) throw new Error("Missing apiKey in JSON");
+
+            localStorage.setItem('firebase_config', JSON.stringify(config));
+            location.reload();
+        } catch(e) {
+            alert("Invalid JSON configuration: " + e.message);
+        }
     },
 
     determineRoleAndRedirect: function(user) {
