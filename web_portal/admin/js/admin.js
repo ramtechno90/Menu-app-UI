@@ -1,19 +1,36 @@
 // Admin Logic Namespace
 const AdminApp = {
     categories: [],
+    staffList: [],
     menuItemsUnsubscribe: null,
     ordersUnsubscribe: null,
 
     init: function() {
         console.log('Initializing Admin Dashboard');
-        this.loadOrders();
         this.loadCategories();
+        this.loadDeliveryStaff().then(() => {
+            this.loadOrders();
+        });
     },
 
     cleanup: function() {
         console.log('Cleaning up Admin Dashboard');
         if (this.ordersUnsubscribe) this.ordersUnsubscribe();
         if (this.menuItemsUnsubscribe) this.menuItemsUnsubscribe();
+    },
+
+    loadDeliveryStaff: function() {
+        return db.collection('delivery_staff').get().then(snap => {
+            this.staffList = [];
+            snap.forEach(doc => {
+                const data = doc.data();
+                if (data.name) {
+                    this.staffList.push(data.name);
+                }
+            });
+        }).catch(err => {
+            console.error("Error loading staff:", err);
+        });
     },
 
     // --- ORDERS ---
@@ -26,7 +43,7 @@ const AdminApp = {
 
             list.innerHTML = '';
             const table = document.createElement('table');
-            table.innerHTML = '<thead><tr><th>Date</th><th>Customer</th><th>Status</th><th>Total</th><th>Assigned To</th><th>Actions</th></tr></thead>';
+            table.innerHTML = '<thead><tr><th>Date</th><th>Customer</th><th>Details</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead>';
             const tbody = document.createElement('tbody');
             tbody.id = 'orders-table-body';
 
@@ -46,11 +63,22 @@ const AdminApp = {
                     statusSelect.appendChild(opt);
                 });
 
-                const assigneeInput = document.createElement('input');
-                assigneeInput.type = 'text';
-                assigneeInput.value = order.assignedTo || '';
-                assigneeInput.placeholder = 'Staff Name';
-                assigneeInput.onchange = (e) => AdminApp.updateAssignee(doc.id, e.target.value);
+                // Assignee Dropdown
+                const assigneeSelect = document.createElement('select');
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = "";
+                defaultOpt.textContent = "Unassigned";
+                assigneeSelect.appendChild(defaultOpt);
+
+                this.staffList.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    if (order.assignedTo === name) opt.selected = true;
+                    assigneeSelect.appendChild(opt);
+                });
+                assigneeSelect.onchange = (e) => AdminApp.updateAssignee(doc.id, e.target.value);
+
 
                 // Date
                 const tdDate = document.createElement('td');
@@ -68,6 +96,41 @@ const AdminApp = {
                 tdCustomer.appendChild(smallAddr);
                 tr.appendChild(tdCustomer);
 
+                // Details (Items + Calculation)
+                const tdDetails = document.createElement('td');
+                const itemList = document.createElement('ul');
+                itemList.style.paddingLeft = '20px';
+                itemList.style.marginBottom = '5px';
+
+                if (order.cartItems && Array.isArray(order.cartItems)) {
+                    order.cartItems.forEach(item => {
+                        const li = document.createElement('li');
+                        let text = `${item.name} x ${item.quantity}`;
+                        if (item.notes) {
+                            text += ` (Note: ${item.notes})`;
+                        }
+                        li.textContent = text;
+                        itemList.appendChild(li);
+                    });
+                }
+                tdDetails.appendChild(itemList);
+
+                const calcDiv = document.createElement('div');
+                calcDiv.style.fontSize = '0.9em';
+                calcDiv.style.borderTop = '1px solid #eee';
+                calcDiv.style.paddingTop = '5px';
+
+                // Fallback for older orders or if fields missing
+                const sub = order.subtotal !== undefined ? order.subtotal.toFixed(2) : '?';
+                const tax = order.tax !== undefined ? order.tax.toFixed(2) : '?';
+                const del = order.deliveryFee !== undefined ? order.deliveryFee.toFixed(2) : '?';
+                const tot = order.grandTotal !== undefined ? order.grandTotal.toFixed(2) : '?';
+
+                calcDiv.innerHTML = `Sub: ${sub} + Tax: ${tax} + Del: ${del} = <strong>${tot}</strong>`;
+                tdDetails.appendChild(calcDiv);
+
+                tr.appendChild(tdDetails);
+
                 // Status
                 const tdStatus = document.createElement('td');
                 const spanStatus = document.createElement('span');
@@ -76,14 +139,9 @@ const AdminApp = {
                 tdStatus.appendChild(spanStatus);
                 tr.appendChild(tdStatus);
 
-                // Total
-                const tdTotal = document.createElement('td');
-                tdTotal.textContent = order.grandTotal.toFixed(2);
-                tr.appendChild(tdTotal);
-
                 // Assignee
                 const tdAssign = document.createElement('td');
-                tdAssign.appendChild(assigneeInput);
+                tdAssign.appendChild(assigneeSelect);
                 tr.appendChild(tdAssign);
 
                 // Actions
