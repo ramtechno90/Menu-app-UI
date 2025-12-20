@@ -40,12 +40,27 @@
         <header>
             <div class="container">
                 <h1>My Deliveries</h1>
-                <button onclick="App.logout()" style="width: auto; background: none; color: white; border: 1px solid white; padding: 5px 10px;">Logout</button>
+                <nav>
+                    <button onclick="DeliveryApp.showSection('active')" class="active" id="nav-active">Active</button>
+                    <button onclick="DeliveryApp.showSection('history')" id="nav-history">History</button>
+                    <button onclick="App.logout()">Logout</button>
+                </nav>
             </div>
         </header>
 
-        <div class="container" id="delivery-orders-list">
-            <p>Loading assigned orders...</p>
+        <div class="container">
+            <!-- Active Section -->
+            <div id="active-section" class="section active" style="display:block;">
+                <div id="delivery-orders-list">
+                    <p>Loading assigned orders...</p>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div id="history-section" class="section" style="display:none;">
+                <h2>History</h2>
+                <div id="delivery-history-list"></div>
+            </div>
         </div>
     </div>
 

@@ -4,18 +4,21 @@ const AdminApp = {
     staffList: [],
     menuItemsUnsubscribe: null,
     ordersUnsubscribe: null,
+    historyUnsubscribe: null,
 
     init: function() {
         console.log('Initializing Admin Dashboard');
         this.loadCategories();
         this.loadDeliveryStaff().then(() => {
             this.loadOrders();
+            this.loadHistory();
         });
     },
 
     cleanup: function() {
         console.log('Cleaning up Admin Dashboard');
         if (this.ordersUnsubscribe) this.ordersUnsubscribe();
+        if (this.historyUnsubscribe) this.historyUnsubscribe();
         if (this.menuItemsUnsubscribe) this.menuItemsUnsubscribe();
     },
 
@@ -37,123 +40,233 @@ const AdminApp = {
     loadOrders: function() {
         if (this.ordersUnsubscribe) this.ordersUnsubscribe();
 
-        this.ordersUnsubscribe = db.collection('orders').orderBy('orderDate', 'desc').onSnapshot(snapshot => {
+        // Active Orders: Not DELIVERED
+        // Note: Firestore != queries can be tricky with indexes.
+        // We will query where status is in PENDING, PREPARING, READY_FOR_DELIVERY, PICKED_UP
+        this.ordersUnsubscribe = db.collection('orders')
+            .where('status', 'in', ['PENDING', 'PREPARING', 'READY_FOR_DELIVERY', 'PICKED_UP'])
+            .orderBy('orderDate', 'desc')
+            .onSnapshot(snapshot => {
             const list = document.getElementById('orders-list');
-            if (!list) return; // UI not present?
+            if (!list) return;
 
             list.innerHTML = '';
+            if (snapshot.empty) {
+                list.innerHTML = '<p>No active orders.</p>';
+                return;
+            }
+
             const table = document.createElement('table');
             table.innerHTML = '<thead><tr><th>Date</th><th>Customer</th><th>Details</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead>';
             const tbody = document.createElement('tbody');
-            tbody.id = 'orders-table-body';
 
             snapshot.forEach(doc => {
                 const order = doc.data();
-                const date = new Date(order.orderDate).toLocaleString();
-                const tr = document.createElement('tr');
-
-                const statuses = ['PENDING', 'PREPARING', 'READY_FOR_DELIVERY', 'PICKED_UP', 'DELIVERED', 'REJECTED'];
-                const statusSelect = document.createElement('select');
-                statusSelect.onchange = (e) => AdminApp.updateStatus(doc.id, e.target.value);
-                statuses.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s;
-                    opt.textContent = s;
-                    if (s === order.status) opt.selected = true;
-                    statusSelect.appendChild(opt);
-                });
-
-                // Assignee Dropdown
-                const assigneeSelect = document.createElement('select');
-                const defaultOpt = document.createElement('option');
-                defaultOpt.value = "";
-                defaultOpt.textContent = "Unassigned";
-                assigneeSelect.appendChild(defaultOpt);
-
-                this.staffList.forEach(name => {
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.textContent = name;
-                    if (order.assignedTo === name) opt.selected = true;
-                    assigneeSelect.appendChild(opt);
-                });
-                assigneeSelect.onchange = (e) => AdminApp.updateAssignee(doc.id, e.target.value);
-
-
-                // Date
-                const tdDate = document.createElement('td');
-                tdDate.textContent = date;
-                tr.appendChild(tdDate);
-
-                // Customer
-                const tdCustomer = document.createElement('td');
-                const divCust = document.createElement('div');
-                divCust.textContent = order.customerName;
-                const smallAddr = document.createElement('small');
-                smallAddr.textContent = order.deliveryAddress;
-                smallAddr.style.display = 'block';
-                tdCustomer.appendChild(divCust);
-                tdCustomer.appendChild(smallAddr);
-                tr.appendChild(tdCustomer);
-
-                // Details (Items + Calculation)
-                const tdDetails = document.createElement('td');
-                const itemList = document.createElement('ul');
-                itemList.style.paddingLeft = '20px';
-                itemList.style.marginBottom = '5px';
-
-                if (order.cartItems && Array.isArray(order.cartItems)) {
-                    order.cartItems.forEach(item => {
-                        const li = document.createElement('li');
-                        let text = `${item.name} x ${item.quantity}`;
-                        if (item.notes) {
-                            text += ` (Note: ${item.notes})`;
-                        }
-                        li.textContent = text;
-                        itemList.appendChild(li);
-                    });
-                }
-                tdDetails.appendChild(itemList);
-
-                const calcDiv = document.createElement('div');
-                calcDiv.style.fontSize = '0.9em';
-                calcDiv.style.borderTop = '1px solid #eee';
-                calcDiv.style.paddingTop = '5px';
-
-                // Fallback for older orders or if fields missing
-                const sub = order.subtotal !== undefined ? order.subtotal.toFixed(2) : '?';
-                const tax = order.tax !== undefined ? order.tax.toFixed(2) : '?';
-                const del = order.deliveryFee !== undefined ? order.deliveryFee.toFixed(2) : '?';
-                const tot = order.grandTotal !== undefined ? order.grandTotal.toFixed(2) : '?';
-
-                calcDiv.innerHTML = `Sub: ${sub} + Tax: ${tax} + Del: ${del} = <strong>${tot}</strong>`;
-                tdDetails.appendChild(calcDiv);
-
-                tr.appendChild(tdDetails);
-
-                // Status
-                const tdStatus = document.createElement('td');
-                const spanStatus = document.createElement('span');
-                spanStatus.className = `status-badge status-${order.status}`;
-                spanStatus.textContent = order.status;
-                tdStatus.appendChild(spanStatus);
-                tr.appendChild(tdStatus);
-
-                // Assignee
-                const tdAssign = document.createElement('td');
-                tdAssign.appendChild(assigneeSelect);
-                tr.appendChild(tdAssign);
-
-                // Actions
-                const tdActions = document.createElement('td');
-                tdActions.appendChild(statusSelect);
-                tr.appendChild(tdActions);
-
+                const tr = this.createOrderRow(doc.id, order, false);
                 tbody.appendChild(tr);
             });
             table.appendChild(tbody);
             list.appendChild(table);
         });
+    },
+
+    loadHistory: function() {
+        if (this.historyUnsubscribe) this.historyUnsubscribe();
+
+        // History: DELIVERED or REJECTED
+        this.historyUnsubscribe = db.collection('orders')
+            .where('status', 'in', ['DELIVERED', 'REJECTED'])
+            .orderBy('orderDate', 'desc')
+            .limit(50) // Limit to 50 for performance
+            .onSnapshot(snapshot => {
+            const list = document.getElementById('history-list');
+            if (!list) return;
+
+            list.innerHTML = '';
+            if (snapshot.empty) {
+                list.innerHTML = '<p>No delivered orders found.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.innerHTML = '<thead><tr><th>Date</th><th>Customer</th><th>Details</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead>';
+            const tbody = document.createElement('tbody');
+
+            snapshot.forEach(doc => {
+                const order = doc.data();
+                const tr = this.createOrderRow(doc.id, order, true);
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            list.appendChild(table);
+        });
+    },
+
+    createOrderRow: function(docId, order, isHistory) {
+        const tr = document.createElement('tr');
+        const date = new Date(order.orderDate).toLocaleString();
+
+        // Date
+        const tdDate = document.createElement('td');
+        tdDate.textContent = date;
+        tr.appendChild(tdDate);
+
+        // Customer
+        const tdCustomer = document.createElement('td');
+        const divCust = document.createElement('div');
+        divCust.textContent = order.customerName;
+        const smallAddr = document.createElement('small');
+        smallAddr.textContent = order.deliveryAddress;
+        smallAddr.style.display = 'block';
+        tdCustomer.appendChild(divCust);
+        tdCustomer.appendChild(smallAddr);
+        tr.appendChild(tdCustomer);
+
+        // Details (Detailed View)
+        const tdDetails = document.createElement('td');
+
+        // Toggle Button
+        const toggleBtn = document.createElement('button');
+        toggleBtn.textContent = 'Show Details';
+        toggleBtn.className = 'btn-small';
+        toggleBtn.style.marginBottom = '5px';
+        toggleBtn.onclick = function() {
+            const container = this.nextElementSibling;
+            const isHidden = container.style.display === 'none';
+            container.style.display = isHidden ? 'block' : 'none';
+            this.textContent = isHidden ? 'Hide Details' : 'Show Details';
+        };
+        tdDetails.appendChild(toggleBtn);
+
+        // Container (Hidden by default)
+        const detailsContainer = document.createElement('div');
+        detailsContainer.style.display = 'none';
+
+        // Item List
+        const itemList = document.createElement('ul');
+        itemList.style.paddingLeft = '20px';
+        itemList.style.margin = '0 0 10px 0';
+        itemList.style.fontSize = '0.9em';
+
+        // Check for 'items' (new structure) or fallback to 'cartItems' (old structure)
+        const items = (order.items && Array.isArray(order.items)) ? order.items :
+                     (order.cartItems && Array.isArray(order.cartItems)) ? order.cartItems : [];
+
+        if (items.length > 0) {
+            items.forEach(item => {
+                const li = document.createElement('li');
+                let text = `${item.name} (x${item.quantity})`;
+                if (item.notes) {
+                    text += ` - Note: ${item.notes}`;
+                }
+                // Check if price exists in item (might not in old orders, but good to have)
+                // Assuming item.price is unit price.
+                if (item.price) {
+                     text += ` - ₹${(item.price * item.quantity).toFixed(2)}`;
+                }
+                li.textContent = text;
+                itemList.appendChild(li);
+            });
+        }
+        detailsContainer.appendChild(itemList);
+
+        // Price Breakdown Table
+        const breakdown = document.createElement('div');
+        breakdown.style.fontSize = '0.85em';
+        breakdown.style.color = '#555';
+
+        const sub = order.subtotal !== undefined ? order.subtotal.toFixed(2) : '0.00';
+        const tax = order.tax !== undefined ? order.tax.toFixed(2) : '0.00';
+        const fee = order.deliveryFee !== undefined ? order.deliveryFee.toFixed(2) : '0.00';
+        const total = order.grandTotal !== undefined ? order.grandTotal.toFixed(2) : '0.00';
+
+        breakdown.innerHTML = `
+            <div style="display:flex; justify-content:space-between; border-top:1px solid #eee; padding-top:4px;"><span>Subtotal:</span><span>₹${sub}</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Tax:</span><span>₹${tax}</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Delivery Fee:</span><span>₹${fee}</span></div>
+            <div style="display:flex; justify-content:space-between; font-weight:bold; border-top:1px solid #ddd; margin-top:4px; padding-top:4px; color:#000;"><span>Total:</span><span>₹${total}</span></div>
+        `;
+        detailsContainer.appendChild(breakdown);
+
+        tdDetails.appendChild(detailsContainer);
+
+        tr.appendChild(tdDetails);
+
+        // Status
+        const tdStatus = document.createElement('td');
+        const spanStatus = document.createElement('span');
+        spanStatus.className = `status-badge status-${order.status}`;
+        spanStatus.textContent = order.status;
+        tdStatus.appendChild(spanStatus);
+        tr.appendChild(tdStatus);
+
+        // Assignee
+        const tdAssign = document.createElement('td');
+        if (isHistory) {
+             tdAssign.textContent = order.assignedTo || 'Unassigned';
+        } else {
+            const assigneeSelect = document.createElement('select');
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = "";
+            defaultOpt.textContent = "Unassigned";
+            assigneeSelect.appendChild(defaultOpt);
+
+            this.staffList.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                if (order.assignedTo === name) opt.selected = true;
+                assigneeSelect.appendChild(opt);
+            });
+            assigneeSelect.onchange = (e) => AdminApp.updateAssignee(docId, e.target.value);
+            tdAssign.appendChild(assigneeSelect);
+        }
+        tr.appendChild(tdAssign);
+
+        // Actions
+        const tdActions = document.createElement('td');
+        if (isHistory) {
+            const btnDel = document.createElement('button');
+            btnDel.className = 'btn-small btn-danger';
+            btnDel.textContent = 'Delete';
+            btnDel.onclick = () => AdminApp.deleteSingleOrder(docId);
+            tdActions.appendChild(btnDel);
+        } else {
+            // Active Orders Actions
+            const statuses = ['PENDING', 'PREPARING', 'READY_FOR_DELIVERY', 'REJECTED']; // Admin cannot set PICKED_UP or DELIVERED
+            const statusSelect = document.createElement('select');
+            statusSelect.onchange = (e) => AdminApp.updateStatus(docId, e.target.value);
+
+            // Add current status if it's not in the list (e.g., if somehow it got to PICKED_UP)
+            // But we filter by status in query so it shouldn't be PICKED_UP here ideally?
+            // Wait, query includes PICKED_UP.
+            // The requirement: "Admin must not be able to change status TO Picked Up / Delivered".
+            // If status IS Picked Up, Admin can change it BACK or REJECT?
+            // Let's stick to the list. If order is PICKED_UP, it shows in the badge column. The dropdown allows changing it to something else.
+
+            statuses.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                if (s === order.status) opt.selected = true;
+                statusSelect.appendChild(opt);
+            });
+
+            // If current status is not in our allowed list (e.g. PICKED_UP), add it as a disabled/selected option so it shows correctly
+            if (!statuses.includes(order.status)) {
+                 const opt = document.createElement('option');
+                 opt.value = order.status;
+                 opt.textContent = order.status;
+                 opt.selected = true;
+                 opt.disabled = true; // Cannot re-select this if changed
+                 statusSelect.prepend(opt);
+            }
+
+            tdActions.appendChild(statusSelect);
+        }
+        tr.appendChild(tdActions);
+
+        return tr;
     },
 
     updateStatus: function(orderId, newStatus) {
@@ -162,6 +275,18 @@ const AdminApp = {
 
     updateAssignee: function(orderId, staffName) {
         db.collection('orders').doc(orderId).update({ assignedTo: staffName });
+    },
+
+    deleteSingleOrder: function(orderId) {
+        if(confirm('Are you sure you want to delete this order permanently?')) {
+            // Delete private data first to avoid phantom documents
+            db.collection('orders').doc(orderId).collection('private').doc('data').delete().then(() => {
+                 db.collection('orders').doc(orderId).delete();
+            }).catch(err => {
+                 console.error('Error deleting subcollection, trying main doc:', err);
+                 db.collection('orders').doc(orderId).delete();
+            });
+        }
     },
 
     deleteDeliveredOrders: function(mode) {
@@ -191,15 +316,22 @@ const AdminApp = {
             let batch = db.batch();
             let count = 0;
 
-            snapshot.docs.forEach(doc => {
+            for (const doc of snapshot.docs) {
+                // Add delete for private data (if it exists)
+                // Note: Batch cannot delete from different collections easily if we want to ensure order.
+                // However, we can add the delete op for the subcollection doc to the same batch.
+                const privateRef = doc.ref.collection('private').doc('data');
+                batch.delete(privateRef);
+
                 batch.delete(doc.ref);
-                count++;
+                count += 2; // Counting 2 ops per order
+
                 if (count >= 450) {
                     batches.push(batch.commit());
                     batch = db.batch();
                     count = 0;
                 }
-            });
+            }
             if (count > 0) batches.push(batch.commit());
 
             await Promise.all(batches);
