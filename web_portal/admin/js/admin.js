@@ -1,15 +1,17 @@
 // Admin Logic Namespace
-const AdminApp = {
+window.AdminApp = {
     categories: [],
+    menuItems: [],
     staffList: [],
     menuItemsUnsubscribe: null,
+    categoriesUnsubscribe: null,
     ordersUnsubscribe: null,
     historyUnsubscribe: null,
 
     init: function() {
         console.log('Initializing Admin Dashboard');
         this.requestNotificationPermission();
-        this.loadCategories();
+        this.loadMenuManagement();
         this.loadDeliveryStaff().then(() => {
             this.loadOrders();
             this.loadHistory();
@@ -27,6 +29,7 @@ const AdminApp = {
         if (this.ordersUnsubscribe) this.ordersUnsubscribe();
         if (this.historyUnsubscribe) this.historyUnsubscribe();
         if (this.menuItemsUnsubscribe) this.menuItemsUnsubscribe();
+        if (this.categoriesUnsubscribe) this.categoriesUnsubscribe();
     },
 
     loadDeliveryStaff: function() {
@@ -49,9 +52,6 @@ const AdminApp = {
 
         let isFirstLoad = true;
 
-        // Active Orders: Not DELIVERED
-        // Note: Firestore != queries can be tricky with indexes.
-        // We will query where status is in PENDING, PREPARING, READY_FOR_DELIVERY, PICKED_UP
         this.ordersUnsubscribe = db.collection('orders')
             .where('status', 'in', ['PENDING', 'PREPARING', 'READY_FOR_DELIVERY', 'PICKED_UP'])
             .orderBy('orderDate', 'desc')
@@ -64,10 +64,6 @@ const AdminApp = {
                 snapshot.docChanges().forEach(change => {
                     if (change.type === 'added') {
                         const order = change.doc.data();
-                        // Only notify for actually new orders (PENDING), not just moved status orders if possible
-                        // But since we query by status IN [...], a status change might trigger 'added' if it enters the query?
-                        // Actually, 'modified' is triggered if it stays in query. 'added' if it enters.
-                        // We primarily want to notify on PENDING.
                         if (order.status === 'PENDING') {
                             this.sendNotification(change.doc.id, order);
                         }
@@ -102,7 +98,7 @@ const AdminApp = {
         if (Notification.permission === 'granted') {
             const notif = new Notification('New Order Received!', {
                 body: `Order #${orderId.slice(-5)} from ${order.customerName}\nTotal: ₹${order.grandTotal}`,
-                icon: 'https://via.placeholder.com/128?text=Pizza' // Placeholder or app icon
+                icon: 'https://via.placeholder.com/128?text=Pizza'
             });
             notif.onclick = () => window.focus();
         }
@@ -111,11 +107,10 @@ const AdminApp = {
     loadHistory: function() {
         if (this.historyUnsubscribe) this.historyUnsubscribe();
 
-        // History: DELIVERED or REJECTED
         this.historyUnsubscribe = db.collection('orders')
             .where('status', 'in', ['DELIVERED', 'REJECTED'])
             .orderBy('orderDate', 'desc')
-            .limit(50) // Limit to 50 for performance
+            .limit(50)
             .onSnapshot(snapshot => {
             const list = document.getElementById('history-list');
             if (!list) return;
@@ -142,24 +137,19 @@ const AdminApp = {
 
     createOrderRow: function(docId, order, isHistory) {
         const tr = document.createElement('tr');
-        // Toggle Expanded Class on Click (Mobile only logic handled by CSS)
         tr.onclick = (e) => {
-            // Prevent toggle if clicking on interactive elements
             if (['BUTTON', 'SELECT', 'INPUT', 'OPTION'].includes(e.target.tagName)) return;
             tr.classList.toggle('expanded');
         };
-        // Add indicator capability
         tr.classList.add('expandable-row');
 
         const date = new Date(order.orderDate).toLocaleString();
 
-        // Date
         const tdDate = document.createElement('td');
         tdDate.setAttribute('data-label', 'Date');
         tdDate.textContent = date;
         tr.appendChild(tdDate);
 
-        // Customer
         const tdCustomer = document.createElement('td');
         tdCustomer.setAttribute('data-label', 'Customer');
         const divCust = document.createElement('div');
@@ -171,17 +161,14 @@ const AdminApp = {
         tdCustomer.appendChild(smallAddr);
         tr.appendChild(tdCustomer);
 
-        // Details (Detailed View)
         const tdDetails = document.createElement('td');
         tdDetails.setAttribute('data-label', 'Details');
 
-        // Item List
         const itemList = document.createElement('ul');
         itemList.style.paddingLeft = '20px';
         itemList.style.margin = '0 0 10px 0';
         itemList.style.fontSize = '0.9em';
 
-        // Check for 'items' (new structure) or fallback to 'cartItems' (old structure)
         const items = (order.items && Array.isArray(order.items)) ? order.items :
                      (order.cartItems && Array.isArray(order.cartItems)) ? order.cartItems : [];
 
@@ -192,8 +179,6 @@ const AdminApp = {
                 if (item.notes) {
                     text += ` - Note: ${item.notes}`;
                 }
-                // Check if price exists in item (might not in old orders, but good to have)
-                // Assuming item.price is unit price.
                 if (item.price) {
                      text += ` - ₹${(item.price * item.quantity).toFixed(2)}`;
                 }
@@ -203,7 +188,6 @@ const AdminApp = {
         }
         tdDetails.appendChild(itemList);
 
-        // Price Breakdown Table
         const breakdown = document.createElement('div');
         breakdown.style.fontSize = '0.85em';
         breakdown.style.color = '#555';
@@ -223,7 +207,6 @@ const AdminApp = {
 
         tr.appendChild(tdDetails);
 
-        // Status
         const tdStatus = document.createElement('td');
         tdStatus.setAttribute('data-label', 'Status');
         const spanStatus = document.createElement('span');
@@ -232,7 +215,6 @@ const AdminApp = {
         tdStatus.appendChild(spanStatus);
         tr.appendChild(tdStatus);
 
-        // Assignee
         const tdAssign = document.createElement('td');
         tdAssign.setAttribute('data-label', 'Assigned To');
         if (isHistory) {
@@ -256,7 +238,6 @@ const AdminApp = {
         }
         tr.appendChild(tdAssign);
 
-        // Actions
         const tdActions = document.createElement('td');
         tdActions.setAttribute('data-label', 'Actions');
         if (isHistory) {
@@ -266,17 +247,9 @@ const AdminApp = {
             btnDel.onclick = () => AdminApp.deleteSingleOrder(docId);
             tdActions.appendChild(btnDel);
         } else {
-            // Active Orders Actions
-            const statuses = ['PENDING', 'PREPARING', 'READY_FOR_DELIVERY', 'REJECTED']; // Admin cannot set PICKED_UP or DELIVERED
+            const statuses = ['PENDING', 'PREPARING', 'READY_FOR_DELIVERY', 'REJECTED'];
             const statusSelect = document.createElement('select');
             statusSelect.onchange = (e) => AdminApp.updateStatus(docId, e.target.value);
-
-            // Add current status if it's not in the list (e.g., if somehow it got to PICKED_UP)
-            // But we filter by status in query so it shouldn't be PICKED_UP here ideally?
-            // Wait, query includes PICKED_UP.
-            // The requirement: "Admin must not be able to change status TO Picked Up / Delivered".
-            // If status IS Picked Up, Admin can change it BACK or REJECT?
-            // Let's stick to the list. If order is PICKED_UP, it shows in the badge column. The dropdown allows changing it to something else.
 
             statuses.forEach(s => {
                 const opt = document.createElement('option');
@@ -286,13 +259,12 @@ const AdminApp = {
                 statusSelect.appendChild(opt);
             });
 
-            // If current status is not in our allowed list (e.g. PICKED_UP), add it as a disabled/selected option so it shows correctly
             if (!statuses.includes(order.status)) {
                  const opt = document.createElement('option');
                  opt.value = order.status;
                  opt.textContent = order.status;
                  opt.selected = true;
-                 opt.disabled = true; // Cannot re-select this if changed
+                 opt.disabled = true;
                  statusSelect.prepend(opt);
             }
 
@@ -313,7 +285,6 @@ const AdminApp = {
 
     deleteSingleOrder: function(orderId) {
         if(confirm('Are you sure you want to delete this order permanently?')) {
-            // Delete private data first to avoid phantom documents
             db.collection('orders').doc(orderId).collection('private').doc('data').delete().then(() => {
                  db.collection('orders').doc(orderId).delete();
             }).catch(err => {
@@ -351,14 +322,11 @@ const AdminApp = {
             let count = 0;
 
             for (const doc of snapshot.docs) {
-                // Add delete for private data (if it exists)
-                // Note: Batch cannot delete from different collections easily if we want to ensure order.
-                // However, we can add the delete op for the subcollection doc to the same batch.
                 const privateRef = doc.ref.collection('private').doc('data');
                 batch.delete(privateRef);
 
                 batch.delete(doc.ref);
-                count += 2; // Counting 2 ops per order
+                count += 2;
 
                 if (count >= 450) {
                     batches.push(batch.commit());
@@ -376,76 +344,164 @@ const AdminApp = {
         });
     },
 
-    // --- MENU ---
-    loadCategories: function() {
-        this.catUnsubscribe = db.collection('categories').orderBy('order').onSnapshot(snap => {
+    // --- MENU MANAGEMENT ---
+
+    loadMenuManagement: function() {
+        if (this.categoriesUnsubscribe) this.categoriesUnsubscribe();
+        if (this.menuItemsUnsubscribe) this.menuItemsUnsubscribe();
+
+        // Listener for Categories
+        this.categoriesUnsubscribe = db.collection('categories').orderBy('order').onSnapshot(snap => {
             this.categories = [];
-            const list = document.getElementById('categories-list');
-            const filter = document.getElementById('category-filter');
-            const itemCatSelect = document.getElementById('item-category');
-
-            if (!list) return;
-
-            list.innerHTML = '';
-            filter.innerHTML = '<option value="">Select Category</option>';
-            itemCatSelect.innerHTML = '<option value="">Select Category</option>';
-
-            const table = document.createElement('table');
-            table.innerHTML = '<thead><tr><th>Order</th><th>Name</th><th>Actions</th></tr></thead>';
-            const tbody = document.createElement('tbody');
-
             snap.forEach(doc => {
                 const cat = doc.data();
                 cat.id = doc.id;
                 this.categories.push(cat);
-
-                const tr = document.createElement('tr');
-
-                const tdOrder = document.createElement('td');
-                tdOrder.setAttribute('data-label', 'Order');
-                tdOrder.textContent = cat.order;
-                tr.appendChild(tdOrder);
-
-                const tdName = document.createElement('td');
-                tdName.setAttribute('data-label', 'Name');
-                tdName.textContent = cat.name;
-                tr.appendChild(tdName);
-
-                const tdActions = document.createElement('td');
-                tdActions.setAttribute('data-label', 'Actions');
-
-                const btnEdit = document.createElement('button');
-                btnEdit.className = 'btn-small';
-                btnEdit.textContent = 'Edit';
-                btnEdit.onclick = () => AdminApp.editCategory(cat.id);
-                tdActions.appendChild(btnEdit);
-
-                // Spacer
-                tdActions.appendChild(document.createTextNode(' '));
-
-                const btnDel = document.createElement('button');
-                btnDel.className = 'btn-small btn-danger';
-                btnDel.textContent = 'Delete';
-                btnDel.onclick = () => AdminApp.deleteCategory(cat.id);
-                tdActions.appendChild(btnDel);
-
-                tr.appendChild(tdActions);
-                tbody.appendChild(tr);
-
-                // Update selects
-                const opt1 = document.createElement('option');
-                opt1.value = cat.id;
-                opt1.textContent = cat.name;
-                filter.appendChild(opt1);
-
-                const opt2 = document.createElement('option');
-                opt2.value = cat.id;
-                opt2.textContent = cat.name;
-                itemCatSelect.appendChild(opt2);
             });
+            this.renderMenu();
+        });
 
-            table.appendChild(tbody);
-            list.appendChild(table);
+        // Listener for All Menu Items
+        // Assuming menu size is reasonable to load all at once.
+        this.menuItemsUnsubscribe = db.collection('menu_items').onSnapshot(snap => {
+            this.menuItems = [];
+            snap.forEach(doc => {
+                const item = doc.data();
+                item.id = doc.id;
+                this.menuItems.push(item);
+            });
+            this.renderMenu();
+        });
+    },
+
+    renderMenu: function() {
+        const container = document.getElementById('menu-management-container');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (this.categories.length === 0) {
+            container.innerHTML = '<p>No categories found.</p>';
+            return;
+        }
+
+        this.categories.forEach(cat => {
+            // Category Block
+            const block = document.createElement('div');
+            block.className = 'category-block';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'category-header';
+
+            const titleGroup = document.createElement('div');
+            titleGroup.style.display = 'flex';
+            titleGroup.style.alignItems = 'center';
+            titleGroup.style.gap = '10px';
+            titleGroup.style.cursor = 'pointer';
+
+            const toggleIcon = document.createElement('span');
+            toggleIcon.className = 'toggle-icon';
+            toggleIcon.textContent = '▶'; // Default collapsed
+
+            const title = document.createElement('h4');
+            title.textContent = `${cat.name} (Order: ${cat.order})`;
+            title.style.margin = '0';
+
+            titleGroup.appendChild(toggleIcon);
+            titleGroup.appendChild(title);
+
+            // Header Actions
+            const actions = document.createElement('div');
+
+            const btnEdit = document.createElement('button');
+            btnEdit.className = 'btn-small';
+            btnEdit.textContent = 'Edit Cat';
+            btnEdit.style.marginRight = '5px';
+            btnEdit.onclick = (e) => { e.stopPropagation(); AdminApp.editCategory(cat.id); };
+
+            const btnDel = document.createElement('button');
+            btnDel.className = 'btn-small btn-danger';
+            btnDel.textContent = 'Delete Cat';
+            btnDel.onclick = (e) => { e.stopPropagation(); AdminApp.deleteCategory(cat.id); };
+
+            actions.appendChild(btnEdit);
+            actions.appendChild(btnDel);
+
+            header.appendChild(titleGroup);
+            header.appendChild(actions);
+
+            // Items Container (Hidden by default)
+            const itemsContainer = document.createElement('div');
+            itemsContainer.className = 'category-items';
+            itemsContainer.style.display = 'none';
+
+            // Filter items for this category
+            const catItems = this.menuItems.filter(item => item.category === cat.id);
+
+            if (catItems.length === 0) {
+                itemsContainer.innerHTML = '<p style="padding: 10px; color: #666;">No items in this category.</p>';
+            } else {
+                const table = document.createElement('table');
+                table.style.marginTop = '0'; // Override default table margin
+                table.innerHTML = '<thead><tr><th>Name</th><th>Price</th><th>Description</th><th>Actions</th></tr></thead>';
+                const tbody = document.createElement('tbody');
+
+                catItems.forEach(item => {
+                    const tr = document.createElement('tr');
+
+                    const tdName = document.createElement('td');
+                    tdName.setAttribute('data-label', 'Name');
+                    tdName.textContent = item.name;
+                    tr.appendChild(tdName);
+
+                    const tdPrice = document.createElement('td');
+                    tdPrice.setAttribute('data-label', 'Price');
+                    tdPrice.textContent = item.price;
+                    tr.appendChild(tdPrice);
+
+                    const tdDesc = document.createElement('td');
+                    tdDesc.setAttribute('data-label', 'Description');
+                    tdDesc.textContent = item.description || '-';
+                    tr.appendChild(tdDesc);
+
+                    const tdActions = document.createElement('td');
+                    tdActions.setAttribute('data-label', 'Actions');
+
+                    const btnItemEdit = document.createElement('button');
+                    btnItemEdit.className = 'btn-small';
+                    btnItemEdit.textContent = 'Edit';
+                    btnItemEdit.onclick = () => AdminApp.editItem(item.id, encodeURIComponent(JSON.stringify(item)));
+
+                    const btnItemDel = document.createElement('button');
+                    btnItemDel.className = 'btn-small btn-danger';
+                    btnItemDel.textContent = 'Delete';
+                    btnItemDel.style.marginLeft = '5px';
+                    btnItemDel.onclick = () => AdminApp.deleteItem(item.id);
+
+                    tdActions.appendChild(btnItemEdit);
+                    tdActions.appendChild(btnItemDel);
+                    tr.appendChild(tdActions);
+
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+                itemsContainer.appendChild(table);
+            }
+
+            // Toggle Logic
+            header.onclick = (e) => {
+                // Ignore clicks on buttons inside header
+                if (['BUTTON'].includes(e.target.tagName)) return;
+
+                const isHidden = itemsContainer.style.display === 'none';
+                itemsContainer.style.display = isHidden ? 'block' : 'none';
+                toggleIcon.textContent = isHidden ? '▼' : '▶';
+            };
+
+            block.appendChild(header);
+            block.appendChild(itemsContainer);
+            container.appendChild(block);
         });
     },
 
@@ -477,61 +533,6 @@ const AdminApp = {
         openModal('category-modal');
     },
 
-    loadMenuItems: function() {
-        const catId = document.getElementById('category-filter').value;
-        if (!catId) return;
-
-        if (this.menuItemsUnsubscribe) {
-            this.menuItemsUnsubscribe();
-        }
-
-        this.menuItemsUnsubscribe = db.collection('menu_items').where('category', '==', catId).onSnapshot(snap => {
-            const list = document.getElementById('menu-items-list');
-            list.innerHTML = '';
-
-            const table = document.createElement('table');
-            table.innerHTML = '<thead><tr><th>Name</th><th>Price</th><th>Actions</th></tr></thead>';
-            const tbody = document.createElement('tbody');
-
-            snap.forEach(doc => {
-                const item = doc.data();
-                const tr = document.createElement('tr');
-
-                const tdName = document.createElement('td');
-                tdName.setAttribute('data-label', 'Name');
-                tdName.textContent = item.name;
-                tr.appendChild(tdName);
-
-                const tdPrice = document.createElement('td');
-                tdPrice.setAttribute('data-label', 'Price');
-                tdPrice.textContent = item.price;
-                tr.appendChild(tdPrice);
-
-                const tdActions = document.createElement('td');
-                tdActions.setAttribute('data-label', 'Actions');
-
-                const btnEdit = document.createElement('button');
-                btnEdit.className = 'btn-small';
-                btnEdit.textContent = 'Edit';
-                btnEdit.onclick = () => AdminApp.editItem(doc.id, encodeURIComponent(JSON.stringify(item)));
-                tdActions.appendChild(btnEdit);
-
-                tdActions.appendChild(document.createTextNode(' '));
-
-                const btnDel = document.createElement('button');
-                btnDel.className = 'btn-small btn-danger';
-                btnDel.textContent = 'Delete';
-                btnDel.onclick = () => AdminApp.deleteItem(doc.id);
-                tdActions.appendChild(btnDel);
-
-                tr.appendChild(tdActions);
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            list.appendChild(table);
-        });
-    },
-
     saveMenuItem: function() {
         const id = document.getElementById('item-id').value;
         const catId = document.getElementById('item-category').value;
@@ -560,6 +561,10 @@ const AdminApp = {
         document.getElementById('item-price').value = item.price;
         document.getElementById('item-image').value = item.imageUrl;
 
+        // Ensure category select is populated
+        this.populateCategorySelect('item-category');
+        document.getElementById('item-category').value = item.category;
+
         document.getElementById('item-modal-title').innerText = 'Edit Item';
         openModal('item-modal');
     },
@@ -574,15 +579,27 @@ const AdminApp = {
         document.getElementById('item-desc').value = '';
         document.getElementById('item-price').value = '';
         document.getElementById('item-image').value = '';
-        const currentFilter = document.getElementById('category-filter').value;
-        if (currentFilter) document.getElementById('item-category').value = currentFilter;
+
+        this.populateCategorySelect('item-category');
 
         document.getElementById('item-modal-title').innerText = 'Add Item';
         openModal('item-modal');
     },
 
+    populateCategorySelect: function(elementId) {
+        const select = document.getElementById(elementId);
+        select.innerHTML = '';
+        this.categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.textContent = cat.name;
+            select.appendChild(opt);
+        });
+    },
+
     // --- CSV ---
     downloadCsv: function() {
+        // Use local data instead of fetching again if possible, or just fetch
         Promise.all([
             db.collection('categories').get(),
             db.collection('menu_items').get()
@@ -666,7 +683,7 @@ const AdminApp = {
             }
             if (ops > 0) await batch.commit();
             alert('Menu uploaded successfully');
-            this.loadCategories();
+            // No need to manually reload, listeners will catch up
             input.value = '';
         };
         reader.readAsText(file);
