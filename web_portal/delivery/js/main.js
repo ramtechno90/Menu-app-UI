@@ -1,6 +1,6 @@
 // Delivery App Orchestrator
 
-const App = {
+window.App = {
     // State
     currentUser: null,
     viewState: 'landing', // 'landing', 'login-staff', 'dashboard-staff'
@@ -113,12 +113,12 @@ const App = {
 };
 
 // Start
-App.init();
+window.App.init();
 
 // Navbar Toggle Helper
-function toggleNav() {
+window.toggleNav = function() {
     const nav = document.getElementById('delivery-nav');
     if (nav) {
         nav.classList.toggle('nav-expanded');
     }
-}
+};

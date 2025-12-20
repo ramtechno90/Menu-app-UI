@@ -261,6 +261,11 @@ th {
     font-size: 24px;
 }
 
+/* Hide Nav Toggle by default (Desktop) */
+#nav-toggle {
+    display: none;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     .container {
@@ -270,6 +275,28 @@ th {
     header .container {
         flex-direction: column;
         align-items: center;
+    }
+
+    /* Show Nav Toggle on Mobile */
+    #nav-toggle {
+        display: block;
+        background: none;
+        border: 2px solid white;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 5px 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+
+    nav {
+        display: none; /* Hidden by default */
+        width: 100%;
+    }
+
+    nav.nav-expanded {
+        display: block; /* Show when toggled */
     }
 
     nav button {
@@ -300,35 +327,5 @@ th {
     .otp-section input, .otp-section button {
         width: 100%;
         margin-bottom: 10px;
-    }
-}
-
-/* Hide Nav Toggle by default (Desktop) */
-#nav-toggle {
-    display: none;
-}
-
-/* Mobile Responsiveness Updates */
-@media (max-width: 768px) {
-    /* Show Nav Toggle on Mobile */
-    #nav-toggle {
-        display: block;
-        background: none;
-        border: 2px solid white;
-        color: white;
-        font-size: 20px;
-        cursor: pointer;
-        padding: 5px 10px;
-        margin-bottom: 10px;
-        border-radius: 4px;
-    }
-
-    nav {
-        display: none; /* Hidden by default */
-        width: 100%;
-    }
-
-    nav.nav-expanded {
-        display: block; /* Show when toggled */
     }
 }
