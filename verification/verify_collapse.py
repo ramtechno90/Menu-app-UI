@@ -18,32 +18,68 @@ def verify_collapse():
         context = browser.new_context(**iphone_12)
         page = context.new_page()
 
-        # 1. Verify Admin Collapse
+        # 1. Verify Admin Portal
         print(f"Navigating to Admin Portal at {admin_url}")
         page.goto(admin_url)
         page.wait_for_load_state("networkidle")
 
-        # We need active orders to test collapse.
-        # Since this is a static file load without a running backend/auth, the list might be empty.
-        # However, the logic is in JS. If the list is empty, we can't fully verify the interaction visually
-        # without mocking data. But we can verify the CSS rules exist or manually inject a row if needed.
-        # For now, let's take a screenshot of the dashboard to ensure no regression.
-        # If possible, we'd simulate a click.
-        # But wait, the previous verification script worked, so maybe there's default content or it just loads empty.
-        # If it's empty, we can't test the row click.
-        # Assuming for this task verification that the code changes (JS/CSS) are the primary deliverable
-        # and unit-testing UI behavior without a backend is limited.
+        # Verify Nav is hidden
+        # The nav element should not be visible in the viewport or have display: none
+        # Note: Playwright's 'is_visible' checks CSS display/visibility.
+        # nav selector is '#admin-nav'
+        # But we need to be logged in to see the dashboard where the nav is.
+        # The landing page doesn't have the header/nav.
+        # So we verify the structure on Dashboard container by simulating it visible?
+        # Or better, we verify the HTML/CSS rules applied if we can.
+        # Let's bypass login view visibility for a second to verify layout.
 
-        page.screenshot(path=os.path.join(verification_dir, "admin_mobile_dashboard.png"))
-        print("Admin Dashboard Mobile verified (Visual Check).")
+        page.evaluate("document.getElementById('landing-container').style.display = 'none'")
+        page.evaluate("document.getElementById('admin-dashboard-container').style.display = 'block'")
 
-        # 2. Verify Delivery Collapse
+        # Now we are on dashboard view
+        page.screenshot(path=os.path.join(verification_dir, "admin_mobile_dashboard_nav_collapsed.png"))
+
+        # Check nav visibility
+        # Note: 'nav' is hidden by css.
+        nav_visible = page.is_visible("#admin-nav")
+        print(f"Admin Nav Visible (Should be False): {nav_visible}")
+
+        if nav_visible:
+            print("ERROR: Admin Nav should be collapsed/hidden by default on mobile.")
+            # Depending on strictness, we might not fail here but report it.
+            # Actually, css `display: none` should result in False.
+
+        # Click Toggle
+        if page.is_visible("#nav-toggle"):
+             page.click("#nav-toggle")
+             page.screenshot(path=os.path.join(verification_dir, "admin_mobile_dashboard_nav_expanded.png"))
+             nav_visible_after = page.is_visible("#admin-nav")
+             print(f"Admin Nav Visible After Toggle (Should be True): {nav_visible_after}")
+        else:
+             print("ERROR: Nav toggle button not visible on mobile.")
+
+        # 2. Verify Delivery Portal
         print(f"Navigating to Delivery Portal at {delivery_url}")
         page.goto(delivery_url)
         page.wait_for_load_state("networkidle")
 
-        page.screenshot(path=os.path.join(verification_dir, "delivery_mobile_dashboard.png"))
-        print("Delivery Dashboard Mobile verified (Visual Check).")
+        # Bypass login
+        page.evaluate("document.getElementById('landing-container').style.display = 'none'")
+        page.evaluate("document.getElementById('delivery-dashboard-container').style.display = 'block'")
+
+        page.screenshot(path=os.path.join(verification_dir, "delivery_mobile_dashboard_nav_collapsed.png"))
+
+        nav_visible = page.is_visible("#delivery-nav")
+        print(f"Delivery Nav Visible (Should be False): {nav_visible}")
+
+        # Click Toggle
+        if page.is_visible("#nav-toggle"):
+             page.click("#nav-toggle")
+             page.screenshot(path=os.path.join(verification_dir, "delivery_mobile_dashboard_nav_expanded.png"))
+             nav_visible_after = page.is_visible("#delivery-nav")
+             print(f"Delivery Nav Visible After Toggle (Should be True): {nav_visible_after}")
+        else:
+             print("ERROR: Nav toggle button not visible on mobile.")
 
         browser.close()
 

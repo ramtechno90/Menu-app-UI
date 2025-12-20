@@ -302,3 +302,33 @@ th {
         margin-bottom: 10px;
     }
 }
+
+/* Hide Nav Toggle by default (Desktop) */
+#nav-toggle {
+    display: none;
+}
+
+/* Mobile Responsiveness Updates */
+@media (max-width: 768px) {
+    /* Show Nav Toggle on Mobile */
+    #nav-toggle {
+        display: block;
+        background: none;
+        border: 2px solid white;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 5px 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+
+    nav {
+        display: none; /* Hidden by default */
+        width: 100%;
+    }
+
+    nav.nav-expanded {
+        display: block; /* Show when toggled */
+    }
+}
