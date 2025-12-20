@@ -1,5 +1,5 @@
 // Delivery Staff Logic Namespace
-const DeliveryApp = {
+window.DeliveryApp = {
     ordersUnsubscribe: null,
     historyUnsubscribe: null,
     staffName: null,
