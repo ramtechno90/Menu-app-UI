@@ -118,15 +118,24 @@ window.DeliveryApp = {
         details.className = 'order-details';
         details.style.display = 'none'; // Collapsed by default
 
-        const addDetail = (label, text, isLink = false) => {
+        const addDetail = (label, text, type = 'text') => {
             const p = document.createElement('p');
             const strong = document.createElement('strong');
             strong.textContent = `${label}: `;
             p.appendChild(strong);
-            if (isLink) {
+
+            if (type === 'phone') {
                 const a = document.createElement('a');
                 a.href = `tel:${text}`;
                 a.textContent = text;
+                p.appendChild(a);
+            } else if (type === 'address') {
+                const a = document.createElement('a');
+                a.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`;
+                a.target = '_blank';
+                a.textContent = text;
+                a.style.color = '#1976D2';
+                a.style.textDecoration = 'underline';
                 p.appendChild(a);
             } else {
                 p.appendChild(document.createTextNode(text));
@@ -137,8 +146,8 @@ window.DeliveryApp = {
         const dateStr = new Date(order.orderDate).toLocaleString();
         addDetail('Date', dateStr);
         addDetail('Customer', order.customerName);
-        addDetail('Phone', order.customerPhoneNumber, true);
-        addDetail('Address', order.deliveryAddress);
+        addDetail('Phone', order.customerPhoneNumber, 'phone');
+        addDetail('Address', order.deliveryAddress, 'address');
         addDetail('Payment', order.paymentMethod || 'COD');
 
         // Detailed Items
