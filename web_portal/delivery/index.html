@@ -40,7 +40,8 @@
         <header>
             <div class="container">
                 <h1>My Deliveries</h1>
-                <nav>
+                <button id="nav-toggle" onclick="toggleNav()">☰</button>
+                <nav id="delivery-nav">
                     <button onclick="DeliveryApp.showSection('active')" class="active" id="nav-active">Active</button>
                     <button onclick="DeliveryApp.showSection('history')" id="nav-history">History</button>
                     <button onclick="App.logout()">Logout</button>

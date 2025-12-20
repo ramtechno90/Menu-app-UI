@@ -114,3 +114,11 @@ const App = {
 
 // Start
 App.init();
+
+// Navbar Toggle Helper
+function toggleNav() {
+    const nav = document.getElementById('admin-nav');
+    if (nav) {
+        nav.classList.toggle('nav-expanded');
+    }
+}

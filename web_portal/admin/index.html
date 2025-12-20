@@ -40,7 +40,8 @@
         <header>
             <div class="container">
                 <h1>Admin Dashboard</h1>
-                <nav>
+                <button id="nav-toggle" onclick="toggleNav()">☰</button>
+                <nav id="admin-nav">
                     <button onclick="AdminApp.showSection('orders')" class="active" id="nav-orders">Orders</button>
                     <button onclick="AdminApp.showSection('history')" id="nav-history">Order History</button>
                     <button onclick="AdminApp.showSection('menu')" id="nav-menu">Menu Management</button>
