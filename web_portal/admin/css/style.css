@@ -351,3 +351,44 @@ th {
         margin: 50px auto;
     }
 }
+
+/* Mobile Collapsible Cards for Admin */
+@media (max-width: 768px) {
+    /* Hide details, actions, and secondary info by default */
+    td[data-label="Details"],
+    td[data-label="Assigned To"],
+    td[data-label="Actions"],
+    td[data-label="Customer"] {
+        display: none;
+    }
+
+    /* Show them when expanded */
+    tr.expanded td {
+        display: block;
+    }
+
+    /* Always show critical info */
+    tr td[data-label="Date"],
+    tr td[data-label="Status"] {
+        display: block;
+    }
+
+    /* Add chevron indicator */
+    tr.expandable-row {
+        position: relative;
+        cursor: pointer;
+    }
+
+    tr.expandable-row::after {
+        content: '▼';
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.2em;
+        color: #555;
+    }
+
+    tr.expanded::after {
+        content: '▲';
+    }
+}

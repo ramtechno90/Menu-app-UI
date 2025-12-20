@@ -98,11 +98,25 @@ const DeliveryApp = {
         spanStatus.textContent = order.status.replace(/_/g, ' ');
         header.appendChild(spanStatus);
 
+        const expandIcon = document.createElement('span');
+        expandIcon.textContent = ' ▼';
+        expandIcon.style.float = 'right';
+        header.appendChild(expandIcon);
+
+        // Make header clickable to toggle details
+        header.style.cursor = 'pointer';
+        header.onclick = () => {
+             const isHidden = details.style.display === 'none';
+             details.style.display = isHidden ? 'block' : 'none';
+             expandIcon.textContent = isHidden ? ' ▲' : ' ▼';
+        };
+
         card.appendChild(header);
 
         // Details
         const details = document.createElement('div');
         details.className = 'order-details';
+        details.style.display = 'none'; // Collapsed by default
 
         const addDetail = (label, text, isLink = false) => {
             const p = document.createElement('p');
