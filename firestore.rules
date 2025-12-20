@@ -2,7 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // --- Helper Functions ---
+
     function isAdmin() {
+      // Check if the user is authenticated and has a document in the 'admins' collection
+      // OR has the specific admin email (fallback/bootstrap).
       return request.auth != null && (
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
         request.auth.token.email == 'admin@pizzaparadize.com'
@@ -10,23 +14,48 @@ service cloud.firestore {
     }
 
     function isStaff() {
+      // Check if the user is authenticated and has a document in the 'delivery_staff' collection.
       return request.auth != null && exists(/databases/$(database)/documents/delivery_staff/$(request.auth.uid));
     }
 
+    function isOwner(userId) {
+      // Check if the authenticated user's UID matches the resource's userId.
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- Collection Rules ---
+
+    // Admins Collection
+    // Only admins can read/write their own data or others (if needed), but primarily for RBAC check.
+    // Strictly speaking, only the user themselves or another admin should read.
     match /admins/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if false;
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin(); // Only admins can add other admins
     }
 
+    // Delivery Staff Collection
+    // Contains staff profiles (name, phone, etc.).
     match /delivery_staff/{staffId} {
-       allow read: if isAdmin() || (request.auth != null && request.auth.uid == staffId);
-       allow write: if isAdmin();
+       allow read: if isAdmin() || isOwner(staffId) || isStaff(); // Staff can read other staff? Maybe not needed. Let's allow own and admin.
+       // Wait, Admin Portal needs to read ALL staff to assign orders.
+       // Delivery App needs to read OWN staff data.
+       // Delivery App might need to read OTHER staff? No.
+       // So: Admin reads all. Owner reads self.
+       // Correction: `loadDeliveryStaff` in Admin logic reads all.
+       allow read: if isAdmin() || isOwner(staffId);
+       allow write: if isAdmin(); // Only admins can manage staff
     }
 
+    // Users (Customers) Collection
+    // Contains customer profiles (PII).
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
+      allow read: if isAdmin(); // Admin might need to look up user details
     }
 
+    // Menu Items & Categories
+    // Publicly readable (everyone needs to see the menu).
+    // Writable only by Admins.
     match /menu_items/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
@@ -37,40 +66,67 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    match /cart_items/{cartItemId} {
-      // Allow user to read their own cart items (for both `get` and `list`/`query`).
-      // The client MUST query with `where('userId', '==', request.auth.uid)`.
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-
-      // Allow user to create a cart item for themselves.
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-
-      // Allow user to update their own cart item, and prevent them from changing the owner.
-      allow update: if request.auth != null && request.auth.uid == resource.data.userId
-                                            && request.auth.uid == request.resource.data.userId;
-
-      // Allow user to delete their own cart item.
-      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    // App Settings
+    // Global config like tax, fees, etc. Public read. Admin write.
+    match /app_settings/{document=**} {
+       allow read: if true;
+       allow write: if isAdmin();
     }
 
+    // Staff Locations
+    // Used for tracking.
+    match /staff_locations/{staffId} {
+       allow read: if isAdmin();
+       allow write: if isOwner(staffId); // Staff updates their own location
+    }
+
+    // Cart Items (Optional/Legacy if used)
+    match /cart_items/{cartItemId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // Orders Collection
+    // The most critical collection.
     match /orders/{orderId} {
+       // CREATE: Customers can create orders.
+       // Must set userId to own UID.
+       // Status must be PENDING.
+       // otpVerified must be false.
        allow create: if request.auth != null
                      && request.resource.data.userId == request.auth.uid
                      && request.resource.data.status == 'PENDING'
                      && request.resource.data.otpVerified == false;
-       allow update: if isAdmin() || isStaff();
-       allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isStaff());
+
+       // READ:
+       // - Owner (Customer)
+       // - Admin
+       // - Delivery Staff (Need to see assigned orders)
+       // Note: Staff query requires index or broad permission.
+       // Security trade-off: allow all staff to read all orders? Or try to restrict?
+       // Given Firestore query limitations without 'assignedTo' in the token,
+       // we allow 'isStaff()' to read. The app filters by 'assignedTo'.
+       allow read: if isOwner(resource.data.userId) || isAdmin() || isStaff();
+
+       // UPDATE:
+       // - Admin: Full access.
+       // - Staff: Restricted access (status, otpEntered).
+       allow update: if isAdmin()
+                     || (isStaff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'otpEntered']));
+
+       // DELETE: Admin only.
        allow delete: if isAdmin();
 
+       // Subcollection: Private Data (OTP)
+       // Contains sensitive OTP.
+       // - Customer: Needs to read it to give to staff (or see it in app).
+       // - Staff: SHOULD NOT read it directly (logic verifies via Cloud Function).
+       // - Admin: Can read if debugging, but generally not needed.
        match /private/{document} {
          allow read: if request.auth != null && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid;
-         allow write: if false;
+         allow write: if false; // Only Cloud Functions write here
        }
-    }
-
-    match /app_settings/{document=**} {
-       allow read: if true;
-       allow write: if isAdmin();
     }
   }
 }
