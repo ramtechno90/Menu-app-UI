@@ -263,3 +263,44 @@ th {
     cursor: pointer;
     font-size: 24px;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    header .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav button {
+        margin: 5px;
+        width: 100%;
+        display: block;
+        text-align: center;
+    }
+
+    /* Stack controls vertically on mobile */
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .controls input, .controls select, .controls button {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    /* Make tables scrollable */
+    #orders-list, #history-list, #categories-list, #menu-items-list {
+        overflow-x: auto;
+    }
+
+    /* Adjust modals for mobile */
+    .modal-content {
+        width: 95%;
+        margin: 50px auto;
+    }
+}
