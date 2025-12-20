@@ -108,11 +108,13 @@ const AdminApp = {
 
         // Date
         const tdDate = document.createElement('td');
+        tdDate.setAttribute('data-label', 'Date');
         tdDate.textContent = date;
         tr.appendChild(tdDate);
 
         // Customer
         const tdCustomer = document.createElement('td');
+        tdCustomer.setAttribute('data-label', 'Customer');
         const divCust = document.createElement('div');
         divCust.textContent = order.customerName;
         const smallAddr = document.createElement('small');
@@ -124,6 +126,7 @@ const AdminApp = {
 
         // Details (Detailed View)
         const tdDetails = document.createElement('td');
+        tdDetails.setAttribute('data-label', 'Details');
 
         // Item List
         const itemList = document.createElement('ul');
@@ -175,6 +178,7 @@ const AdminApp = {
 
         // Status
         const tdStatus = document.createElement('td');
+        tdStatus.setAttribute('data-label', 'Status');
         const spanStatus = document.createElement('span');
         spanStatus.className = `status-badge status-${order.status}`;
         spanStatus.textContent = order.status;
@@ -183,6 +187,7 @@ const AdminApp = {
 
         // Assignee
         const tdAssign = document.createElement('td');
+        tdAssign.setAttribute('data-label', 'Assigned To');
         if (isHistory) {
              tdAssign.textContent = order.assignedTo || 'Unassigned';
         } else {
@@ -206,6 +211,7 @@ const AdminApp = {
 
         // Actions
         const tdActions = document.createElement('td');
+        tdActions.setAttribute('data-label', 'Actions');
         if (isHistory) {
             const btnDel = document.createElement('button');
             btnDel.className = 'btn-small btn-danger';
@@ -349,14 +355,17 @@ const AdminApp = {
                 const tr = document.createElement('tr');
 
                 const tdOrder = document.createElement('td');
+                tdOrder.setAttribute('data-label', 'Order');
                 tdOrder.textContent = cat.order;
                 tr.appendChild(tdOrder);
 
                 const tdName = document.createElement('td');
+                tdName.setAttribute('data-label', 'Name');
                 tdName.textContent = cat.name;
                 tr.appendChild(tdName);
 
                 const tdActions = document.createElement('td');
+                tdActions.setAttribute('data-label', 'Actions');
 
                 const btnEdit = document.createElement('button');
                 btnEdit.className = 'btn-small';
@@ -442,14 +451,17 @@ const AdminApp = {
                 const tr = document.createElement('tr');
 
                 const tdName = document.createElement('td');
+                tdName.setAttribute('data-label', 'Name');
                 tdName.textContent = item.name;
                 tr.appendChild(tdName);
 
                 const tdPrice = document.createElement('td');
+                tdPrice.setAttribute('data-label', 'Price');
                 tdPrice.textContent = item.price;
                 tr.appendChild(tdPrice);
 
                 const tdActions = document.createElement('td');
+                tdActions.setAttribute('data-label', 'Actions');
 
                 const btnEdit = document.createElement('button');
                 btnEdit.className = 'btn-small';

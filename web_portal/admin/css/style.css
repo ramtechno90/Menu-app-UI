@@ -293,9 +293,55 @@ th {
         margin: 5px 0;
     }
 
-    /* Make tables scrollable */
-    #orders-list, #history-list, #categories-list, #menu-items-list {
-        overflow-x: auto;
+    /* Table to Card Transformation for Mobile */
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    /* Hide table headers */
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        margin-bottom: 15px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 0;
+        text-align: left;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    td:last-child {
+        border-bottom: none;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+    }
+
+    /* Special handling for 'Details' to look good in card */
+    td[data-label="Details"] {
+        background: #fafafa;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 4px;
     }
 
     /* Adjust modals for mobile */
