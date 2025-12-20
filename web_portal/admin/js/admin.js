@@ -104,6 +104,15 @@ const AdminApp = {
 
     createOrderRow: function(docId, order, isHistory) {
         const tr = document.createElement('tr');
+        // Toggle Expanded Class on Click (Mobile only logic handled by CSS)
+        tr.onclick = (e) => {
+            // Prevent toggle if clicking on interactive elements
+            if (['BUTTON', 'SELECT', 'INPUT', 'OPTION'].includes(e.target.tagName)) return;
+            tr.classList.toggle('expanded');
+        };
+        // Add indicator capability
+        tr.classList.add('expandable-row');
+
         const date = new Date(order.orderDate).toLocaleString();
 
         // Date
