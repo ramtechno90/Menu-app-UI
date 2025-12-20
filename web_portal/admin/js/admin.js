@@ -437,7 +437,8 @@ window.AdminApp = {
             itemsContainer.style.display = 'none';
 
             // Filter items for this category
-            const catItems = this.menuItems.filter(item => item.category === cat.id);
+            // Handle both category IDs (new format) and category names (legacy format)
+            const catItems = this.menuItems.filter(item => item.category === cat.id || item.category === cat.name);
 
             if (catItems.length === 0) {
                 itemsContainer.innerHTML = '<p style="padding: 10px; color: #666;">No items in this category.</p>';
@@ -555,7 +556,6 @@ window.AdminApp = {
     editItem: function(id, itemStr) {
         const item = JSON.parse(decodeURIComponent(itemStr));
         document.getElementById('item-id').value = id;
-        document.getElementById('item-category').value = item.category;
         document.getElementById('item-name').value = item.name;
         document.getElementById('item-desc').value = item.description;
         document.getElementById('item-price').value = item.price;
@@ -563,7 +563,16 @@ window.AdminApp = {
 
         // Ensure category select is populated
         this.populateCategorySelect('item-category');
-        document.getElementById('item-category').value = item.category;
+
+        // Handle both category ID and legacy category Name
+        // Find the category object that matches either by ID or Name
+        const matchedCat = this.categories.find(c => c.id === item.category || c.name === item.category);
+        if (matchedCat) {
+             document.getElementById('item-category').value = matchedCat.id;
+        } else {
+             // Fallback if no match found (shouldn't happen if categories exist)
+             document.getElementById('item-category').value = item.category;
+        }
 
         document.getElementById('item-modal-title').innerText = 'Edit Item';
         openModal('item-modal');
