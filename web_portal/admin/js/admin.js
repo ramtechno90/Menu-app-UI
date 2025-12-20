@@ -8,11 +8,18 @@ const AdminApp = {
 
     init: function() {
         console.log('Initializing Admin Dashboard');
+        this.requestNotificationPermission();
         this.loadCategories();
         this.loadDeliveryStaff().then(() => {
             this.loadOrders();
             this.loadHistory();
         });
+    },
+
+    requestNotificationPermission: function() {
+        if ('Notification' in window && Notification.permission !== 'granted') {
+            Notification.requestPermission();
+        }
     },
 
     cleanup: function() {
@@ -40,6 +47,8 @@ const AdminApp = {
     loadOrders: function() {
         if (this.ordersUnsubscribe) this.ordersUnsubscribe();
 
+        let isFirstLoad = true;
+
         // Active Orders: Not DELIVERED
         // Note: Firestore != queries can be tricky with indexes.
         // We will query where status is in PENDING, PREPARING, READY_FOR_DELIVERY, PICKED_UP
@@ -49,6 +58,23 @@ const AdminApp = {
             .onSnapshot(snapshot => {
             const list = document.getElementById('orders-list');
             if (!list) return;
+
+            // Handle Notifications for new orders
+            if (!isFirstLoad) {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        const order = change.doc.data();
+                        // Only notify for actually new orders (PENDING), not just moved status orders if possible
+                        // But since we query by status IN [...], a status change might trigger 'added' if it enters the query?
+                        // Actually, 'modified' is triggered if it stays in query. 'added' if it enters.
+                        // We primarily want to notify on PENDING.
+                        if (order.status === 'PENDING') {
+                            this.sendNotification(change.doc.id, order);
+                        }
+                    }
+                });
+            }
+            isFirstLoad = false;
 
             list.innerHTML = '';
             if (snapshot.empty) {
@@ -68,6 +94,18 @@ const AdminApp = {
             table.appendChild(tbody);
             list.appendChild(table);
         });
+    },
+
+    sendNotification: function(orderId, order) {
+        if (!('Notification' in window)) return;
+
+        if (Notification.permission === 'granted') {
+            const notif = new Notification('New Order Received!', {
+                body: `Order #${orderId.slice(-5)} from ${order.customerName}\nTotal: ₹${order.grandTotal}`,
+                icon: 'https://via.placeholder.com/128?text=Pizza' // Placeholder or app icon
+            });
+            notif.onclick = () => window.focus();
+        }
     },
 
     loadHistory: function() {
