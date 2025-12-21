@@ -107,7 +107,8 @@ service cloud.firestore {
        // Security trade-off: allow all staff to read all orders? Or try to restrict?
        // Given Firestore query limitations without 'assignedTo' in the token,
        // we allow 'isStaff()' to read. The app filters by 'assignedTo'.
-       allow read: if isOwner(resource.data.userId) || isAdmin() || isStaff();
+       allow read: if isOwner(resource.data.userId) || isAdmin() ||
+                   (isStaff() && resource.data.assignedTo == get(/databases/$(database)/documents/delivery_staff/$(request.auth.uid)).data.name);
 
        // UPDATE:
        // - Admin: Full access.
