@@ -98,9 +98,16 @@ window.AdminApp = {
         if (Notification.permission === 'granted') {
             const notif = new Notification('New Order Received!', {
                 body: `Order #${orderId.slice(-5)} from ${order.customerName}\nTotal: ₹${order.grandTotal}`,
-                icon: 'https://via.placeholder.com/128?text=Pizza'
+                icon: 'https://via.placeholder.com/128?text=Pizza',
+                vibrate: [200, 100, 200],
+                requireInteraction: true,
+                tag: 'new-order',
+                renotify: true
             });
-            notif.onclick = () => window.focus();
+            notif.onclick = () => {
+                window.focus();
+                notif.close();
+            };
         }
     },
 
