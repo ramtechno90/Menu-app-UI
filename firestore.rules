@@ -125,6 +125,7 @@ service cloud.firestore {
        // - Admin: Can read if debugging, but generally not needed.
        match /private/{document} {
          allow read: if request.auth != null && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid;
+         allow delete: if isAdmin();
          allow write: if false; // Only Cloud Functions write here
        }
     }
