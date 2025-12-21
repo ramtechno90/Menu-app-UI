@@ -68,7 +68,8 @@ exports.verifyOtp = functions.firestore
 
     try {
         // Fetch the correct OTP from the private collection
-        const privateSnap = await change.after.ref.collection("private").doc("data").get();
+        const privateRef = change.after.ref.collection("private").doc("data");
+        const privateSnap = await privateRef.get();
 
         if (!privateSnap.exists) {
             console.error(`Private data not found for order ${context.params.orderId}`);
@@ -80,7 +81,22 @@ exports.verifyOtp = functions.firestore
             return null;
         }
 
-        const correctOtp = privateSnap.data().otp;
+        const privateData = privateSnap.data();
+        const correctOtp = privateData.otp;
+        const attempts = privateData.attempts || 0;
+
+        if (attempts >= 5) {
+             console.warn(`Order ${context.params.orderId}: Max OTP attempts reached.`);
+             await change.after.ref.update({
+                 otpVerified: false,
+                 otpInvalid: true,
+                 otpEntered: null // Prevent valid checks even if correct later
+             });
+             // Optionally update private doc to explicitly mark locked,
+             // but current logic prevents success if attempts > 5.
+             return null;
+        }
+
         const isExpired = Date.now() > expiry.getTime();
         const isCorrect = enteredOtp === correctOtp;
 
@@ -94,12 +110,15 @@ exports.verifyOtp = functions.firestore
           console.log(`Order ${context.params.orderId}: Verified successfully.`);
         } else {
           // Failure
+          await privateRef.update({
+              attempts: admin.firestore.FieldValue.increment(1)
+          });
           await change.after.ref.update({
             otpVerified: false,
             otpInvalid: true,
             otpEntered: null, // Reset for re-entry
           });
-          console.log(`Order ${context.params.orderId}: Verification failed. Correct=${isCorrect}, Expired=${isExpired}`);
+          console.log(`Order ${context.params.orderId}: Verification failed. Correct=${isCorrect}, Expired=${isExpired}, Attempts=${attempts + 1}`);
         }
     } catch (error) {
         console.error("Error verifying OTP:", error);
