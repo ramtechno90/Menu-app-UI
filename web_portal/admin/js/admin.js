@@ -10,12 +10,21 @@ window.AdminApp = {
 
     init: function() {
         console.log('Initializing Admin Dashboard');
+        this.registerServiceWorker();
         this.requestNotificationPermission();
         this.loadMenuManagement();
         this.loadDeliveryStaff().then(() => {
             this.loadOrders();
             this.loadHistory();
         });
+    },
+
+    registerServiceWorker: function() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.log('Service Worker registration failed', err));
+        }
     },
 
     requestNotificationPermission: function() {
@@ -96,18 +105,27 @@ window.AdminApp = {
         if (!('Notification' in window)) return;
 
         if (Notification.permission === 'granted') {
-            const notif = new Notification('New Order Received!', {
+            const title = 'New Order Received!';
+            const options = {
                 body: `Order #${orderId.slice(-5)} from ${order.customerName}\nTotal: ₹${order.grandTotal}`,
                 icon: 'https://via.placeholder.com/128?text=Pizza',
                 vibrate: [200, 100, 200],
                 requireInteraction: true,
                 tag: 'new-order',
                 renotify: true
-            });
-            notif.onclick = () => {
-                window.focus();
-                notif.close();
             };
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title, options);
+                });
+            } else {
+                const notif = new Notification(title, options);
+                notif.onclick = () => {
+                    window.focus();
+                    notif.close();
+                };
+            }
         }
     },
 
