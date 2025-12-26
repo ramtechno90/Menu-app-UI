@@ -24,6 +24,7 @@ data class CartUiState(
     val taxRate: Double = 0.0,
     val deliveryFee: Double = 0.0,
     val grandTotal: Double = 0.0,
+    val deliveryDistanceKm: Double? = null,
     val isFetchingAddress: Boolean = false,
     val deliveryAddress: String = "",
     val phoneNumberInput: String = "", // The text in the TextField
@@ -62,23 +63,33 @@ class CartViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CartUiState())
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
 
+    private val _deliveryDistance = MutableStateFlow<Double?>(null)
     private var notesUpdateJob: Job? = null
 
     init {
         viewModelScope.launch {
             combine(
                 menuRepository.getCartItems(),
-                firebaseSettingsService.getTaxSettings(),
                 firebaseSettingsService.getShowImagesSetting(),
                 firebaseSettingsService.getDeliveryFeeSettings(),
-                authRepository.getUserFlow()
-            ) { items, taxSettings, showImages, deliveryFeeSettings, user ->
+                authRepository.getUserFlow(),
+                _deliveryDistance
+            ) { items, showImages, deliveryFeeSettings, user, distance ->
                 val subtotal = items.sumOf { it.price * it.quantity }
-                val currentTaxRate = if (taxSettings.universalTax) taxSettings.taxRate else 8.0
-                val tax = subtotal * (currentTaxRate / 100.0)
-                val deliveryFee = if (items.isNotEmpty()) deliveryFeeSettings.fee else 0.0
+                val tax = 0.0 // Tax removed
+                val currentTaxRate = 0.0
+
+                var deliveryFee = 0.0
+                if (distance != null) {
+                    if (distance <= deliveryFeeSettings.minDistanceKm) {
+                        deliveryFee = deliveryFeeSettings.minDistanceRate
+                    } else {
+                        deliveryFee = deliveryFeeSettings.minDistanceRate + (distance - deliveryFeeSettings.minDistanceKm) * deliveryFeeSettings.additionalRatePerKm
+                    }
+                }
+
                 val grandTotal = subtotal + tax + deliveryFee
-            val defaultPhoneNumber = user?.phoneNumber ?: ""
+                val defaultPhoneNumber = user?.phoneNumber ?: ""
 
                 _uiState.update {
                     it.copy(
@@ -89,7 +100,8 @@ class CartViewModel @Inject constructor(
                         deliveryFee = deliveryFee,
                         grandTotal = grandTotal,
                         showImages = showImages,
-                    userDefaultPhoneNumber = defaultPhoneNumber
+                        userDefaultPhoneNumber = defaultPhoneNumber,
+                        deliveryDistanceKm = distance
                     )
                 }
             }.collect()
@@ -193,6 +205,36 @@ class CartViewModel @Inject constructor(
 
     fun onLocationConfirmed(address: String) {
         _uiState.update { it.copy(deliveryAddress = address) }
+        calculateDistance(address)
+    }
+
+    private fun calculateDistance(address: String) {
+        viewModelScope.launch {
+             when(val result = locationHelper.geocodeAddress(address)) {
+                 is LocationResult.Success -> {
+                      val userLat = result.latitude
+                      val userLng = result.longitude
+
+                      firebaseSettingsService.getRestaurantDetails().collect { restDetails ->
+                        if (restDetails.latitude != 0.0 || restDetails.longitude != 0.0) {
+                            val results = FloatArray(1)
+                            android.location.Location.distanceBetween(
+                                restDetails.latitude, restDetails.longitude,
+                                userLat, userLng,
+                                results
+                            )
+                            val distanceInMeters = results[0]
+                            val distanceInKm = distanceInMeters / 1000.0
+                             _deliveryDistance.value = distanceInKm
+                        }
+                        throw java.util.concurrent.CancellationException("Got details")
+                    }
+                 }
+                 else -> {
+                     // Handle error or do nothing
+                 }
+             }
+        }
     }
 
     fun onNavigationToConfirmLocationDone() {

@@ -346,12 +346,13 @@ fun PriceDetailsCard(uiState: CartUiState) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val taxRateFormat = DecimalFormat("#.##'%'")
-        val taxLabel =
-            if (uiState.taxRate > 0) "Taxes (${taxRateFormat.format(uiState.taxRate)})" else "Taxes"
-
         SummaryRow("Subtotal", String.format("₹%.2f", uiState.subtotal))
-        SummaryRow(taxLabel, String.format("₹%.2f", uiState.tax))
+        if (uiState.deliveryDistanceKm != null) {
+            SummaryRow(
+                "Delivery Distance",
+                String.format("%.2f km", uiState.deliveryDistanceKm)
+            )
+        }
         SummaryRow("Delivery Fee", String.format("₹%.2f", uiState.deliveryFee))
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),

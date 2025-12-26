@@ -17,6 +17,7 @@ window.AdminApp = {
             this.loadOrders();
             this.loadHistory();
         });
+        this.loadDeliverySettings();
     },
 
     registerServiceWorker: function() {
@@ -728,5 +729,57 @@ window.AdminApp = {
         document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
         document.getElementById(sectionId + '-section').classList.add('active');
         document.getElementById('nav-' + sectionId).classList.add('active');
+    },
+
+    loadDeliverySettings: function() {
+        // Load Restaurant Details
+        db.collection('app_settings').doc('restaurant_details').get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById('rest-lat').value = data.latitude !== undefined ? data.latitude : '';
+                document.getElementById('rest-lng').value = data.longitude !== undefined ? data.longitude : '';
+            }
+        });
+
+        // Load Delivery Fee Settings
+        db.collection('app_settings').doc('delivery_fee').get().then(doc => {
+             if (doc.exists) {
+                const data = doc.data();
+                document.getElementById('min-dist-km').value = data.minDistanceKm !== undefined ? data.minDistanceKm : '';
+                document.getElementById('min-dist-rate').value = data.minDistanceRate !== undefined ? data.minDistanceRate : '';
+                document.getElementById('add-dist-rate').value = data.additionalRatePerKm !== undefined ? data.additionalRatePerKm : '';
+            }
+        });
+    },
+
+    saveDeliverySettings: function() {
+        const lat = parseFloat(document.getElementById('rest-lat').value);
+        const lng = parseFloat(document.getElementById('rest-lng').value);
+        const minKm = parseFloat(document.getElementById('min-dist-km').value);
+        const minRate = parseFloat(document.getElementById('min-dist-rate').value);
+        const addRate = parseFloat(document.getElementById('add-dist-rate').value);
+
+        if (isNaN(lat) || isNaN(lng) || isNaN(minKm) || isNaN(minRate) || isNaN(addRate)) {
+            alert('Please enter valid numbers for all fields.');
+            return;
+        }
+
+        const p1 = db.collection('app_settings').doc('restaurant_details').set({
+            latitude: lat,
+            longitude: lng
+        }, { merge: true });
+
+        const p2 = db.collection('app_settings').doc('delivery_fee').set({
+            minDistanceKm: minKm,
+            minDistanceRate: minRate,
+            additionalRatePerKm: addRate
+        }, { merge: true });
+
+        Promise.all([p1, p2]).then(() => {
+            alert('Settings saved successfully!');
+        }).catch(err => {
+            console.error(err);
+            alert('Error saving settings.');
+        });
     }
 };
