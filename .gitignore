@@ -2,4 +2,4 @@ local.properties
 app/google-services.json
 build/
 .gradle/
-.idea/
+.idea/node_modules/
