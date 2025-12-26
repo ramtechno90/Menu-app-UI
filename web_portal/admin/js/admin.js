@@ -753,6 +753,36 @@ window.AdminApp = {
         });
     },
 
+    extractCoordinatesFromUrl: function(input) {
+        input = input.trim();
+        // Regex for standard "Lat, Long" format
+        const latLongRegex = /^(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)$/;
+        const matchLatLong = input.match(latLongRegex);
+        if (matchLatLong) {
+            return {
+                lat: parseFloat(matchLatLong[1]),
+                lng: parseFloat(matchLatLong[3])
+            };
+        }
+
+        // Regex for Google Maps Long URLs containing @lat,long
+        const urlRegex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+        const matchUrl = input.match(urlRegex);
+        if (matchUrl) {
+            return {
+                lat: parseFloat(matchUrl[1]),
+                lng: parseFloat(matchUrl[2])
+            };
+        }
+
+        // If it looks like a URL but doesn't have coordinates in the path (e.g. short link)
+        if (input.includes('http') || input.includes('goo.gl') || input.includes('maps.app.goo.gl')) {
+             return null; // Indicates it is a URL but we couldn't parse it
+        }
+
+        return undefined; // Invalid format
+    },
+
     saveDeliverySettings: function() {
         const locationInput = document.getElementById('rest-location').value;
         const minKm = parseFloat(document.getElementById('min-dist-km').value);
@@ -764,19 +794,19 @@ window.AdminApp = {
             return;
         }
 
-        const parts = locationInput.split(',').map(s => s.trim());
-        if (parts.length !== 2) {
-             alert('Invalid location format. Please use "Latitude, Longitude" (e.g. 12.9716, 77.5946)');
+        const coords = this.extractCoordinatesFromUrl(locationInput);
+
+        if (coords === null) {
+             alert('It looks like you pasted a short link (e.g. maps.app.goo.gl). Please copy the full URL from the browser address bar (containing @lat,long) or enter coordinates manually as "Lat, Long".');
              return;
         }
 
-        const lat = parseFloat(parts[0]);
-        const lng = parseFloat(parts[1]);
-
-        if (isNaN(lat) || isNaN(lng)) {
-             alert('Invalid latitude or longitude values.');
+        if (coords === undefined) {
+             alert('Invalid location format. Please use "Latitude, Longitude" or paste a full Google Maps URL.');
              return;
         }
+
+        const { lat, lng } = coords;
 
         const p1 = db.collection('app_settings').doc('restaurant_details').set({
             latitude: lat,
