@@ -6,5 +6,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 data class RestaurantDetails(
     val name: String = "",
     val logoUrl: String = "",
-    val contactNumber: String = ""
+    val contactNumber: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 )
