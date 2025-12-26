@@ -736,8 +736,9 @@ window.AdminApp = {
         db.collection('app_settings').doc('restaurant_details').get().then(doc => {
             if (doc.exists) {
                 const data = doc.data();
-                document.getElementById('rest-lat').value = data.latitude !== undefined ? data.latitude : '';
-                document.getElementById('rest-lng').value = data.longitude !== undefined ? data.longitude : '';
+                if (data.latitude !== undefined && data.longitude !== undefined) {
+                    document.getElementById('rest-location').value = `${data.latitude}, ${data.longitude}`;
+                }
             }
         });
 
@@ -753,15 +754,28 @@ window.AdminApp = {
     },
 
     saveDeliverySettings: function() {
-        const lat = parseFloat(document.getElementById('rest-lat').value);
-        const lng = parseFloat(document.getElementById('rest-lng').value);
+        const locationInput = document.getElementById('rest-location').value;
         const minKm = parseFloat(document.getElementById('min-dist-km').value);
         const minRate = parseFloat(document.getElementById('min-dist-rate').value);
         const addRate = parseFloat(document.getElementById('add-dist-rate').value);
 
-        if (isNaN(lat) || isNaN(lng) || isNaN(minKm) || isNaN(minRate) || isNaN(addRate)) {
-            alert('Please enter valid numbers for all fields.');
+        if (!locationInput || isNaN(minKm) || isNaN(minRate) || isNaN(addRate)) {
+            alert('Please fill in all fields correctly.');
             return;
+        }
+
+        const parts = locationInput.split(',').map(s => s.trim());
+        if (parts.length !== 2) {
+             alert('Invalid location format. Please use "Latitude, Longitude" (e.g. 12.9716, 77.5946)');
+             return;
+        }
+
+        const lat = parseFloat(parts[0]);
+        const lng = parseFloat(parts[1]);
+
+        if (isNaN(lat) || isNaN(lng)) {
+             alert('Invalid latitude or longitude values.');
+             return;
         }
 
         const p1 = db.collection('app_settings').doc('restaurant_details').set({
