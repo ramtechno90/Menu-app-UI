@@ -47,10 +47,82 @@ window.DeliveryApp = {
                   return;
               }
 
+              // Group orders by status
+              const ordersByStatus = {
+                  'READY_FOR_DELIVERY': [],
+                  'PICKED_UP': []
+              };
+
               snap.forEach(doc => {
                   const order = doc.data();
-                  const card = this.createOrderCard(doc.id, order, false);
-                  container.appendChild(card);
+                  if (ordersByStatus[order.status]) {
+                      ordersByStatus[order.status].push({ id: doc.id, data: order });
+                  }
+              });
+
+              // Create Accordion for each status
+              const statusOrder = ['READY_FOR_DELIVERY', 'PICKED_UP'];
+
+              statusOrder.forEach(status => {
+                  const orders = ordersByStatus[status];
+                  const count = orders.length;
+
+                  // Status Block
+                  const block = document.createElement('div');
+                  block.className = 'status-block';
+                  block.style.marginBottom = '20px';
+                  block.style.background = 'white';
+                  block.style.borderRadius = '8px';
+                  block.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                  block.style.overflow = 'hidden';
+
+                  // Header
+                  const header = document.createElement('div');
+                  header.className = 'status-header';
+                  header.style.padding = '15px';
+                  header.style.background = '#f8f8f8';
+                  header.style.cursor = 'pointer';
+                  header.style.display = 'flex';
+                  header.style.justifyContent = 'space-between';
+                  header.style.alignItems = 'center';
+                  header.style.borderBottom = '1px solid #eee';
+
+                  const title = document.createElement('h3');
+                  title.style.margin = '0';
+                  title.style.color = '#333';
+                  title.textContent = `${status.replace(/_/g, ' ')} (${count})`;
+
+                  const toggleIcon = document.createElement('span');
+                  toggleIcon.textContent = '▶'; // Default collapsed
+
+                  header.appendChild(title);
+                  header.appendChild(toggleIcon);
+
+                  // Content
+                  const content = document.createElement('div');
+                  content.className = 'status-content';
+                  content.style.display = 'none'; // Default collapsed
+                  content.style.padding = '10px';
+
+                  if (count === 0) {
+                      content.innerHTML = '<p style="padding: 5px; color: #777;">No orders in this status.</p>';
+                  } else {
+                      orders.forEach(item => {
+                          const card = this.createOrderCard(item.id, item.data, false);
+                          content.appendChild(card);
+                      });
+                  }
+
+                  // Toggle Logic
+                  header.onclick = () => {
+                      const isHidden = content.style.display === 'none';
+                      content.style.display = isHidden ? 'block' : 'none';
+                      toggleIcon.textContent = isHidden ? '▼' : '▶';
+                  };
+
+                  block.appendChild(header);
+                  block.appendChild(content);
+                  container.appendChild(block);
               });
           });
     },
