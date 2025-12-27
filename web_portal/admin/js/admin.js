@@ -136,7 +136,7 @@ window.AdminApp = {
                 title.textContent = `${status.replace(/_/g, ' ')} (${count})`;
 
                 const toggleIcon = document.createElement('span');
-                toggleIcon.textContent = '▼'; // Default open
+                toggleIcon.textContent = '▶'; // Default collapsed
 
                 header.appendChild(title);
                 header.appendChild(toggleIcon);
@@ -145,12 +145,8 @@ window.AdminApp = {
                 const content = document.createElement('div');
                 content.className = 'status-content';
 
-                // Keep PENDING open by default, others closed? Or all open?
-                // Request implies re-appearing in current status sub category.
-                // Keeping them all open might be better for visibility,
-                // but "accordion type" implies toggle. Let's default PENDING open.
-                // If count > 0, maybe open? Let's default open for now as it's easier to see changes.
-                content.style.display = 'block';
+                // Default collapsed per user request
+                content.style.display = 'none';
 
                 if (count === 0) {
                     content.innerHTML = '<p style="padding: 15px; color: #777;">No orders in this status.</p>';
