@@ -31,7 +31,8 @@ fun OrdersScreen(
         CurrentOrdersScreen(
             onOrderClicked = { order -> onOrderClicked(order.id) },
             orders = uiState.ongoingOrders,
-            showImages = uiState.showImages
+            showImages = uiState.showImages,
+            contactNumber = uiState.contactNumber
         )
     }
 }

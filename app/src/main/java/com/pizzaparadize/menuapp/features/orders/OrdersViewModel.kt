@@ -11,7 +11,8 @@ import javax.inject.Inject
 
 data class OrdersUiState(
     val ongoingOrders: List<Order> = emptyList(),
-    val showImages: Boolean = true
+    val showImages: Boolean = true,
+    val contactNumber: String = ""
 )
 
 @HiltViewModel
@@ -25,11 +26,13 @@ class OrdersViewModel @Inject constructor(
 
     val uiState: StateFlow<OrdersUiState> = combine(
         orderRepository.getOngoingOrders(),
-        _showImages
-    ) { ongoing, showImages ->
+        _showImages,
+        firebaseSettingsService.getRestaurantDetails()
+    ) { ongoing, showImages, restaurantDetails ->
         OrdersUiState(
             ongoingOrders = ongoing,
-            showImages = showImages
+            showImages = showImages,
+            contactNumber = restaurantDetails.contactNumber ?: ""
         )
     }.stateIn(
         scope = viewModelScope,

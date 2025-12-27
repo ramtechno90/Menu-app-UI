@@ -38,7 +38,8 @@ data class CartUiState(
     val showImages: Boolean = true,
     val cartStep: CartStep = CartStep.ITEMS,
     val paymentMethod: String = "",
-    val deliveryFeeSettings: DeliveryFeeSettings? = null
+    val deliveryFeeSettings: DeliveryFeeSettings? = null,
+    val contactNumber: String = ""
 )
 
 enum class AddressSelection {
@@ -70,13 +71,20 @@ class CartViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(
-                menuRepository.getCartItems(),
+            val settingsFlow = combine(
                 firebaseSettingsService.getShowImagesSetting(),
                 firebaseSettingsService.getDeliveryFeeSettings(),
+                firebaseSettingsService.getRestaurantDetails()
+            ) { showImages, deliveryFeeSettings, restaurantDetails ->
+                Triple(showImages, deliveryFeeSettings, restaurantDetails)
+            }
+
+            combine(
+                menuRepository.getCartItems(),
+                settingsFlow,
                 authRepository.getUserFlow(),
                 _deliveryDistance
-            ) { items, showImages, deliveryFeeSettings, user, distance ->
+            ) { items, (showImages, deliveryFeeSettings, restaurantDetails), user, distance ->
                 val subtotal = items.sumOf { it.price * it.quantity }
                 val tax = 0.0 // Tax removed
                 val currentTaxRate = 0.0
@@ -104,7 +112,8 @@ class CartViewModel @Inject constructor(
                         showImages = showImages,
                         userDefaultPhoneNumber = defaultPhoneNumber,
                         deliveryDistanceKm = distance,
-                        deliveryFeeSettings = deliveryFeeSettings
+                        deliveryFeeSettings = deliveryFeeSettings,
+                        contactNumber = restaurantDetails.contactNumber ?: ""
                     )
                 }
             }.collect()
