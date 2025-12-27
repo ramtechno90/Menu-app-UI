@@ -135,7 +135,8 @@ fun ShoppingCartScreen(
         onPhoneNumberChange = viewModel::onPhoneNumberChange,
         onNextStep = viewModel::nextStep,
         onPreviousStep = viewModel::previousStep,
-        onPaymentMethodSelected = viewModel::onPaymentMethodSelected
+        onPaymentMethodSelected = viewModel::onPaymentMethodSelected,
+        onDeliveryFeeInfoClick = { showDeliveryPolicyDialog = true }
     )
 }
 
@@ -153,7 +154,8 @@ fun ShoppingCartScreenContent(
     onPhoneNumberChange: (String) -> Unit,
     onNextStep: () -> Unit,
     onPreviousStep: () -> Unit,
-    onPaymentMethodSelected: (String) -> Unit
+    onPaymentMethodSelected: (String) -> Unit,
+    onDeliveryFeeInfoClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -185,7 +187,7 @@ fun ShoppingCartScreenContent(
                     item {
                         PriceDetailsCard(
                             uiState = uiState,
-                            onDeliveryFeeInfoClick = { showDeliveryPolicyDialog = true }
+                            onDeliveryFeeInfoClick = onDeliveryFeeInfoClick
                         )
                     }
 
@@ -324,7 +326,7 @@ fun ShoppingCartScreenContent(
                     item {
                         PriceDetailsCard(
                             uiState = uiState,
-                            onDeliveryFeeInfoClick = { showDeliveryPolicyDialog = true }
+                            onDeliveryFeeInfoClick = onDeliveryFeeInfoClick
                         )
                     }
 
@@ -622,7 +624,8 @@ fun ShoppingCartScreenPreview() {
             onPhoneNumberChange = {},
             onNextStep = {},
             onPreviousStep = {},
-            onPaymentMethodSelected = {}
+            onPaymentMethodSelected = {},
+            onDeliveryFeeInfoClick = {}
         )
     }
 }
