@@ -113,7 +113,7 @@ class CartViewModel @Inject constructor(
                         userDefaultPhoneNumber = defaultPhoneNumber,
                         deliveryDistanceKm = distance,
                         deliveryFeeSettings = deliveryFeeSettings,
-                        contactNumber = restaurantDetails.contactNumber ?: ""
+                        contactNumber = restaurantDetails.contactNumber
                     )
                 }
             }.collect()

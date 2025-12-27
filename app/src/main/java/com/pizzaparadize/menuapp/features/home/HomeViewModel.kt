@@ -49,7 +49,7 @@ class HomeViewModel @Inject constructor(
             categories = categories,
             showImages = showImages,
             cartQuantities = cartQuantities,
-            contactNumber = restaurantDetails.contactNumber ?: ""
+            contactNumber = restaurantDetails.contactNumber
         )
     }.stateIn(
         scope = viewModelScope,
