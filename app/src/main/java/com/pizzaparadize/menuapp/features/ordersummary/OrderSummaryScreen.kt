@@ -213,12 +213,16 @@ private fun SummaryCard(order: Order) {
         shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            val taxRate = if (order.subtotal > 0) (order.tax / order.subtotal) * 100 else 0.0
-            val taxRateFormat = DecimalFormat("#.##'%'")
-            val taxLabel = if (taxRate > 0) "Taxes (${taxRateFormat.format(taxRate)})" else "Taxes"
-
             SummaryRow("Subtotal", String.format("₹%.2f", order.subtotal))
-            SummaryRow(taxLabel, String.format("₹%.2f", order.tax))
+
+            if (order.deliveryDistanceKm != null) {
+                SummaryRow("Delivery Distance", String.format("%.2f km", order.deliveryDistanceKm))
+            }
+
+            if (order.tax > 0) {
+                SummaryRow("Taxes", String.format("₹%.2f", order.tax))
+            }
+
             SummaryRow("Delivery Fee", String.format("₹%.2f", order.deliveryFee))
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SummaryRow("Grand Total", String.format("₹%.2f", order.grandTotal), isBold = true)

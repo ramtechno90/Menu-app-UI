@@ -156,6 +156,11 @@ private fun OrderSummaryCard(order: Order, showImage: Boolean) {
             Spacer(modifier = Modifier.height(16.dp))
 
             SummaryRow("Subtotal", String.format("₹%.2f", order.subtotal))
+
+            if (order.deliveryDistanceKm != null) {
+                SummaryRow("Delivery Distance", String.format("%.2f km", order.deliveryDistanceKm))
+            }
+
             SummaryRow("Delivery Fee", String.format("₹%.2f", order.deliveryFee))
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SummaryRow("Grand Total", String.format("₹%.2f", order.grandTotal), isBold = true)
