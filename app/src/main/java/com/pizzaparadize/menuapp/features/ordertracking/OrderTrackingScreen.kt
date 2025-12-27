@@ -131,7 +131,6 @@ private fun OrderSummaryCard(order: Order, showImage: Boolean) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Order Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Text("ID: #${order.id.take(8)}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                    Text(String.format("₹%.2f", order.grandTotal), fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(top = 4.dp))
                 }
                 if (showImage && order.items.firstOrNull()?.imageUrl?.isNotBlank() == true) {
                     Spacer(modifier = Modifier.width(16.dp))
@@ -153,7 +152,33 @@ private fun OrderSummaryCard(order: Order, showImage: Boolean) {
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SummaryRow("Subtotal", String.format("₹%.2f", order.subtotal))
+            SummaryRow("Delivery Fee", String.format("₹%.2f", order.deliveryFee))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            SummaryRow("Grand Total", String.format("₹%.2f", order.grandTotal), isBold = true)
         }
+    }
+}
+
+@Composable
+private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+        )
+        Text(
+            text = value,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+        )
     }
 }
 

@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.pizzaparadize.menuapp.data.firebase.model.CartItem
 import com.pizzaparadize.menuapp.data.firebase.model.Order
+import com.pizzaparadize.menuapp.features.common.AppFooter
 import com.pizzaparadize.menuapp.ui.theme.Green
 import com.pizzaparadize.menuapp.ui.theme.MenuAppTheme
 import com.pizzaparadize.menuapp.utils.OrderStatusMapper
@@ -97,6 +98,7 @@ fun OrderSummaryScreen(
                     SummaryCard(order = order)
                 }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { AppFooter(contactNumber = uiState.contactNumber) }
             }
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
