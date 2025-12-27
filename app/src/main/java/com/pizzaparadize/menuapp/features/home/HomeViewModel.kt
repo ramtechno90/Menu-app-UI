@@ -15,7 +15,8 @@ data class HomeUiState(
     val menuItems: List<MenuItem> = emptyList(),
     val categories: List<String> = emptyList(),
     val showImages: Boolean = true,
-    val cartQuantities: Map<String, Int> = emptyMap()
+    val cartQuantities: Map<String, Int> = emptyMap(),
+    val contactNumber: String = ""
 )
 
 @HiltViewModel
@@ -34,8 +35,9 @@ class HomeViewModel @Inject constructor(
         menuRepository.getMenuItems(),
         menuRepository.getCategories(),
         _showImages,
-        _cartItems
-    ) { menuItems, fetchedCategories, showImages, cartItems ->
+        _cartItems,
+        firebaseSettingsService.getRestaurantDetails()
+    ) { menuItems, fetchedCategories, showImages, cartItems, restaurantDetails ->
         val existingCategoryNames = menuItems.map { it.category }.toSet()
         val categories = fetchedCategories
             .filter { existingCategoryNames.contains(it.name) }
@@ -46,7 +48,8 @@ class HomeViewModel @Inject constructor(
             menuItems = menuItems,
             categories = categories,
             showImages = showImages,
-            cartQuantities = cartQuantities
+            cartQuantities = cartQuantities,
+            contactNumber = restaurantDetails.contactNumber ?: ""
         )
     }.stateIn(
         scope = viewModelScope,

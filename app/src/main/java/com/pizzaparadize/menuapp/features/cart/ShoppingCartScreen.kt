@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.pizzaparadize.menuapp.data.firebase.model.CartItem
+import com.pizzaparadize.menuapp.features.common.AppFooter
 import com.pizzaparadize.menuapp.ui.theme.MenuAppTheme
 import java.text.DecimalFormat
 
@@ -196,6 +197,10 @@ fun ShoppingCartScreenContent(
                             Text("Proceed to Delivery")
                         }
                     }
+
+                    item {
+                        AppFooter(contactNumber = uiState.contactNumber)
+                    }
                 }
             }
             CartStep.DELIVERY -> {
@@ -237,6 +242,10 @@ fun ShoppingCartScreenContent(
                             }
                         }
                     }
+
+                    item {
+                        AppFooter(contactNumber = uiState.contactNumber)
+                    }
                 }
             }
             CartStep.PAYMENT -> {
@@ -244,7 +253,8 @@ fun ShoppingCartScreenContent(
                     onNextStep = onNextStep,
                     onPreviousStep = onPreviousStep,
                     onPaymentMethodSelected = onPaymentMethodSelected,
-                    selectedPaymentMethod = uiState.paymentMethod
+                    selectedPaymentMethod = uiState.paymentMethod,
+                    contactNumber = uiState.contactNumber
                 )
             }
             CartStep.SUMMARY -> {
@@ -345,6 +355,10 @@ fun ShoppingCartScreenContent(
                             Text("Back to Payment Options")
                         }
                     }
+
+                    item {
+                        AppFooter(contactNumber = uiState.contactNumber)
+                    }
                 }
             }
         }
@@ -395,9 +409,10 @@ fun PriceDetailsCard(
                 )
             }
             Text(
-                text = if (uiState.deliveryDistanceKm == null) "Based on delivery distance" else String.format("₹%.2f", uiState.deliveryFee),
+                text = if (uiState.deliveryDistanceKm == null) "Based on\ndelivery distance" else String.format("₹%.2f", uiState.deliveryFee),
                 fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                textAlign = androidx.compose.ui.text.style.TextAlign.End
             )
         }
 
@@ -405,7 +420,7 @@ fun PriceDetailsCard(
             modifier = Modifier.padding(vertical = 8.dp),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         )
-        SummaryRow("Grand Total", String.format("₹%.2f", uiState.grandTotal), isBold = true)
+        SummaryRow("Grand Total", if (uiState.deliveryDistanceKm == null) "--" else String.format("₹%.2f", uiState.grandTotal), isBold = true)
     }
 }
 
@@ -635,7 +650,8 @@ fun PaymentMethodSelection(
     onNextStep: () -> Unit,
     onPreviousStep: () -> Unit,
     onPaymentMethodSelected: (String) -> Unit,
-    selectedPaymentMethod: String
+    selectedPaymentMethod: String,
+    contactNumber: String
 ) {
     Column(
         modifier = Modifier
@@ -680,5 +696,8 @@ fun PaymentMethodSelection(
         ) {
             Text("Back to Delivery")
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        AppFooter(contactNumber = contactNumber)
     }
 }

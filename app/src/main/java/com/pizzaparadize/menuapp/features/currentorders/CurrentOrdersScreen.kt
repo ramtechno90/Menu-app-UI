@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.pizzaparadize.menuapp.data.firebase.model.Order
+import com.pizzaparadize.menuapp.features.common.AppFooter
 import com.pizzaparadize.menuapp.ui.theme.MenuAppTheme
 import com.pizzaparadize.menuapp.utils.OrderStatusMapper
 
@@ -30,7 +31,8 @@ import com.pizzaparadize.menuapp.utils.OrderStatusMapper
 fun CurrentOrdersScreen(
     onOrderClicked: (Order) -> Unit,
     orders: List<Order>,
-    showImages: Boolean
+    showImages: Boolean,
+    contactNumber: String
 ) {
     if (orders.isEmpty()) {
         Box(
@@ -48,6 +50,9 @@ fun CurrentOrdersScreen(
         ) {
             items(orders) { order ->
                 CurrentOrderCard(order = order, onClick = { onOrderClicked(order) }, showImage = showImages)
+            }
+            item {
+                AppFooter(contactNumber = contactNumber)
             }
         }
     }
@@ -130,6 +135,6 @@ private fun CurrentOrderCard(order: Order, onClick: () -> Unit, showImage: Boole
 @Composable
 fun CurrentOrdersScreenPreview() {
     MenuAppTheme {
-        CurrentOrdersScreen(onOrderClicked = {}, orders = emptyList(), showImages = true)
+        CurrentOrdersScreen(onOrderClicked = {}, orders = emptyList(), showImages = true, contactNumber = "")
     }
 }
