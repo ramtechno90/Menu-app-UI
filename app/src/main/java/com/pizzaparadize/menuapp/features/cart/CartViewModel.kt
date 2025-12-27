@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pizzaparadize.menuapp.data.auth.AuthRepository
 import com.pizzaparadize.menuapp.data.firebase.model.CartItem
+import com.pizzaparadize.menuapp.data.model.DeliveryFeeSettings
 import com.pizzaparadize.menuapp.data.repository.MenuRepository
 import com.pizzaparadize.menuapp.data.repository.OrderRepository
 import com.pizzaparadize.menuapp.data.service.FirebaseSettingsService
@@ -36,7 +37,8 @@ data class CartUiState(
     val addressSelection: AddressSelection = AddressSelection.CURRENT_LOCATION,
     val showImages: Boolean = true,
     val cartStep: CartStep = CartStep.ITEMS,
-    val paymentMethod: String = ""
+    val paymentMethod: String = "",
+    val deliveryFeeSettings: DeliveryFeeSettings? = null
 )
 
 enum class AddressSelection {
@@ -101,7 +103,8 @@ class CartViewModel @Inject constructor(
                         grandTotal = grandTotal,
                         showImages = showImages,
                         userDefaultPhoneNumber = defaultPhoneNumber,
-                        deliveryDistanceKm = distance
+                        deliveryDistanceKm = distance,
+                        deliveryFeeSettings = deliveryFeeSettings
                     )
                 }
             }.collect()

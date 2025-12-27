@@ -46,6 +46,7 @@ fun ShoppingCartScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showPermissionRationale by remember { mutableStateOf(false) }
+    var showDeliveryPolicyDialog by remember { mutableStateOf(false) }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -92,6 +93,13 @@ fun ShoppingCartScreen(
                     Text("Cancel")
                 }
             }
+        )
+    }
+
+    if (showDeliveryPolicyDialog && uiState.deliveryFeeSettings != null) {
+        DeliveryFeePolicyDialog(
+            deliveryFeeSettings = uiState.deliveryFeeSettings!!,
+            onDismiss = { showDeliveryPolicyDialog = false }
         )
     }
 
@@ -175,7 +183,10 @@ fun ShoppingCartScreenContent(
                     }
 
                     item {
-                        PriceDetailsCard(uiState = uiState)
+                        PriceDetailsCard(
+                            uiState = uiState,
+                            onDeliveryFeeInfoClick = { showDeliveryPolicyDialog = true }
+                        )
                     }
 
                     item {
@@ -311,7 +322,10 @@ fun ShoppingCartScreenContent(
                     }
 
                     item {
-                        PriceDetailsCard(uiState = uiState)
+                        PriceDetailsCard(
+                            uiState = uiState,
+                            onDeliveryFeeInfoClick = { showDeliveryPolicyDialog = true }
+                        )
                     }
 
                     item {
@@ -336,7 +350,10 @@ fun ShoppingCartScreenContent(
 }
 
 @Composable
-fun PriceDetailsCard(uiState: CartUiState) {
+fun PriceDetailsCard(
+    uiState: CartUiState,
+    onDeliveryFeeInfoClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .background(
@@ -353,7 +370,35 @@ fun PriceDetailsCard(uiState: CartUiState) {
                 String.format("%.2f km", uiState.deliveryDistanceKm)
             )
         }
-        SummaryRow("Delivery Fee", String.format("₹%.2f", uiState.deliveryFee))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Delivery Fee",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = "Delivery Fee Policy",
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clickable(onClick = onDeliveryFeeInfoClick),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Text(
+                text = String.format("₹%.2f", uiState.deliveryFee),
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
+
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
