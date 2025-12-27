@@ -178,13 +178,36 @@ window.AdminApp = {
 
         const tdCustomer = document.createElement('td');
         tdCustomer.setAttribute('data-label', 'Customer');
+
+        // Customer Name
         const divCust = document.createElement('div');
         divCust.textContent = order.customerName;
-        const smallAddr = document.createElement('small');
-        smallAddr.textContent = order.deliveryAddress;
-        smallAddr.style.display = 'block';
         tdCustomer.appendChild(divCust);
-        tdCustomer.appendChild(smallAddr);
+
+        // Phone Link
+        if (order.customerPhoneNumber) {
+            const phoneLink = document.createElement('a');
+            phoneLink.href = `tel:${order.customerPhoneNumber}`;
+            phoneLink.textContent = order.customerPhoneNumber;
+            phoneLink.style.display = 'block';
+            phoneLink.style.fontSize = '0.9em';
+            phoneLink.style.color = '#1976D2';
+            tdCustomer.appendChild(phoneLink);
+        }
+
+        // Address Link
+        if (order.deliveryAddress) {
+            const addrLink = document.createElement('a');
+            addrLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.deliveryAddress)}`;
+            addrLink.target = '_blank';
+            addrLink.textContent = order.deliveryAddress;
+            addrLink.style.display = 'block';
+            addrLink.style.fontSize = '0.85em';
+            addrLink.style.color = '#555';
+            addrLink.style.textDecoration = 'underline';
+            tdCustomer.appendChild(addrLink);
+        }
+
         tr.appendChild(tdCustomer);
 
         const tdDetails = document.createElement('td');
@@ -219,13 +242,13 @@ window.AdminApp = {
         breakdown.style.color = '#555';
 
         const sub = order.subtotal !== undefined ? order.subtotal.toFixed(2) : '0.00';
-        const tax = order.tax !== undefined ? order.tax.toFixed(2) : '0.00';
         const fee = order.deliveryFee !== undefined ? order.deliveryFee.toFixed(2) : '0.00';
+        const dist = order.deliveryDistanceKm !== undefined ? order.deliveryDistanceKm.toFixed(2) : '--';
         const total = order.grandTotal !== undefined ? order.grandTotal.toFixed(2) : '0.00';
 
         breakdown.innerHTML = `
             <div style="display:flex; justify-content:space-between; border-top:1px solid #eee; padding-top:4px;"><span>Subtotal:</span><span>₹${sub}</span></div>
-            <div style="display:flex; justify-content:space-between;"><span>Tax:</span><span>₹${tax}</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Distance:</span><span>${dist} km</span></div>
             <div style="display:flex; justify-content:space-between;"><span>Delivery Fee:</span><span>₹${fee}</span></div>
             <div style="display:flex; justify-content:space-between; font-weight:bold; border-top:1px solid #ddd; margin-top:4px; padding-top:4px; color:#000;"><span>Total:</span><span>₹${total}</span></div>
         `;

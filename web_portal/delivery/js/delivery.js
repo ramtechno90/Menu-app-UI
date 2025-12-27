@@ -189,13 +189,13 @@ window.DeliveryApp = {
         breakdown.style.paddingTop = '5px';
 
         const sub = order.subtotal !== undefined ? order.subtotal.toFixed(2) : '0.00';
-        const tax = order.tax !== undefined ? order.tax.toFixed(2) : '0.00';
         const fee = order.deliveryFee !== undefined ? order.deliveryFee.toFixed(2) : '0.00';
+        const dist = order.deliveryDistanceKm !== undefined ? order.deliveryDistanceKm.toFixed(2) : '--';
         const total = order.grandTotal !== undefined ? order.grandTotal.toFixed(2) : '0.00';
 
         breakdown.innerHTML = `
             <div style="display:flex; justify-content:space-between;"><span>Subtotal:</span><span>₹${sub}</span></div>
-            <div style="display:flex; justify-content:space-between;"><span>Tax:</span><span>₹${tax}</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Distance:</span><span>${dist} km</span></div>
             <div style="display:flex; justify-content:space-between;"><span>Del. Fee:</span><span>₹${fee}</span></div>
             <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:5px;"><span>Total:</span><span>₹${total}</span></div>
         `;
