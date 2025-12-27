@@ -395,7 +395,7 @@ fun PriceDetailsCard(
                 )
             }
             Text(
-                text = String.format("₹%.2f", uiState.deliveryFee),
+                text = if (uiState.deliveryDistanceKm == null) "Based on delivery distance" else String.format("₹%.2f", uiState.deliveryFee),
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
