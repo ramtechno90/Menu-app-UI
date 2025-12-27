@@ -88,17 +88,97 @@ window.AdminApp = {
                 return;
             }
 
-            const table = document.createElement('table');
-            table.innerHTML = '<thead><tr><th>Date</th><th>Customer</th><th>Details</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead>';
-            const tbody = document.createElement('tbody');
+            // Group orders by status
+            const ordersByStatus = {
+                'PENDING': [],
+                'PREPARING': [],
+                'READY_FOR_DELIVERY': [],
+                'PICKED_UP': []
+            };
 
             snapshot.forEach(doc => {
                 const order = doc.data();
-                const tr = this.createOrderRow(doc.id, order, false);
-                tbody.appendChild(tr);
+                if (ordersByStatus[order.status]) {
+                    ordersByStatus[order.status].push({ id: doc.id, data: order });
+                }
             });
-            table.appendChild(tbody);
-            list.appendChild(table);
+
+            // Create Accordion for each status
+            const statusOrder = ['PENDING', 'PREPARING', 'READY_FOR_DELIVERY', 'PICKED_UP'];
+
+            statusOrder.forEach(status => {
+                const orders = ordersByStatus[status];
+                const count = orders.length;
+
+                // Status Block
+                const block = document.createElement('div');
+                block.className = 'status-block';
+                block.style.marginBottom = '20px';
+                block.style.background = 'white';
+                block.style.borderRadius = '8px';
+                block.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                block.style.overflow = 'hidden';
+
+                // Header
+                const header = document.createElement('div');
+                header.className = 'status-header';
+                header.style.padding = '15px';
+                header.style.background = '#f8f8f8';
+                header.style.cursor = 'pointer';
+                header.style.display = 'flex';
+                header.style.justifyContent = 'space-between';
+                header.style.alignItems = 'center';
+                header.style.borderBottom = '1px solid #eee';
+
+                const title = document.createElement('h3');
+                title.style.margin = '0';
+                title.style.color = '#333';
+                title.textContent = `${status.replace(/_/g, ' ')} (${count})`;
+
+                const toggleIcon = document.createElement('span');
+                toggleIcon.textContent = '▼'; // Default open
+
+                header.appendChild(title);
+                header.appendChild(toggleIcon);
+
+                // Content
+                const content = document.createElement('div');
+                content.className = 'status-content';
+
+                // Keep PENDING open by default, others closed? Or all open?
+                // Request implies re-appearing in current status sub category.
+                // Keeping them all open might be better for visibility,
+                // but "accordion type" implies toggle. Let's default PENDING open.
+                // If count > 0, maybe open? Let's default open for now as it's easier to see changes.
+                content.style.display = 'block';
+
+                if (count === 0) {
+                    content.innerHTML = '<p style="padding: 15px; color: #777;">No orders in this status.</p>';
+                } else {
+                    const table = document.createElement('table');
+                    table.style.marginTop = '0';
+                    table.innerHTML = '<thead><tr><th>Date</th><th>Customer</th><th>Details</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead>';
+                    const tbody = document.createElement('tbody');
+
+                    orders.forEach(item => {
+                        const tr = this.createOrderRow(item.id, item.data, false);
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    content.appendChild(table);
+                }
+
+                // Toggle Logic
+                header.onclick = () => {
+                    const isHidden = content.style.display === 'none';
+                    content.style.display = isHidden ? 'block' : 'none';
+                    toggleIcon.textContent = isHidden ? '▼' : '▶';
+                };
+
+                block.appendChild(header);
+                block.appendChild(content);
+                list.appendChild(block);
+            });
         });
     },
 
