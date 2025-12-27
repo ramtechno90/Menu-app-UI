@@ -30,7 +30,7 @@ class OrderSummaryViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
     private val _restaurantDetails = firebaseSettingsService.getRestaurantDetails()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), com.pizzaparadize.menuapp.data.model.RestaurantDetails())
 
     val uiState: StateFlow<OrderSummaryUiState> = combine(
         orderRepository.getOrderById(orderId),
@@ -41,7 +41,7 @@ class OrderSummaryViewModel @Inject constructor(
             order = order,
             isLoading = false,
             showImages = showImages,
-            contactNumber = details?.contactNumber ?: ""
+            contactNumber = details.contactNumber
         )
     }.stateIn(
         scope = viewModelScope,
