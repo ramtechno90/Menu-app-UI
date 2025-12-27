@@ -11,7 +11,12 @@ import android.os.Build
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
+import com.google.maps.DistanceMatrixApi
 import com.google.maps.GeoApiContext
+import com.google.maps.model.DistanceMatrixElementStatus
+import com.google.maps.model.LatLng
+import com.google.maps.model.TravelMode
+import com.google.maps.model.Unit
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,6 +34,7 @@ interface LocationHelper {
     suspend fun getCurrentLocation(): LocationResult
     suspend fun geocodeAddress(address: String): LocationResult
     suspend fun getAddressFromCoordinates(latitude: Double, longitude: Double): String
+    suspend fun getDrivingDistanceKm(originLat: Double, originLng: Double, destLat: Double, destLng: Double): Double?
 }
 
 sealed class LocationResult {
@@ -42,7 +48,8 @@ sealed class LocationResult {
 class LocationHelperImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val fusedLocationClient: FusedLocationProviderClient,
-    private val geocoder: Geocoder
+    private val geocoder: Geocoder,
+    private val geoApiContext: GeoApiContext
 ) : LocationHelper {
 
     @SuppressLint("MissingPermission")
@@ -156,6 +163,34 @@ class LocationHelperImpl @Inject constructor(
         }
     }
 
+    override suspend fun getDrivingDistanceKm(originLat: Double, originLng: Double, destLat: Double, destLng: Double): Double? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val origin = LatLng(originLat, originLng)
+                val dest = LatLng(destLat, destLng)
+
+                val result = DistanceMatrixApi.newRequest(geoApiContext)
+                    .origins(origin)
+                    .destinations(dest)
+                    .mode(TravelMode.DRIVING)
+                    .units(Unit.METRIC)
+                    .await()
+
+                if (result.rows.isNotEmpty() && result.rows[0].elements.isNotEmpty()) {
+                    val element = result.rows[0].elements[0]
+                    if (element.status == DistanceMatrixElementStatus.OK) {
+                        // Distance in meters / 1000 = km
+                        return@withContext element.distance.inMeters / 1000.0
+                    }
+                }
+                null
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
     private fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
@@ -191,12 +226,6 @@ object LocationModule {
 
     @Provides
     @Singleton
-    fun provideLocationHelper(impl: LocationHelperImpl): LocationHelper {
-        return impl
-    }
-
-    @Provides
-    @Singleton
     fun provideGeoApiContext(@ApplicationContext context: Context): GeoApiContext {
         val ai = context.packageManager
             .getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
@@ -204,5 +233,11 @@ object LocationModule {
         return GeoApiContext.Builder()
             .apiKey(apiKey)
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationHelper(impl: LocationHelperImpl): LocationHelper {
+        return impl
     }
 }
