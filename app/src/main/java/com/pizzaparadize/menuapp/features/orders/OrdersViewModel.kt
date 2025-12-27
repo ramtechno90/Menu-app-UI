@@ -32,7 +32,7 @@ class OrdersViewModel @Inject constructor(
         OrdersUiState(
             ongoingOrders = ongoing,
             showImages = showImages,
-            contactNumber = restaurantDetails.contactNumber ?: ""
+            contactNumber = restaurantDetails.contactNumber
         )
     }.stateIn(
         scope = viewModelScope,
