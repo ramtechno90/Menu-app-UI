@@ -170,27 +170,18 @@ class OrderRepository @Inject constructor(
         address: String,
         customerName: String,
         customerPhoneNumber: String?,
-        paymentMethod: String
+        paymentMethod: String,
+        tax: Double,
+        deliveryFee: Double,
+        grandTotal: Double,
+        deliveryDistanceKm: Double?
     ) {
         val cartItems = menuRepository.getCartItems().first()
         if (cartItems.isEmpty()) {
             return // Can't create an empty order
         }
 
-        // Fetch dynamic settings
-        val taxSettings = settingsService.getTaxSettings().first()
-        val deliveryFeeSettings = settingsService.getDeliveryFeeSettings().first()
-
         val subtotal = cartItems.sumOf { it.price * it.quantity }
-
-        // Calculate tax based on settings
-        val taxRate = if (taxSettings.universalTax) taxSettings.taxRate / 100.0 else 0.08
-        val tax = subtotal * taxRate
-
-        // Get delivery fee from settings
-        val deliveryFee = if (cartItems.isNotEmpty()) deliveryFeeSettings.fee else 0.0
-
-        val grandTotal = subtotal + tax + deliveryFee
 
         // Create a new document with a unique ID
         val newOrderRef = firestore.collection("orders").document()
@@ -218,7 +209,8 @@ class OrderRepository @Inject constructor(
             status = "PENDING",
             deliveryAddress = address,
             paymentMethod = paymentMethod,
-            appVersion = appVersion
+            appVersion = appVersion,
+            deliveryDistanceKm = deliveryDistanceKm
         )
 
         // Set the data for the new document

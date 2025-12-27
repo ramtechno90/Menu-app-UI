@@ -24,5 +24,6 @@ data class Order(
     val otpExpiry: com.google.firebase.Timestamp? = null,
 
     val otpInvalid: Boolean = false,
-    val appVersion: String? = null
+    val appVersion: String? = null,
+    val deliveryDistanceKm: Double? = null
 )

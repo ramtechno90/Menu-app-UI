@@ -159,11 +159,16 @@ class CartViewModel @Inject constructor(
             val customerName = user?.username ?: "Guest"
             val customerPhoneNumber =
                 _uiState.value.phoneNumberInput.ifBlank { _uiState.value.userDefaultPhoneNumber }
+            val state = _uiState.value
             orderRepository.createOrder(
                 address = address,
                 customerName = customerName,
                 customerPhoneNumber = customerPhoneNumber,
-                paymentMethod = _uiState.value.paymentMethod
+                paymentMethod = state.paymentMethod,
+                tax = state.tax,
+                deliveryFee = state.deliveryFee,
+                grandTotal = state.grandTotal,
+                deliveryDistanceKm = state.deliveryDistanceKm
             )
         }
     }
