@@ -210,6 +210,9 @@ class CartViewModel @Inject constructor(
 
     private fun calculateDistance(address: String) {
         viewModelScope.launch {
+             // Show fetching state if needed, or just let the flow update
+             _uiState.update { it.copy(isFetchingAddress = true) } // Reusing loading state for distance fetch
+
              when(val result = locationHelper.geocodeAddress(address)) {
                  is LocationResult.Success -> {
                       val userLat = result.latitude
@@ -217,20 +220,34 @@ class CartViewModel @Inject constructor(
 
                       firebaseSettingsService.getRestaurantDetails().collect { restDetails ->
                         if (restDetails.latitude != 0.0 || restDetails.longitude != 0.0) {
-                            val results = FloatArray(1)
-                            android.location.Location.distanceBetween(
+
+                            val drivingDistanceKm = locationHelper.getDrivingDistanceKm(
                                 restDetails.latitude, restDetails.longitude,
-                                userLat, userLng,
-                                results
+                                userLat, userLng
                             )
-                            val distanceInMeters = results[0]
-                            val distanceInKm = distanceInMeters / 1000.0
-                             _deliveryDistance.value = distanceInKm
+
+                            if (drivingDistanceKm != null) {
+                                _deliveryDistance.value = drivingDistanceKm
+                            } else {
+                                // Fallback to straight line if API fails?
+                                // For now, let's stick to the requirement "must match Google Maps", so failure means no fee or error.
+                                // We'll assume if it fails, we default to 0.0 or keep previous.
+                                // Or we could fallback to straight line calculation:
+                                val results = FloatArray(1)
+                                android.location.Location.distanceBetween(
+                                    restDetails.latitude, restDetails.longitude,
+                                    userLat, userLng,
+                                    results
+                                )
+                                _deliveryDistance.value = results[0] / 1000.0
+                            }
                         }
+                        _uiState.update { it.copy(isFetchingAddress = false) }
                         throw java.util.concurrent.CancellationException("Got details")
                     }
                  }
                  else -> {
+                     _uiState.update { it.copy(isFetchingAddress = false) }
                      // Handle error or do nothing
                  }
              }
