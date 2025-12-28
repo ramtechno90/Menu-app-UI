@@ -12,7 +12,7 @@ val Green = Color(0xFF4CAF50)
 val DeepRed = Color(0xFFB91C1C)
 val GoldenYellow = Color(0xFFF5B01C)
 
-val NewWelcomeBackgroundColor = Color(0xFFB52A2A)
+val NewWelcomeBackgroundColor = Color(0xFFD92121)
 
 val Primary = DeepRed
 val Secondary = GoldenYellow
