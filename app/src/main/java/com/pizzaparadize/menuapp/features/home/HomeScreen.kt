@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.pizzaparadize.menuapp.data.firebase.model.Category
 import com.pizzaparadize.menuapp.data.firebase.model.MenuItem
 import com.pizzaparadize.menuapp.features.common.AppFooter
 import com.pizzaparadize.menuapp.ui.theme.MenuAppTheme
@@ -39,10 +40,10 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedCategory by remember { mutableStateOf("") }
+    var selectedCategoryId by remember { mutableStateOf("") }
 
-    if (uiState.categories.isNotEmpty() && selectedCategory.isBlank()) {
-        selectedCategory = uiState.categories.first()
+    if (uiState.categories.isNotEmpty() && selectedCategoryId.isBlank()) {
+        selectedCategoryId = uiState.categories.first().id
     }
 
     LazyColumn(
@@ -56,12 +57,12 @@ fun HomeScreen(
             item {
                 CategorySelection(
                     categories = uiState.categories,
-                    selectedCategory = selectedCategory,
-                    onCategorySelected = { selectedCategory = it }
+                    selectedCategoryId = selectedCategoryId,
+                    onCategorySelected = { selectedCategoryId = it }
                 )
             }
 
-            items(uiState.menuItems.filter { it.category == selectedCategory }) { menuItem ->
+            items(uiState.menuItems.filter { it.category == selectedCategoryId }) { menuItem ->
                 MenuItemCard(
                     menuItem = menuItem,
                     quantity = uiState.cartQuantities[menuItem.id] ?: 0,
@@ -85,17 +86,17 @@ fun HomeScreen(
 
 @Composable
 private fun CategorySelection(
-    categories: List<String>,
-    selectedCategory: String,
+    categories: List<Category>,
+    selectedCategoryId: String,
     onCategorySelected: (String) -> Unit
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(categories) { category ->
-            val isSelected = category == selectedCategory
+            val isSelected = category.id == selectedCategoryId
             Button(
-                onClick = { onCategorySelected(category) },
+                onClick = { onCategorySelected(category.id) },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
@@ -103,7 +104,7 @@ private fun CategorySelection(
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
             ) {
-                Text(text = category, fontSize = 14.sp)
+                Text(text = category.name, fontSize = 14.sp)
             }
         }
     }
