@@ -108,7 +108,7 @@ service cloud.firestore {
        // Given Firestore query limitations without 'assignedTo' in the token,
        // we allow 'isStaff()' to read. The app filters by 'assignedTo'.
        allow read: if isOwner(resource.data.userId) || isAdmin() ||
-                   (isStaff() && resource.data.assignedTo == get(/databases/$(database)/documents/delivery_staff/$(request.auth.uid)).data.name);
+                   (isStaff() && resource.data.assignedToUid == request.auth.uid);
 
        // UPDATE:
        // - Admin: Full access.
