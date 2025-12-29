@@ -7,6 +7,7 @@ window.DeliveryApp = {
     init: function(staffName) {
         console.log('Initializing Delivery Dashboard for ' + staffName);
         this.staffName = staffName;
+        this.staffUid = this.currentUser ? this.currentUser.uid : null;
         this.loadAssignedOrders();
         this.loadHistory();
     },
@@ -30,9 +31,11 @@ window.DeliveryApp = {
     loadAssignedOrders: function() {
         if (this.ordersUnsubscribe) this.ordersUnsubscribe();
 
+        const uid = this.currentUser ? this.currentUser.uid : auth.currentUser.uid;
+
         // Active: READY_FOR_DELIVERY or PICKED_UP
         this.ordersUnsubscribe = db.collection('orders')
-          .where('assignedTo', '==', this.staffName)
+          .where('assignedToUid', '==', uid)
           .where('status', 'in', ['READY_FOR_DELIVERY', 'PICKED_UP'])
           .onSnapshot(snap => {
               const container = document.getElementById('delivery-orders-list');
@@ -130,9 +133,11 @@ window.DeliveryApp = {
     loadHistory: function() {
         if (this.historyUnsubscribe) this.historyUnsubscribe();
 
+        const uid = this.currentUser ? this.currentUser.uid : auth.currentUser.uid;
+
         // History: DELIVERED
         this.historyUnsubscribe = db.collection('orders')
-            .where('assignedTo', '==', this.staffName)
+            .where('assignedToUid', '==', uid)
             .where('status', '==', 'DELIVERED')
             .limit(20)
             .onSnapshot(snap => {

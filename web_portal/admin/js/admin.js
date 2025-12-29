@@ -48,7 +48,7 @@ window.AdminApp = {
             snap.forEach(doc => {
                 const data = doc.data();
                 if (data.name) {
-                    this.staffList.push(data.name);
+                    this.staffList.push({ name: data.name, uid: doc.id });
                 }
             });
         }).catch(err => {
@@ -351,11 +351,11 @@ window.AdminApp = {
             defaultOpt.textContent = "Unassigned";
             assigneeSelect.appendChild(defaultOpt);
 
-            this.staffList.forEach(name => {
+            this.staffList.forEach(staff => {
                 const opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                if (order.assignedTo === name) opt.selected = true;
+                opt.value = staff.uid;
+                opt.textContent = staff.name;
+                if (order.assignedToUid === staff.uid || order.assignedTo === staff.name) opt.selected = true;
                 assigneeSelect.appendChild(opt);
             });
             assigneeSelect.onchange = (e) => AdminApp.updateAssignee(docId, e.target.value);
@@ -404,8 +404,14 @@ window.AdminApp = {
         db.collection('orders').doc(orderId).update({ status: newStatus });
     },
 
-    updateAssignee: function(orderId, staffName) {
-        db.collection('orders').doc(orderId).update({ assignedTo: staffName });
+    updateAssignee: function(orderId, staffUid) {
+        const staff = this.staffList.find(s => s.uid === staffUid);
+        if (staff) {
+            db.collection('orders').doc(orderId).update({
+                assignedTo: staff.name,
+                assignedToUid: staff.uid
+            });
+        }
     },
 
     deleteSingleOrder: function(orderId) {
