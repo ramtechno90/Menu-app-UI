@@ -3,6 +3,7 @@ package com.pizzaparadize.menuapp.features.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pizzaparadize.menuapp.data.firebase.model.CartItem
+import com.pizzaparadize.menuapp.data.firebase.model.Category
 import com.pizzaparadize.menuapp.data.firebase.model.MenuItem
 import com.pizzaparadize.menuapp.data.repository.MenuRepository
 import com.pizzaparadize.menuapp.data.service.FirebaseSettingsService
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 data class HomeUiState(
     val menuItems: List<MenuItem> = emptyList(),
-    val categories: List<String> = emptyList(),
+    val categories: List<Category> = emptyList(),
     val showImages: Boolean = true,
     val cartQuantities: Map<String, Int> = emptyMap(),
     val contactNumber: String = ""
@@ -38,10 +39,9 @@ class HomeViewModel @Inject constructor(
         _cartItems,
         firebaseSettingsService.getRestaurantDetails()
     ) { menuItems, fetchedCategories, showImages, cartItems, restaurantDetails ->
-        val existingCategoryNames = menuItems.map { it.category }.toSet()
+        val existingCategoryIds = menuItems.map { it.category }.toSet()
         val categories = fetchedCategories
-            .filter { existingCategoryNames.contains(it.name) }
-            .map { it.name }
+            .filter { existingCategoryIds.contains(it.id) }
 
         val cartQuantities = cartItems.associate { it.menuItemId to it.quantity }
         HomeUiState(
