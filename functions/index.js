@@ -21,9 +21,6 @@ exports.addOtpOnOrderCreate = functions.firestore
     try {
         const otp = generateOtp();
         const userId = snap.data().userId;
-        const expiry = admin.firestore.Timestamp.fromDate(
-          new Date(Date.now() + 15 * 60 * 1000) // 15 min validity
-        );
 
         // Store OTP in a private sub-collection restricted to the user
         await snap.ref.collection("private").doc("data").set({
@@ -37,7 +34,6 @@ exports.addOtpOnOrderCreate = functions.firestore
           otpEntered: null,
           otpVerified: false,
           otpInvalid: false,
-          otpExpiry: expiry,
         });
 
         console.log(`OTP generated for order ${context.params.orderId}`);
@@ -64,7 +60,6 @@ exports.verifyOtp = functions.firestore
     }
 
     const enteredOtp = after.otpEntered;
-    const expiry = after.otpExpiry ? after.otpExpiry.toDate() : new Date();
 
     try {
         // Fetch the correct OTP from the private collection
@@ -97,10 +92,9 @@ exports.verifyOtp = functions.firestore
              return null;
         }
 
-        const isExpired = Date.now() > expiry.getTime();
         const isCorrect = enteredOtp === correctOtp;
 
-        if (!isExpired && isCorrect) {
+        if (isCorrect) {
           // Success
           await change.after.ref.update({
             otpVerified: true,
@@ -118,7 +112,7 @@ exports.verifyOtp = functions.firestore
             otpInvalid: true,
             otpEntered: null, // Reset for re-entry
           });
-          console.log(`Order ${context.params.orderId}: Verification failed. Correct=${isCorrect}, Expired=${isExpired}, Attempts=${attempts + 1}`);
+          console.log(`Order ${context.params.orderId}: Verification failed. Correct=${isCorrect}, Attempts=${attempts + 1}`);
         }
     } catch (error) {
         console.error("Error verifying OTP:", error);
