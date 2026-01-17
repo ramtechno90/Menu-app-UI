@@ -47,8 +47,9 @@ class MainActivity : ComponentActivity() {
 
             MenuAppTheme {
                 AppNavigation(
-                    startDestination = if (isAuthenticated) Screen.Main.route else Screen.Welcome.route,
-                    navController = navController
+                    startDestination = Screen.RoleSelection.route,
+                    navController = navController,
+                    isAuthenticated = isAuthenticated
                 )
             }
         }
