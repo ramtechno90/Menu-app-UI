@@ -49,6 +49,18 @@ class OrderRepository @Inject constructor(
         }
     }
 
+    fun getAllOrdersForAdmin(): Flow<List<Order>> {
+        return firestore.collection("orders")
+            .snapshots()
+            .map { snapshot ->
+                snapshot.documents.map { document ->
+                    val order = document.toObject(Order::class.java)!!
+                    order.id = document.id
+                    order
+                }.sortedByDescending { it.orderDate }
+            }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getOngoingOrders(): Flow<List<Order>> {
         return authRepository.getUserFlow().flatMapLatest { user ->

@@ -13,13 +13,32 @@ import com.pizzaparadize.menuapp.features.ordertracking.OrderTrackingScreen
 import java.net.URLDecoder
 import androidx.navigation.NavHostController
 import com.pizzaparadize.menuapp.features.welcome.WelcomeScreen
+import com.pizzaparadize.menuapp.features.roleselection.RoleSelectionScreen
+import com.pizzaparadize.menuapp.features.admin.AdminOrdersScreen
 
 @Composable
 fun AppNavigation(
     startDestination: String,
-    navController: NavHostController
+    navController: NavHostController,
+    isAuthenticated: Boolean
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
+        composable(Screen.RoleSelection.route) {
+            RoleSelectionScreen(
+                onCustomerClicked = {
+                    val destination = if (isAuthenticated) Screen.Main.route else Screen.Welcome.route
+                    navController.navigate(destination) {
+                        popUpTo(Screen.RoleSelection.route) { inclusive = true }
+                    }
+                },
+                onAdminClicked = {
+                    navController.navigate(Screen.AdminOrders.route)
+                }
+            )
+        }
+        composable(Screen.AdminOrders.route) {
+            AdminOrdersScreen()
+        }
         composable(Screen.Welcome.route) {
             WelcomeScreen(
                 onNameEntered = {
