@@ -21,7 +21,8 @@ import com.pizzaparadize.menuapp.features.admin.AdminLoginScreen
 fun AppNavigation(
     startDestination: String,
     navController: NavHostController,
-    isAuthenticated: Boolean
+    isAuthenticated: Boolean,
+    isAdmin: Boolean
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.RoleSelection.route) {
@@ -33,7 +34,11 @@ fun AppNavigation(
                     }
                 },
                 onAdminClicked = {
-                    navController.navigate(Screen.AdminLogin.route)
+                    if (isAdmin) {
+                        navController.navigate(Screen.AdminOrders.route)
+                    } else {
+                        navController.navigate(Screen.AdminLogin.route)
+                    }
                 }
             )
         }
