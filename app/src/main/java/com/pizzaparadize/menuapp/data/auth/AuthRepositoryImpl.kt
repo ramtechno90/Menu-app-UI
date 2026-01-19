@@ -25,10 +25,19 @@ class AuthRepositoryImpl @Inject constructor(
     private val _isAuthenticated = MutableStateFlow(firebaseAuth.currentUser != null)
     override val isAuthenticated = _isAuthenticated.asStateFlow()
 
+    private val _isAdmin = MutableStateFlow(isUserAdmin(firebaseAuth.currentUser))
+    override val isAdmin = _isAdmin.asStateFlow()
+
     init {
         firebaseAuth.addAuthStateListener { auth ->
-            _isAuthenticated.value = auth.currentUser != null
+            val user = auth.currentUser
+            _isAuthenticated.value = user != null
+            _isAdmin.value = isUserAdmin(user)
         }
+    }
+
+    private fun isUserAdmin(user: com.google.firebase.auth.FirebaseUser?): Boolean {
+        return user != null && !user.email.isNullOrEmpty()
     }
 
     override suspend fun signInAnonymouslyAndSaveUsername(username: String): Result<Unit> {

@@ -43,13 +43,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val isAuthenticated by authRepository.isAuthenticated.collectAsState(initial = false)
+            val isAdmin by authRepository.isAdmin.collectAsState(initial = false)
             val navController = rememberNavController()
 
             MenuAppTheme {
                 AppNavigation(
                     startDestination = Screen.RoleSelection.route,
                     navController = navController,
-                    isAuthenticated = isAuthenticated
+                    isAuthenticated = isAuthenticated,
+                    isAdmin = isAdmin
                 )
             }
         }
