@@ -6,6 +6,7 @@ interface AuthRepository {
     val isAuthenticated: Flow<Boolean>
     fun getUserFlow(): Flow<com.pizzaparadize.menuapp.data.model.User?>
     suspend fun signInAnonymouslyAndSaveUsername(username: String): Result<Unit>
+    suspend fun signInWithEmailAndPassword(email: String, password: String): Result<Unit>
     fun signOut()
     suspend fun getCurrentUser(): com.pizzaparadize.menuapp.data.model.User?
 }

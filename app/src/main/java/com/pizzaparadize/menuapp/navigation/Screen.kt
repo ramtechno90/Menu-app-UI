@@ -2,6 +2,7 @@ package com.pizzaparadize.menuapp.navigation
 
 sealed class Screen(val route: String) {
     object RoleSelection : Screen("role_selection")
+    object AdminLogin : Screen("admin_login")
     object AdminOrders : Screen("admin_orders")
     object Welcome : Screen("welcome")
     object Main : Screen("main") // This will be a container for screens with bottom nav
