@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import com.pizzaparadize.menuapp.features.welcome.WelcomeScreen
 import com.pizzaparadize.menuapp.features.roleselection.RoleSelectionScreen
 import com.pizzaparadize.menuapp.features.admin.AdminOrdersScreen
+import com.pizzaparadize.menuapp.features.admin.AdminLoginScreen
 
 @Composable
 fun AppNavigation(
@@ -32,7 +33,16 @@ fun AppNavigation(
                     }
                 },
                 onAdminClicked = {
-                    navController.navigate(Screen.AdminOrders.route)
+                    navController.navigate(Screen.AdminLogin.route)
+                }
+            )
+        }
+        composable(Screen.AdminLogin.route) {
+            AdminLoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(Screen.AdminOrders.route) {
+                        popUpTo(Screen.RoleSelection.route) { inclusive = true }
+                    }
                 }
             )
         }
