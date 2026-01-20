@@ -52,7 +52,14 @@ fun AppNavigation(
             )
         }
         composable(Screen.AdminOrders.route) {
-            AdminOrdersScreen()
+            AdminOrdersScreen(
+                onLogout = {
+                    navController.navigate(Screen.RoleSelection.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
         composable(Screen.Welcome.route) {
             WelcomeScreen(

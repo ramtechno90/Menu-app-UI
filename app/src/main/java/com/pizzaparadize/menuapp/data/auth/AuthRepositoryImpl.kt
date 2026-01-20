@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -72,30 +74,39 @@ class AuthRepositoryImpl @Inject constructor(
         firebaseAuth.signOut()
     }
 
-    override fun getUserFlow(): Flow<com.pizzaparadize.menuapp.data.model.User?> = callbackFlow {
-        val firebaseUser = firebaseAuth.currentUser
-        if (firebaseUser == null) {
-            trySend(null)
-            close()
-            return@callbackFlow
-        }
-
-        val documentRef = firestore.collection("users").document(firebaseUser.uid)
-        val listener = documentRef.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error)
-                return@addSnapshotListener
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
+    override fun getUserFlow(): Flow<com.pizzaparadize.menuapp.data.model.User?> {
+        return callbackFlow {
+            val authListener = FirebaseAuth.AuthStateListener { auth ->
+                trySend(auth.currentUser)
             }
-
-            if (snapshot != null && snapshot.exists()) {
-                val user = snapshot.toObject(com.pizzaparadize.menuapp.data.model.User::class.java)
-                trySend(user)
+            firebaseAuth.addAuthStateListener(authListener)
+            trySend(firebaseAuth.currentUser)
+            awaitClose { firebaseAuth.removeAuthStateListener(authListener) }
+        }.flatMapLatest { firebaseUser ->
+            if (firebaseUser == null) {
+                flowOf(null)
             } else {
-                trySend(null)
+                val documentRef = firestore.collection("users").document(firebaseUser.uid)
+                callbackFlow {
+                    val listener = documentRef.addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            // If permission denied or other error (e.g. during logout), just emit null
+                            trySend(null)
+                            return@addSnapshotListener
+                        }
+
+                        if (snapshot != null && snapshot.exists()) {
+                            val user = snapshot.toObject(com.pizzaparadize.menuapp.data.model.User::class.java)
+                            trySend(user)
+                        } else {
+                            trySend(null)
+                        }
+                    }
+                    awaitClose { listener.remove() }
+                }
             }
         }
-
-        awaitClose { listener.remove() }
     }
 
     override suspend fun getCurrentUser(): com.pizzaparadize.menuapp.data.model.User? {

@@ -31,6 +31,7 @@ data class AdminOrdersUiState(
 @HiltViewModel
 class AdminOrdersViewModel @Inject constructor(
     private val orderRepository: OrderRepository,
+    private val authRepository: com.pizzaparadize.menuapp.data.auth.AuthRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -79,6 +80,10 @@ class AdminOrdersViewModel @Inject constructor(
         viewModelScope.launch {
             orderRepository.assignOrderToStaff(orderId, staffName, staffUid)
         }
+    }
+
+    fun logout() {
+        authRepository.signOut()
     }
 
     private fun createNotificationChannel() {
