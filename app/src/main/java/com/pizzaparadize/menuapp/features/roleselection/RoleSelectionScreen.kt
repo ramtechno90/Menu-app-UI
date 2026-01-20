@@ -21,7 +21,8 @@ import com.pizzaparadize.menuapp.ui.theme.MenuAppTheme
 @Composable
 fun RoleSelectionScreen(
     onCustomerClicked: () -> Unit,
-    onAdminClicked: () -> Unit
+    onAdminClicked: () -> Unit,
+    onDeliveryStaffClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -75,6 +76,22 @@ fun RoleSelectionScreen(
                 fontWeight = FontWeight.SemiBold
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onDeliveryStaffClicked,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = "Delivery Staff",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 
@@ -82,6 +99,6 @@ fun RoleSelectionScreen(
 @Composable
 fun RoleSelectionScreenPreview() {
     MenuAppTheme {
-        RoleSelectionScreen(onCustomerClicked = {}, onAdminClicked = {})
+        RoleSelectionScreen(onCustomerClicked = {}, onAdminClicked = {}, onDeliveryStaffClicked = {})
     }
 }

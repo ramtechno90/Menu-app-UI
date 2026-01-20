@@ -256,4 +256,30 @@ class OrderRepository @Inject constructor(
         firestore.collection("orders").document(orderId)
             .update(updates).await()
     }
+
+    fun getOrdersForDeliveryStaff(staffUid: String): Flow<List<Order>> {
+        return firestore.collection("orders")
+            .whereEqualTo("assignedToUid", staffUid)
+            .snapshots()
+            .map { snapshot ->
+                snapshot.documents.map { document ->
+                    val order = document.toObject(Order::class.java)!!
+                    order.id = document.id
+                    order
+                }.sortedByDescending { it.orderDate }
+            }
+    }
+
+    suspend fun updateOrderOtp(orderId: String, otp: String) {
+        val updates = mapOf(
+            "otpEntered" to otp
+        )
+        firestore.collection("orders").document(orderId)
+            .update(updates).await()
+    }
+
+    suspend fun markOrderAsPickedUp(orderId: String) {
+        firestore.collection("orders").document(orderId)
+            .update("status", "PICKED_UP").await()
+    }
 }
