@@ -37,7 +37,8 @@ fun MainScreen(
     mainViewModel: MainViewModel = hiltViewModel(),
     cartViewModel: CartViewModel = hiltViewModel(),
     ordersViewModel: OrdersViewModel = hiltViewModel(),
-    authAwareViewModel: AuthAwareViewModel = hiltViewModel()
+    authAwareViewModel: AuthAwareViewModel = hiltViewModel(),
+    onLogout: () -> Unit = {}
 ) {
     val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab = mainUiState.selectedTab
@@ -75,7 +76,10 @@ fun MainScreen(
                 },
                 actions = {
                     if (selectedTab == BottomNavItem.Home) {
-                        TextButton(onClick = { authAwareViewModel.signOut() }) {
+                        TextButton(onClick = {
+                            authAwareViewModel.signOut()
+                            onLogout()
+                        }) {
                             Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Sign Out")
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Logout")
