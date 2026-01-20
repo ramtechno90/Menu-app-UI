@@ -1,6 +1,7 @@
 package com.pizzaparadize.menuapp.data.repository
 
 import com.pizzaparadize.menuapp.data.firebase.model.Order
+import com.pizzaparadize.menuapp.data.firebase.model.DeliveryStaff
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -228,5 +229,31 @@ class OrderRepository @Inject constructor(
         // Set the data for the new document
         newOrderRef.set(order).await()
         menuRepository.clearCart()
+    }
+
+    fun getDeliveryStaff(): Flow<List<DeliveryStaff>> {
+        return firestore.collection("delivery_staff")
+            .snapshots()
+            .map { snapshot ->
+                snapshot.documents.mapNotNull { document ->
+                    val staff = document.toObject(DeliveryStaff::class.java)
+                    staff?.uid = document.id
+                    staff
+                }
+            }
+    }
+
+    suspend fun updateOrderStatus(orderId: String, status: String) {
+        firestore.collection("orders").document(orderId)
+            .update("status", status).await()
+    }
+
+    suspend fun assignOrderToStaff(orderId: String, staffName: String, staffUid: String) {
+        val updates = mapOf(
+            "assignedTo" to staffName,
+            "assignedToUid" to staffUid
+        )
+        firestore.collection("orders").document(orderId)
+            .update(updates).await()
     }
 }
