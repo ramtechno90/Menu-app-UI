@@ -72,7 +72,13 @@ fun AppNavigation(
         }
         composable(Screen.Main.route) {
             MainScreen(
-                mainNavController = navController
+                mainNavController = navController,
+                onLogout = {
+                    navController.navigate(Screen.RoleSelection.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable(Screen.OrderSummary.route) { backStackEntry ->
