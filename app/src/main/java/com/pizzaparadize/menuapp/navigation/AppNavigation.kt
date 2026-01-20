@@ -16,6 +16,8 @@ import com.pizzaparadize.menuapp.features.welcome.WelcomeScreen
 import com.pizzaparadize.menuapp.features.roleselection.RoleSelectionScreen
 import com.pizzaparadize.menuapp.features.admin.AdminOrdersScreen
 import com.pizzaparadize.menuapp.features.admin.AdminLoginScreen
+import com.pizzaparadize.menuapp.features.delivery.DeliveryLoginScreen
+import com.pizzaparadize.menuapp.features.delivery.DeliveryOrdersScreen
 
 @Composable
 fun AppNavigation(
@@ -38,6 +40,32 @@ fun AppNavigation(
                         navController.navigate(Screen.AdminOrders.route)
                     } else {
                         navController.navigate(Screen.AdminLogin.route)
+                    }
+                },
+                onDeliveryStaffClicked = {
+                    if (isAdmin) {
+                        navController.navigate(Screen.DeliveryOrders.route)
+                    } else {
+                        navController.navigate(Screen.DeliveryLogin.route)
+                    }
+                }
+            )
+        }
+        composable(Screen.DeliveryLogin.route) {
+            DeliveryLoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(Screen.DeliveryOrders.route) {
+                        popUpTo(Screen.RoleSelection.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(Screen.DeliveryOrders.route) {
+            DeliveryOrdersScreen(
+                onLogout = {
+                    navController.navigate(Screen.RoleSelection.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )
