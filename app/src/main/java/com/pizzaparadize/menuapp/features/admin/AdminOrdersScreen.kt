@@ -50,6 +50,25 @@ fun AdminOrdersScreen(
         }
     )
 
+    // State for filtering
+    var selectedStatus by remember { mutableStateOf("All") }
+
+    // Hardcoded important statuses to ensure they appear
+    val importantStatuses = listOf("PENDING", "PREPARING", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "DELIVERED", "REJECTED")
+
+    // Dynamic statuses from orders + important ones
+    val allStatuses = remember(uiState.orders) {
+        (importantStatuses + uiState.orders.map { it.status }).distinct()
+    }
+
+    val filteredOrders = remember(uiState.orders, selectedStatus) {
+        if (selectedStatus == "All") {
+            uiState.orders
+        } else {
+            uiState.orders.filter { it.status == selectedStatus }
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -74,29 +93,58 @@ fun AdminOrdersScreen(
             )
         }
     ) { paddingValues ->
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Filter Row
+            if (!uiState.isLoading) {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        FilterChip(
+                            selected = selectedStatus == "All",
+                            onClick = { selectedStatus = "All" },
+                            label = { Text("All (${uiState.orders.size})") }
+                        )
+                    }
+                    items(allStatuses) { status ->
+                        val count = uiState.orders.count { it.status == status }
+                        FilterChip(
+                            selected = selectedStatus == status,
+                            onClick = { selectedStatus = status },
+                            label = { Text("${status.replace("_", " ")} ($count)") }
+                        )
+                    }
+                }
+                Divider()
             }
-        } else if (uiState.orders.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No orders found.")
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(uiState.orders) { order ->
-                    AdminOrderCard(
-                        order = order,
-                        deliveryStaffList = uiState.deliveryStaffList,
-                        onStatusUpdate = { status -> viewModel.updateOrderStatus(order.id, status) },
-                        onAssignStaff = { uid, name -> viewModel.assignOrder(order.id, name, uid) }
-                    )
+
+            if (uiState.isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (filteredOrders.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No orders found.")
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(filteredOrders) { order ->
+                        AdminOrderCard(
+                            order = order,
+                            deliveryStaffList = uiState.deliveryStaffList,
+                            onStatusUpdate = { status -> viewModel.updateOrderStatus(order.id, status) },
+                            onAssignStaff = { uid, name -> viewModel.assignOrder(order.id, name, uid) }
+                        )
+                    }
                 }
             }
         }
