@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
@@ -70,6 +71,32 @@ fun AdminOrdersScreen(
         }
     }
 
+    // Confirmation dialog for "Delete All"
+    var showDeleteAllDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteAllDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteAllDialog = false },
+            title = { Text("Delete All Orders?") },
+            text = { Text("Are you sure you want to delete all orders in '$selectedStatus' status? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteOrdersByStatus(selectedStatus)
+                        showDeleteAllDialog = false
+                    }
+                ) {
+                    Text("Delete All", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteAllDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -121,6 +148,26 @@ fun AdminOrdersScreen(
                         )
                     }
                 }
+
+                // Show "Clear All" button for Delivered/Rejected
+                if (selectedStatus == "DELIVERED" || selectedStatus == "REJECTED") {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            onClick = { showDeleteAllDialog = true },
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Clear All")
+                        }
+                    }
+                }
+
                 Divider()
             }
 
@@ -143,7 +190,8 @@ fun AdminOrdersScreen(
                             order = order,
                             deliveryStaffList = uiState.deliveryStaffList,
                             onStatusUpdate = { status -> viewModel.updateOrderStatus(order.id, status) },
-                            onAssignStaff = { uid, name -> viewModel.assignOrder(order.id, name, uid) }
+                            onAssignStaff = { uid, name -> viewModel.assignOrder(order.id, name, uid) },
+                            onDelete = { viewModel.deleteOrder(order.id) }
                         )
                     }
                 }
@@ -157,7 +205,8 @@ fun AdminOrderCard(
     order: Order,
     deliveryStaffList: List<DeliveryStaff>,
     onStatusUpdate: (String) -> Unit,
-    onAssignStaff: (String, String) -> Unit
+    onAssignStaff: (String, String) -> Unit,
+    onDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -193,11 +242,28 @@ fun AdminOrderCard(
                 Column(horizontalAlignment = Alignment.End) {
                     StatusChip(status = order.status)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                         text = if (expanded) "Show Less" else "Details",
-                         style = MaterialTheme.typography.labelSmall,
-                         color = MaterialTheme.colorScheme.primary
-                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (order.status == "DELIVERED" || order.status == "REJECTED") {
+                             IconButton(
+                                onClick = onDelete,
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+
+                        Text(
+                             text = if (expanded) "Show Less" else "Details",
+                             style = MaterialTheme.typography.labelSmall,
+                             color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
@@ -347,11 +413,13 @@ fun AdminOrderCard(
                     StatusDropdown(currentStatus = order.status, onStatusChange = onStatusUpdate)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    AssignStaffDropdown(
-                        currentStaffUid = order.assignedToUid,
-                        staffList = deliveryStaffList,
-                        onAssign = onAssignStaff
-                    )
+                    if (order.status == "READY_FOR_DELIVERY") {
+                        AssignStaffDropdown(
+                            currentStaffUid = order.assignedToUid,
+                            staffList = deliveryStaffList,
+                            onAssign = onAssignStaff
+                        )
+                    }
                 }
             }
         }
@@ -399,17 +467,19 @@ fun StatusChip(status: String) {
 fun StatusDropdown(currentStatus: String, onStatusChange: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val statuses = listOf("PENDING", "PREPARING", "READY_FOR_DELIVERY", "REJECTED")
+    val isEditable = currentStatus in statuses
 
     ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+        expanded = expanded && isEditable,
+        onExpandedChange = { if (isEditable) expanded = !expanded }
     ) {
         OutlinedTextField(
             value = currentStatus.replace("_", " "),
             onValueChange = {},
             readOnly = true,
+            enabled = isEditable,
             label = { Text("Update Status") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            trailingIcon = { if (isEditable) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor().fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )

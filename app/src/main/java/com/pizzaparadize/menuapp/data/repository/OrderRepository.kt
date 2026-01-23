@@ -282,4 +282,21 @@ class OrderRepository @Inject constructor(
         firestore.collection("orders").document(orderId)
             .update("status", "PICKED_UP").await()
     }
+
+    suspend fun deleteOrder(orderId: String) {
+        firestore.collection("orders").document(orderId).delete().await()
+    }
+
+    suspend fun deleteOrdersByStatus(status: String) {
+        val snapshot = firestore.collection("orders")
+            .whereEqualTo("status", status)
+            .get()
+            .await()
+
+        val batch = firestore.batch()
+        for (document in snapshot.documents) {
+            batch.delete(document.reference)
+        }
+        batch.commit().await()
+    }
 }
