@@ -86,7 +86,6 @@ class MainActivity : ComponentActivity() {
                 AppNavigation(
                     startDestination = Screen.Welcome.route,
                     navController = navController,
-                    isAuthenticated = isAuthenticated,
                     isAdmin = isAdmin
                 )
             }
