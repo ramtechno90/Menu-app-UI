@@ -46,6 +46,38 @@ class MainActivity : ComponentActivity() {
             val isAdmin by authRepository.isAdmin.collectAsState(initial = false)
             val navController = rememberNavController()
 
+            var currentUiUid by remember { mutableStateOf<String?>(null) }
+
+            LaunchedEffect(isAuthenticated) {
+                if (isAuthenticated) {
+                    try {
+                        val user = authRepository.getCurrentUser()
+                        if (user != null) {
+                            val messaging = com.google.firebase.messaging.FirebaseMessaging.getInstance()
+
+                            // Subscribe to personal staff topic
+                            messaging.subscribeToTopic("staff_${user.uid}")
+                            currentUiUid = user.uid
+
+                            if (isAdmin) {
+                                messaging.subscribeToTopic("admin_notifications")
+                            } else {
+                                messaging.unsubscribeFromTopic("admin_notifications")
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                } else {
+                    val messaging = com.google.firebase.messaging.FirebaseMessaging.getInstance()
+                    currentUiUid?.let { uid ->
+                        messaging.unsubscribeFromTopic("staff_$uid")
+                    }
+                    messaging.unsubscribeFromTopic("admin_notifications")
+                    currentUiUid = null
+                }
+            }
+
             MenuAppTheme {
                 AppNavigation(
                     startDestination = Screen.Welcome.route,

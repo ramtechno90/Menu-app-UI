@@ -171,3 +171,51 @@ exports.createDeliveryStaffAccount = functions.https.onCall(async (data, context
         throw new functions.https.HttpsError('internal', error.message);
     }
 });
+
+/**
+ * 4. sendOrderNotifications
+ * Trigger: Firestore onWrite (orders/{orderId})
+ * Purpose: Send FCM notifications to Admins (new orders) and Delivery Staff (assignment).
+ */
+exports.sendOrderNotifications = functions.firestore
+  .document("orders/{orderId}")
+  .onWrite(async (change, context) => {
+    const orderId = context.params.orderId;
+    const after = change.after.exists ? change.after.data() : null;
+    const before = change.before.exists ? change.before.data() : null;
+
+    // 1. New Order -> Notify Admins
+    if (!before && after && after.status === "PENDING") {
+      const payload = {
+        notification: {
+          title: "New Order Received!",
+          body: `Order #${orderId} is pending approval.`,
+        },
+        topic: "admin_notifications"
+      };
+      try {
+        await admin.messaging().send(payload);
+        console.log(`Notification sent to admins for order ${orderId}`);
+      } catch (e) {
+        console.error("Error sending admin notification:", e);
+      }
+    }
+
+    // 2. Order Assigned -> Notify Staff
+    if (before && after && after.assignedToUid && after.assignedToUid !== before.assignedToUid) {
+      const staffUid = after.assignedToUid;
+      const payload = {
+        notification: {
+          title: "New Delivery Assigned",
+          body: `You have been assigned order #${orderId}.`,
+        },
+        topic: `staff_${staffUid}`
+      };
+      try {
+        await admin.messaging().send(payload);
+        console.log(`Notification sent to staff ${staffUid} for order ${orderId}`);
+      } catch (e) {
+        console.error("Error sending staff notification:", e);
+      }
+    }
+  });

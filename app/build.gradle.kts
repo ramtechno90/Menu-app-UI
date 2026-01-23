@@ -90,6 +90,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-messaging")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.50")
