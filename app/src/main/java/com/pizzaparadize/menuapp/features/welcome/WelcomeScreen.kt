@@ -45,11 +45,20 @@ import com.pizzaparadize.menuapp.ui.theme.NewWelcomeBackgroundColor
 @Composable
 fun WelcomeScreen(
     onNameEntered: () -> Unit,
+    onLogoTripleTap: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var isTermsAccepted by remember { mutableStateOf(false) }
     val authState by viewModel.authState.collectAsState()
+
+    // Triple tap logic
+    val tapState = remember {
+        object {
+            var count = 0
+            var lastTime = 0L
+        }
+    }
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
@@ -77,6 +86,20 @@ fun WelcomeScreen(
                     modifier = Modifier
                         .size(300.dp)
                         .clip(RoundedCornerShape(16.dp))
+                        .clickable {
+                            val now = System.currentTimeMillis()
+                            if (now - tapState.lastTime < 500) {
+                                tapState.count++
+                            } else {
+                                tapState.count = 1
+                            }
+                            tapState.lastTime = now
+
+                            if (tapState.count >= 3) {
+                                onLogoTripleTap()
+                                tapState.count = 0
+                            }
+                        }
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 Text(

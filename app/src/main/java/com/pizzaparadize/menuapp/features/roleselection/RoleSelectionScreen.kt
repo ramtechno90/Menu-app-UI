@@ -20,7 +20,6 @@ import com.pizzaparadize.menuapp.ui.theme.MenuAppTheme
 
 @Composable
 fun RoleSelectionScreen(
-    onCustomerClicked: () -> Unit,
     onAdminClicked: () -> Unit,
     onDeliveryStaffClicked: () -> Unit
 ) {
@@ -46,22 +45,6 @@ fun RoleSelectionScreen(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 32.dp)
         )
-
-        Button(
-            onClick = onCustomerClicked,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = "Customer",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = onAdminClicked,
@@ -99,6 +82,6 @@ fun RoleSelectionScreen(
 @Composable
 fun RoleSelectionScreenPreview() {
     MenuAppTheme {
-        RoleSelectionScreen(onCustomerClicked = {}, onAdminClicked = {}, onDeliveryStaffClicked = {})
+        RoleSelectionScreen(onAdminClicked = {}, onDeliveryStaffClicked = {})
     }
 }
