@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,7 +40,8 @@ import java.util.*
 @Composable
 fun AdminOrdersScreen(
     viewModel: AdminOrdersViewModel = hiltViewModel(),
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onMenuManagementClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -108,6 +110,12 @@ fun AdminOrdersScreen(
             CenterAlignedTopAppBar(
                 title = { Text("Admin Orders") },
                 actions = {
+                    IconButton(onClick = onMenuManagementClick) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Menu Management"
+                        )
+                    }
                     IconButton(onClick = {
                         viewModel.logout()
                         onLogout()

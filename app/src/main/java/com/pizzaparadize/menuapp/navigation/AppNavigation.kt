@@ -16,6 +16,7 @@ import com.pizzaparadize.menuapp.features.welcome.WelcomeScreen
 import com.pizzaparadize.menuapp.features.roleselection.RoleSelectionScreen
 import com.pizzaparadize.menuapp.features.admin.AdminOrdersScreen
 import com.pizzaparadize.menuapp.features.admin.AdminLoginScreen
+import com.pizzaparadize.menuapp.features.admin.AdminMenuScreen
 import com.pizzaparadize.menuapp.features.delivery.DeliveryLoginScreen
 import com.pizzaparadize.menuapp.features.delivery.DeliveryOrdersScreen
 
@@ -64,6 +65,13 @@ fun AppNavigation(
                 }
             )
         }
+        composable(Screen.AdminMenu.route) {
+            AdminMenuScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
         composable(Screen.AdminLogin.route) {
             AdminLoginScreen(
                 onLoginSuccess = {
@@ -80,6 +88,9 @@ fun AppNavigation(
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
+                },
+                onMenuManagementClick = {
+                    navController.navigate(Screen.AdminMenu.route)
                 }
             )
         }
