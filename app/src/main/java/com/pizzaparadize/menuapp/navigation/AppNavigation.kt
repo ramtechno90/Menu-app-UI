@@ -24,7 +24,6 @@ import com.pizzaparadize.menuapp.features.delivery.DeliveryOrdersScreen
 fun AppNavigation(
     startDestination: String,
     navController: NavHostController,
-    isAuthenticated: Boolean,
     isAdmin: Boolean
 ) {
     NavHost(navController = navController, startDestination = startDestination) {

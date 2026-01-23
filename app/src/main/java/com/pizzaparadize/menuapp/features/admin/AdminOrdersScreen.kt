@@ -14,8 +14,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Phone
@@ -44,12 +44,11 @@ fun AdminOrdersScreen(
     onMenuManagementClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
+        onResult = { _ ->
             // Handle permission result if needed
         }
     )
@@ -121,7 +120,7 @@ fun AdminOrdersScreen(
                         onLogout()
                     }) {
                         Icon(
-                            imageVector = Icons.Default.ExitToApp,
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                             contentDescription = "Logout"
                         )
                     }
@@ -176,7 +175,7 @@ fun AdminOrdersScreen(
                     }
                 }
 
-                Divider()
+                HorizontalDivider()
             }
 
             if (uiState.isLoading) {
@@ -278,7 +277,7 @@ fun AdminOrderCard(
             // Expanded Details
             AnimatedVisibility(visible = expanded) {
                 Column(modifier = Modifier.padding(top = 16.dp)) {
-                    Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
@@ -311,7 +310,7 @@ fun AdminOrderCard(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = order.customerPhoneNumber ?: "",
+                                text = order.customerPhoneNumber.orEmpty(),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -391,7 +390,7 @@ fun AdminOrderCard(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
                     Spacer(modifier = Modifier.height(8.dp))
 
                     PriceRow(label = "Subtotal", amount = order.subtotal)
@@ -488,7 +487,7 @@ fun StatusDropdown(currentStatus: String, onStatusChange: (String) -> Unit) {
             enabled = isEditable,
             label = { Text("Update Status") },
             trailingIcon = { if (isEditable) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth(),
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )
         ExposedDropdownMenu(
@@ -528,7 +527,7 @@ fun AssignStaffDropdown(
             readOnly = true,
             label = { Text("Assign Staff") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth(),
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )
         ExposedDropdownMenu(
