@@ -41,6 +41,7 @@ class AdminOrdersViewModel @Inject constructor(
     // Keep track of known orders to detect new ones
     private var knownOrderIds: Set<String> = emptySet()
     private var isFirstLoad = true
+    private val viewModelStartTime = System.currentTimeMillis()
 
     init {
         createNotificationChannel()
@@ -53,7 +54,7 @@ class AdminOrdersViewModel @Inject constructor(
                     // Check for new PENDING orders
                     val newOrders = orders.filter { it.id !in knownOrderIds }
                     newOrders.forEach { order ->
-                        if (order.status == "PENDING") {
+                        if (order.status == "PENDING" && order.orderDate > viewModelStartTime) {
                             sendNotification(order)
                         }
                     }
@@ -79,6 +80,18 @@ class AdminOrdersViewModel @Inject constructor(
     fun assignOrder(orderId: String, staffName: String, staffUid: String) {
         viewModelScope.launch {
             orderRepository.assignOrderToStaff(orderId, staffName, staffUid)
+        }
+    }
+
+    fun deleteOrder(orderId: String) {
+        viewModelScope.launch {
+            orderRepository.deleteOrder(orderId)
+        }
+    }
+
+    fun deleteOrdersByStatus(status: String) {
+        viewModelScope.launch {
+            orderRepository.deleteOrdersByStatus(status)
         }
     }
 
