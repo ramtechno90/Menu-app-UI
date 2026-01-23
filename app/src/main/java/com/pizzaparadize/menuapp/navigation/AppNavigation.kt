@@ -29,12 +29,6 @@ fun AppNavigation(
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.RoleSelection.route) {
             RoleSelectionScreen(
-                onCustomerClicked = {
-                    val destination = if (isAuthenticated) Screen.Main.route else Screen.Welcome.route
-                    navController.navigate(destination) {
-                        popUpTo(Screen.RoleSelection.route) { inclusive = true }
-                    }
-                },
                 onAdminClicked = {
                     if (isAdmin) {
                         navController.navigate(Screen.AdminOrders.route)
@@ -95,6 +89,9 @@ fun AppNavigation(
                     navController.navigate(Screen.Main.route) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
+                },
+                onLogoTripleTap = {
+                    navController.navigate(Screen.RoleSelection.route)
                 }
             )
         }
