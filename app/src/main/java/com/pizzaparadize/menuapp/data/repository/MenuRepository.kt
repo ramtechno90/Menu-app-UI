@@ -59,6 +59,41 @@ class MenuRepository @Inject constructor(
         }
     }
 
+    // Admin Menu Management
+    suspend fun addCategory(category: Category) {
+        val newRef = firestore.collection("categories").document()
+        firestore.collection("categories").document(newRef.id)
+            .set(category).await()
+    }
+
+    suspend fun updateCategory(category: Category) {
+        if (category.id.isNotEmpty()) {
+            firestore.collection("categories").document(category.id)
+                .set(category).await()
+        }
+    }
+
+    suspend fun deleteCategory(categoryId: String) {
+        firestore.collection("categories").document(categoryId).delete().await()
+    }
+
+    suspend fun addMenuItem(menuItem: MenuItem) {
+        val newRef = firestore.collection("menu_items").document()
+        firestore.collection("menu_items").document(newRef.id)
+            .set(menuItem).await()
+    }
+
+    suspend fun updateMenuItem(menuItem: MenuItem) {
+        if (menuItem.id.isNotEmpty()) {
+            firestore.collection("menu_items").document(menuItem.id)
+                .set(menuItem).await()
+        }
+    }
+
+    suspend fun deleteMenuItem(menuItemId: String) {
+        firestore.collection("menu_items").document(menuItemId).delete().await()
+    }
+
     // Cart
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getCartItems(): Flow<List<CartItem>> {
