@@ -394,7 +394,6 @@ fun AdminOrderCard(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     PriceRow(label = "Subtotal", amount = order.subtotal)
-                    PriceRow(label = "Tax", amount = order.tax)
                     PriceRow(label = "Delivery Fee", amount = order.deliveryFee)
 
                     Spacer(modifier = Modifier.height(8.dp))
