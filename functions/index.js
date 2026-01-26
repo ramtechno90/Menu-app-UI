@@ -191,6 +191,9 @@ exports.sendOrderNotifications = functions.firestore
           title: "New Order Received!",
           body: `Order #${orderId} is pending approval.`,
         },
+        data: {
+          destination: "admin_orders"
+        },
         topic: "admin_notifications"
       };
       try {

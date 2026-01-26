@@ -17,16 +17,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Check if message contains a notification payload.
+        val destination = remoteMessage.data["destination"]
         remoteMessage.notification?.let {
-            sendNotification(it.title, it.body, remoteMessage.from)
+            sendNotification(it.title, it.body, destination, remoteMessage.from)
         }
     }
 
-    private fun sendNotification(title: String?, messageBody: String?, fromTopic: String?) {
+    private fun sendNotification(title: String?, messageBody: String?, destination: String?, fromTopic: String?) {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
 
-        if (fromTopic != null && fromTopic.contains("admin_notifications")) {
+        if (destination != null) {
+            intent.putExtra("destination", destination)
+        } else if (fromTopic != null && fromTopic.contains("admin_notifications")) {
             intent.putExtra("destination", "admin_orders")
         }
 
