@@ -1,6 +1,7 @@
 package com.pizzaparadize.menuapp
 
 import android.os.Bundle
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
@@ -13,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.pizzaparadize.menuapp.data.auth.AuthRepository
@@ -31,8 +33,24 @@ class MainActivity : ComponentActivity() {
     private lateinit var updateManager: UpdateManager
     private lateinit var updateLauncher: ActivityResultLauncher<IntentSenderRequest>
 
+    private val destinationFlow = MutableStateFlow<String?>(null)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        intent.getStringExtra("destination")?.let {
+            destinationFlow.value = it
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (savedInstanceState == null) {
+            intent.getStringExtra("destination")?.let {
+                destinationFlow.value = it
+            }
+        }
 
         updateLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
@@ -49,8 +67,16 @@ class MainActivity : ComponentActivity() {
             val isAuthenticated by authRepository.isAuthenticated.collectAsState(initial = false)
             val isAdmin by authRepository.isAdmin.collectAsState(initial = false)
             val navController = rememberNavController()
+            val destination by destinationFlow.collectAsState()
 
             var currentUiUid by remember { mutableStateOf<String?>(null) }
+
+            LaunchedEffect(destination, isAdmin, isAuthenticated) {
+                if (destination == "admin_orders" && isAuthenticated && isAdmin) {
+                    navController.navigate(Screen.AdminOrders.route)
+                    destinationFlow.value = null
+                }
+            }
 
             LaunchedEffect(isAuthenticated) {
                 if (isAuthenticated) {
