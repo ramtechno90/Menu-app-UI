@@ -54,7 +54,7 @@ fun AdminOrdersScreen(
     )
 
     // State for filtering
-    var selectedStatus by remember { mutableStateOf("All") }
+    var selectedStatus by remember { mutableStateOf("PENDING") }
 
     // Hardcoded important statuses to ensure they appear
     val importantStatuses = listOf("PENDING", "PREPARING", "READY_FOR_DELIVERY", "OUT_FOR_DELIVERY", "DELIVERED", "REJECTED")
@@ -141,13 +141,6 @@ fun AdminOrdersScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    item {
-                        FilterChip(
-                            selected = selectedStatus == "All",
-                            onClick = { selectedStatus = "All" },
-                            label = { Text("All (${uiState.orders.size})") }
-                        )
-                    }
                     items(allStatuses) { status ->
                         val count = uiState.orders.count { it.status == status }
                         FilterChip(
@@ -238,13 +231,13 @@ fun AdminOrderCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Order #${order.id.take(5)}",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = order.customerName,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
 
@@ -313,7 +306,7 @@ fun AdminOrderCard(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = order.customerPhoneNumber.orEmpty(),
-                                style = MaterialTheme.typography.titleSmall,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -352,14 +345,14 @@ fun AdminOrderCard(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = order.deliveryAddress,
-                                style = MaterialTheme.typography.titleSmall,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
-                    Text("Items", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text("Items", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     order.items.forEach { item ->
@@ -372,12 +365,12 @@ fun AdminOrderCard(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "${item.name} x${item.quantity}",
-                                    style = MaterialTheme.typography.titleSmall
+                                    style = MaterialTheme.typography.titleMedium
                                 )
                                 if (item.notes.isNotEmpty()) {
                                     Text(
                                         text = "Note: ${item.notes}",
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        style = MaterialTheme.typography.bodyLarge,
                                         fontStyle = FontStyle.Italic,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -385,7 +378,7 @@ fun AdminOrderCard(
                             }
                             Text(
                                 text = "₹${String.format("%.2f", item.price * item.quantity)}",
-                                style = MaterialTheme.typography.titleSmall,
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -403,10 +396,10 @@ fun AdminOrderCard(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Total", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text("Total", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(
                             text = "₹${String.format("%.2f", order.grandTotal)}",
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -440,8 +433,8 @@ fun PriceRow(label: String, amount: Double) {
         modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text("₹${String.format("%.2f", amount)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("₹${String.format("%.2f", amount)}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
