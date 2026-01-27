@@ -27,19 +27,64 @@ class AuthRepositoryImpl @Inject constructor(
     private val _isAuthenticated = MutableStateFlow(firebaseAuth.currentUser != null)
     override val isAuthenticated = _isAuthenticated.asStateFlow()
 
-    private val _isAdmin = MutableStateFlow(isUserAdmin(firebaseAuth.currentUser))
-    override val isAdmin = _isAdmin.asStateFlow()
+    override val isAdmin: Flow<Boolean> = callbackFlow {
+        val authListener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser)
+        }
+        firebaseAuth.addAuthStateListener(authListener)
+        trySend(firebaseAuth.currentUser)
+        awaitClose { firebaseAuth.removeAuthStateListener(authListener) }
+    }.flatMapLatest { user ->
+        if (user == null || user.email.isNullOrEmpty()) {
+            flowOf(false)
+        } else if (user.email == "admin@pizzaparadize.com" || user.email == "admin@gmail.com") {
+            flowOf(true)
+        } else {
+            callbackFlow {
+                val listener = firestore.collection("admins").document(user.uid)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            trySend(false)
+                            return@addSnapshotListener
+                        }
+                        trySend(snapshot != null && snapshot.exists())
+                    }
+                awaitClose { listener.remove() }
+            }
+        }
+    }
+
+    override val isDeliveryStaff: Flow<Boolean> = callbackFlow {
+        val authListener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser)
+        }
+        firebaseAuth.addAuthStateListener(authListener)
+        trySend(firebaseAuth.currentUser)
+        awaitClose { firebaseAuth.removeAuthStateListener(authListener) }
+    }.flatMapLatest { user ->
+        if (user == null || user.email.isNullOrEmpty()) {
+            flowOf(false)
+        } else {
+            // Check if user exists in delivery_staff collection
+            callbackFlow {
+                val listener = firestore.collection("delivery_staff").document(user.uid)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            trySend(false)
+                            return@addSnapshotListener
+                        }
+                        trySend(snapshot != null && snapshot.exists())
+                    }
+                awaitClose { listener.remove() }
+            }
+        }
+    }
 
     init {
         firebaseAuth.addAuthStateListener { auth ->
             val user = auth.currentUser
             _isAuthenticated.value = user != null
-            _isAdmin.value = isUserAdmin(user)
         }
-    }
-
-    private fun isUserAdmin(user: com.google.firebase.auth.FirebaseUser?): Boolean {
-        return user != null && !user.email.isNullOrEmpty()
     }
 
     override suspend fun signInAnonymouslyAndSaveUsername(username: String): Result<Unit> {
