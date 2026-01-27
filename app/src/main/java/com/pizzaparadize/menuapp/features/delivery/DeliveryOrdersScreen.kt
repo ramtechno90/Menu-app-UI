@@ -140,13 +140,13 @@ fun DeliveryOrderCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Order #${order.id.take(5)}",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = order.customerName,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
@@ -154,7 +154,7 @@ fun DeliveryOrderCard(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = if (expanded) "Show Less" else "Details",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -167,7 +167,7 @@ fun DeliveryOrderCard(
 
                     Text(
                         text = "Date: ${SimpleDateFormat.getDateTimeInstance().format(Date(order.orderDate))}",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -186,7 +186,7 @@ fun DeliveryOrderCard(
                         ) {
                             Icon(Icons.Default.Phone, "Phone", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(order.customerPhoneNumber ?: "", color = MaterialTheme.colorScheme.primary)
+                            Text(order.customerPhoneNumber ?: "", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
                         }
                     }
 
@@ -212,20 +212,20 @@ fun DeliveryOrderCard(
                         ) {
                             Icon(Icons.Default.LocationOn, "Address", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(order.deliveryAddress, color = MaterialTheme.colorScheme.primary)
+                            Text(order.deliveryAddress, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Items", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text("Items", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     order.items.forEach { item ->
                         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("${item.name} x${item.quantity}")
+                                Text("${item.name} x${item.quantity}", style = MaterialTheme.typography.titleSmall)
                                 if (item.notes.isNotEmpty()) {
-                                    Text("Note: ${item.notes}", style = MaterialTheme.typography.bodySmall, fontStyle = FontStyle.Italic)
+                                    Text("Note: ${item.notes}", style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic)
                                 }
                             }
                         }
@@ -236,8 +236,8 @@ fun DeliveryOrderCard(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                         Text("Total", fontWeight = FontWeight.Bold)
-                         Text("₹${String.format("%.2f", order.grandTotal)}", fontWeight = FontWeight.Bold)
+                         Text("Total", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                         Text("₹${String.format("%.2f", order.grandTotal)}", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                     }
 
                     if (!isHistory) {
@@ -269,7 +269,7 @@ fun OtpVerificationSection(onVerify: (String) -> Unit) {
     var otp by remember { mutableStateOf("") }
 
     Column {
-        Text("Enter Delivery OTP", style = MaterialTheme.typography.labelMedium)
+        Text("Enter Delivery OTP", style = MaterialTheme.typography.titleSmall)
         Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
@@ -308,7 +308,7 @@ fun StatusChip(status: String) {
         Text(
             text = status.replace("_", " "),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold,
             color = contentColor
         )
