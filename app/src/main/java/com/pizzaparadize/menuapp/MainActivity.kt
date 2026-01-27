@@ -66,15 +66,34 @@ class MainActivity : ComponentActivity() {
         setContent {
             val isAuthenticated by authRepository.isAuthenticated.collectAsState(initial = false)
             val isAdmin by authRepository.isAdmin.collectAsState(initial = false)
+            val isDeliveryStaff by authRepository.isDeliveryStaff.collectAsState(initial = false)
             val navController = rememberNavController()
             val destination by destinationFlow.collectAsState()
 
             var currentUiUid by remember { mutableStateOf<String?>(null) }
+            // To prevent multiple navigations or loops
+            var hasRedirected by remember { mutableStateOf(false) }
 
             LaunchedEffect(destination, isAdmin, isAuthenticated) {
                 if (destination == "admin_orders" && isAuthenticated && isAdmin) {
                     navController.navigate(Screen.AdminOrders.route)
                     destinationFlow.value = null
+                }
+            }
+
+            LaunchedEffect(isAuthenticated, isAdmin, isDeliveryStaff) {
+                if (isAuthenticated && !hasRedirected) {
+                    if (isAdmin) {
+                        navController.navigate(Screen.AdminOrders.route) {
+                            popUpTo(Screen.RoleSelection.route) { inclusive = true }
+                        }
+                        hasRedirected = true
+                    } else if (isDeliveryStaff) {
+                         navController.navigate(Screen.DeliveryOrders.route) {
+                            popUpTo(Screen.RoleSelection.route) { inclusive = true }
+                        }
+                        hasRedirected = true
+                    }
                 }
             }
 
