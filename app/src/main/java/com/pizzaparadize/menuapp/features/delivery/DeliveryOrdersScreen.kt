@@ -154,7 +154,7 @@ fun DeliveryOrderCard(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = if (expanded) "Show Less" else "Details",
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -236,8 +236,8 @@ fun DeliveryOrderCard(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                         Text("Total", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                         Text("₹${String.format("%.2f", order.grandTotal)}", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                         Text("Total", fontWeight = FontWeight.Bold)
+                         Text("₹${String.format("%.2f", order.grandTotal)}", fontWeight = FontWeight.Bold)
                     }
 
                     if (!isHistory) {
@@ -308,7 +308,7 @@ fun StatusChip(status: String) {
         Text(
             text = status.replace("_", " "),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = contentColor
         )

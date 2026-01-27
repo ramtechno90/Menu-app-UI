@@ -262,7 +262,7 @@ fun AdminOrderCard(
 
                         Text(
                              text = if (expanded) "Show Less" else "Details",
-                             style = MaterialTheme.typography.labelLarge,
+                             style = MaterialTheme.typography.labelSmall,
                              color = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -456,7 +456,7 @@ fun StatusChip(status: String) {
         Text(
             text = status.replace("_", " "),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = contentColor
         )
