@@ -140,13 +140,13 @@ fun DeliveryOrderCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Order #${order.id.take(5)}",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = order.customerName,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
@@ -186,7 +186,7 @@ fun DeliveryOrderCard(
                         ) {
                             Icon(Icons.Default.Phone, "Phone", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(order.customerPhoneNumber ?: "", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
+                            Text(order.customerPhoneNumber ?: "", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium)
                         }
                     }
 
@@ -212,20 +212,20 @@ fun DeliveryOrderCard(
                         ) {
                             Icon(Icons.Default.LocationOn, "Address", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(order.deliveryAddress, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
+                            Text(order.deliveryAddress, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium)
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Items", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text("Items", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     order.items.forEach { item ->
                         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("${item.name} x${item.quantity}", style = MaterialTheme.typography.titleSmall)
+                                Text("${item.name} x${item.quantity}", style = MaterialTheme.typography.titleMedium)
                                 if (item.notes.isNotEmpty()) {
-                                    Text("Note: ${item.notes}", style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic)
+                                    Text("Note: ${item.notes}", style = MaterialTheme.typography.bodyLarge, fontStyle = FontStyle.Italic)
                                 }
                             }
                         }
