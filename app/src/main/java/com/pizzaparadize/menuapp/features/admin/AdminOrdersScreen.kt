@@ -277,7 +277,7 @@ fun AdminOrderCard(
 
                     Text(
                         text = "Date: ${SimpleDateFormat.getDateTimeInstance().format(Date(order.orderDate))}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
@@ -365,13 +365,15 @@ fun AdminOrderCard(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "${item.name} x${item.quantity}",
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
                                 )
                                 if (item.notes.isNotEmpty()) {
                                     Text(
                                         text = "Note: ${item.notes}",
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontStyle = FontStyle.Italic,
+                                        fontWeight = FontWeight.Normal,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }

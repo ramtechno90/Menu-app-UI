@@ -167,7 +167,7 @@ fun DeliveryOrderCard(
 
                     Text(
                         text = "Date: ${SimpleDateFormat.getDateTimeInstance().format(Date(order.orderDate))}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -223,9 +223,9 @@ fun DeliveryOrderCard(
                     order.items.forEach { item ->
                         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("${item.name} x${item.quantity}", style = MaterialTheme.typography.titleMedium)
+                                Text("${item.name} x${item.quantity}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                                 if (item.notes.isNotEmpty()) {
-                                    Text("Note: ${item.notes}", style = MaterialTheme.typography.bodyLarge, fontStyle = FontStyle.Italic)
+                                    Text("Note: ${item.notes}", style = MaterialTheme.typography.bodyLarge, fontStyle = FontStyle.Italic, fontWeight = FontWeight.Normal)
                                 }
                             }
                         }
