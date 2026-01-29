@@ -27,6 +27,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val _isAuthenticated = MutableStateFlow(firebaseAuth.currentUser != null)
     override val isAuthenticated = _isAuthenticated.asStateFlow()
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override val isAdmin: Flow<Boolean> = callbackFlow {
         val authListener = FirebaseAuth.AuthStateListener { auth ->
             trySend(auth.currentUser)
@@ -54,6 +55,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override val isDeliveryStaff: Flow<Boolean> = callbackFlow {
         val authListener = FirebaseAuth.AuthStateListener { auth ->
             trySend(auth.currentUser)
