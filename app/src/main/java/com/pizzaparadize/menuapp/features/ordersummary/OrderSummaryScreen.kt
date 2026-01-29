@@ -258,6 +258,7 @@ private fun OrderActionsFooter(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
+            .navigationBarsPadding()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
