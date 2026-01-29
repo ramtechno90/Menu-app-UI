@@ -13,7 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
@@ -61,7 +61,7 @@ fun DeliveryOrdersScreen(
                         viewModel.logout()
                         onLogout()
                     }) {
-                        Icon(Icons.Default.ExitToApp, "Logout")
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, "Logout")
                     }
                 }
             )
@@ -162,7 +162,7 @@ fun DeliveryOrderCard(
 
             AnimatedVisibility(visible = expanded) {
                 Column(modifier = Modifier.padding(top = 16.dp)) {
-                    Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
@@ -186,7 +186,7 @@ fun DeliveryOrderCard(
                         ) {
                             Icon(Icons.Default.Phone, "Phone", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(order.customerPhoneNumber ?: "", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium)
+                            Text(order.customerPhoneNumber.orEmpty(), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium)
                         }
                     }
 
@@ -232,7 +232,7 @@ fun DeliveryOrderCard(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
