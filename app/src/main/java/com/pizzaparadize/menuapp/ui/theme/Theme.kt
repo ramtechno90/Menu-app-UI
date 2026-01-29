@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Density
 import androidx.core.view.WindowCompat
+import androidx.compose.material3.Typography
 
 private val LightColorScheme = lightColorScheme(
     primary = Primary,
@@ -28,8 +29,6 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private fun Color.isDark() = (red * 299 + green * 587 + blue * 114) / 1000 < 0.5
-
-import androidx.compose.material3.Typography
 
 @Composable
 fun MenuAppTheme(
