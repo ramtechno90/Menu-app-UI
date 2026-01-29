@@ -270,6 +270,15 @@ private fun OrderActionsFooter(
         ) {
             Text("Track Order", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
+        OutlinedButton(
+            onClick = onContactSupportClicked,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Contact Support", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        }
     }
 }
 

@@ -63,7 +63,6 @@ fun OrderTrackingScreen(
     viewModel: OrderTrackingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
     Scaffold(
         topBar = {
