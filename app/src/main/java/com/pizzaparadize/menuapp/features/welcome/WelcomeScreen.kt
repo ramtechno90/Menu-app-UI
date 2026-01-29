@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pizzaparadize.menuapp.R
 import com.pizzaparadize.menuapp.features.auth.AuthState
 import com.pizzaparadize.menuapp.features.auth.AuthViewModel
+import com.pizzaparadize.menuapp.ui.theme.CustomerTypography
 import com.pizzaparadize.menuapp.ui.theme.GoldenYellow
 import com.pizzaparadize.menuapp.ui.theme.MenuAppTheme
 import com.pizzaparadize.menuapp.ui.theme.NewWelcomeBackgroundColor
@@ -66,7 +67,7 @@ fun WelcomeScreen(
         }
     }
 
-    MenuAppTheme(statusBarColor = NewWelcomeBackgroundColor) {
+    MenuAppTheme(statusBarColor = NewWelcomeBackgroundColor, typography = CustomerTypography) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

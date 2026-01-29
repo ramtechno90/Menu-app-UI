@@ -19,6 +19,8 @@ import com.pizzaparadize.menuapp.features.admin.AdminLoginScreen
 import com.pizzaparadize.menuapp.features.admin.AdminMenuScreen
 import com.pizzaparadize.menuapp.features.delivery.DeliveryLoginScreen
 import com.pizzaparadize.menuapp.features.delivery.DeliveryOrdersScreen
+import com.pizzaparadize.menuapp.ui.theme.CustomerTypography
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun AppNavigation(
@@ -106,33 +108,39 @@ fun AppNavigation(
             )
         }
         composable(Screen.Main.route) {
-            MainScreen(
-                mainNavController = navController,
-                onLogout = {
-                    navController.navigate(Screen.RoleSelection.route) {
-                        popUpTo(0) { inclusive = true }
-                        launchSingleTop = true
+            MaterialTheme(typography = CustomerTypography) {
+                MainScreen(
+                    mainNavController = navController,
+                    onLogout = {
+                        navController.navigate(Screen.RoleSelection.route) {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
-                }
-            )
+                )
+            }
         }
         composable(Screen.OrderSummary.route) { backStackEntry ->
             val orderId = backStackEntry.arguments?.getString("orderId")
             // In a real app, you'd use the orderId to fetch data and pass it to the screen
-            OrderSummaryScreen(
-                onBackPressed = { navController.popBackStack() },
-                onTrackOrderClicked = {
-                    // Assuming the same orderId is used for tracking
-                    if (orderId != null) {
-                        navController.navigate(Screen.OrderTracking.createRoute(orderId))
+            MaterialTheme(typography = CustomerTypography) {
+                OrderSummaryScreen(
+                    onBackPressed = { navController.popBackStack() },
+                    onTrackOrderClicked = {
+                        // Assuming the same orderId is used for tracking
+                        if (orderId != null) {
+                            navController.navigate(Screen.OrderTracking.createRoute(orderId))
+                        }
                     }
-                }
-            )
+                )
+            }
         }
         composable(Screen.OrderTracking.route) {
-            OrderTrackingScreen(
-                onBackPressed = { navController.popBackStack() }
-            )
+            MaterialTheme(typography = CustomerTypography) {
+                OrderTrackingScreen(
+                    onBackPressed = { navController.popBackStack() }
+                )
+            }
         }
         composable(
             route = Screen.ConfirmLocation.route,
@@ -149,16 +157,18 @@ fun AppNavigation(
             }
 
             if (latitude != null && longitude != null && address != null) {
-                ConfirmLocationScreen(
-                    onConfirmClicked = { newAddress ->
-                        // Pass the confirmed address back to the cart screen
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("confirmed_address", newAddress)
-                        navController.popBackStack()
-                    },
-                    onBackPressed = { navController.popBackStack() }
-                )
+                MaterialTheme(typography = CustomerTypography) {
+                    ConfirmLocationScreen(
+                        onConfirmClicked = { newAddress ->
+                            // Pass the confirmed address back to the cart screen
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("confirmed_address", newAddress)
+                            navController.popBackStack()
+                        },
+                        onBackPressed = { navController.popBackStack() }
+                    )
+                }
             }
         }
     }

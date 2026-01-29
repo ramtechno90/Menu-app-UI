@@ -29,9 +29,12 @@ private val LightColorScheme = lightColorScheme(
 
 private fun Color.isDark() = (red * 299 + green * 587 + blue * 114) / 1000 < 0.5
 
+import androidx.compose.material3.Typography
+
 @Composable
 fun MenuAppTheme(
     statusBarColor: Color? = null,
+    typography: Typography = Typography,
     content: @Composable () -> Unit
 ) {
     val colorScheme = LightColorScheme
@@ -56,7 +59,7 @@ fun MenuAppTheme(
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = Typography,
+            typography = typography,
             content = content
         )
     }
